@@ -1,1470 +1,2570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NEXUS // Photoreal 3D Arcade Suite (GLTF + PBR Edition)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  
-  <!-- Import Map for Three.js, GLTFLoader, DRACOLoader, PostProcessing & Environments -->
-  <script type="importmap">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS // DUAL CORE: GT OVERDRIVE & IMPERIAL BREACH</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- Three.js r160 ES Module Import Map -->
+    <script type="importmap">
     {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
     }
-  </script>
+    </script>
 
-  <style>
-    :root {
-      --bg: #05070d;
-      --card: rgba(14, 20, 34, 0.78);
-      --border: rgba(255, 255, 255, 0.12);
-      --cyan: #00f0ff;
-      --amber: #ff9900;
-      --crimson: #ff2a5f;
-      --emerald: #00ff9d;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body, html {
-      width: 100%; height: 100%; overflow: hidden;
-      background: var(--bg); color: var(--text);
-      font-family: 'Inter', sans-serif;
-    }
-    #canvas-container {
-      position: fixed; inset: 0; z-index: 1;
-    }
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030712;
+            font-family: 'Rajdhani', sans-serif;
+            color: #f8fafc;
+            touch-action: none;
+        }
+        .font-tac { font-family: 'Orbitron', sans-serif; }
+        .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
 
-    /* Loading Bar Overlay */
-    #asset-loader {
-      position: fixed; inset: 0; z-index: 100;
-      background: radial-gradient(circle at center, #0c1222 0%, #04060a 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      transition: opacity 0.6s ease, visibility 0.6s ease;
-    }
-    #asset-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .loader-title {
-      font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900;
-      letter-spacing: 4px; color: var(--cyan); margin-bottom: 10px;
-      text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-    }
-    .loader-sub {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--muted);
-      margin-bottom: 24px;
-    }
-    .progress-track {
-      width: 340px; height: 8px; background: rgba(255,255,255,0.08);
-      border-radius: 99px; overflow: hidden; border: 1px solid var(--border);
-    }
-    .progress-fill {
-      height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--emerald));
-      box-shadow: 0 0 15px var(--cyan); transition: width 0.25s ease;
-    }
+        #webgl-container {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
 
-    /* Top Global Bar */
-    .topbar {
-      position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 20;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 28px; background: rgba(6, 10, 18, 0.75);
-      backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
-    }
-    .brand {
-      display: flex; align-items: center; gap: 12px;
-      font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.2rem;
-      letter-spacing: 2px; color: #fff;
-    }
-    .brand-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
-      padding: 3px 8px; border-radius: 4px; background: rgba(0, 240, 255, 0.15);
-      border: 1px solid var(--cyan); color: var(--cyan);
-    }
-    .topbar-controls { display: flex; align-items: center; gap: 14px; }
-    .pill-stat {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border); color: var(--text);
-    }
-    .pill-stat span { color: var(--cyan); font-weight: 700; }
-    .btn {
-      cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.78rem;
-      font-weight: 700; letter-spacing: 1px; padding: 9px 16px;
-      border-radius: 8px; border: 1px solid var(--border);
-      background: rgba(255,255,255,0.07); color: #fff;
-      transition: all 0.2s ease;
-    }
-    .btn:hover {
-      background: rgba(0, 240, 255, 0.18); border-color: var(--cyan);
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-    }
-    .btn-back { display: none; border-color: var(--crimson); color: #ff8aa3; }
-    .btn-back:hover { background: rgba(255, 42, 95, 0.2); border-color: var(--crimson); }
+        .nexus-glass {
+            background: rgba(9, 14, 28, 0.80);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), inset 0 0 25px rgba(56, 189, 248, 0.05);
+        }
 
-    /* Hub Dashboard Overlay */
-    #hub-overlay {
-      position: fixed; inset: 64px 0 0 0; z-index: 10;
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: 32px 48px; overflow-y: auto;
-      background: radial-gradient(circle at 50% 20%, rgba(0,240,255,0.05), rgba(5,7,13,0.88) 75%);
-      transition: opacity 0.35s ease;
-    }
-    #hub-overlay.hidden { opacity: 0; pointer-events: none; }
-    .hero-header { max-width: 780px; margin-bottom: 24px; }
-    .hero-tag {
-      display: inline-block; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem; color: var(--emerald); text-transform: uppercase;
-      letter-spacing: 2px; margin-bottom: 8px;
-    }
-    .hero-title {
-      font-family: 'Orbitron', sans-serif; font-size: clamp(1.8rem, 3.2vw, 2.8rem);
-      font-weight: 900; line-height: 1.15; margin-bottom: 10px;
-    }
-    .hero-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+        .dual-card {
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+        }
+        .dual-card:hover {
+            transform: translateY(-6px);
+        }
 
-    /* 4 Game Cards Grid */
-    .games-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 22px; margin: auto 0;
-    }
-    .game-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 24px; display: flex; flex-direction: column;
-      justify-content: space-between; backdrop-filter: blur(18px);
-      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-      position: relative; overflow: hidden; cursor: pointer;
-    }
-    .game-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-      background: var(--card-accent, var(--cyan));
-    }
-    .game-card:hover {
-      transform: translateY(-6px);
-      border-color: var(--card-accent, var(--cyan));
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 240, 255, 0.15);
-    }
-    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .card-num { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); }
-    .card-model-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
-      padding: 3px 8px; border-radius: 99px; background: rgba(255,255,255,0.07);
-      color: var(--card-accent, var(--cyan)); border: 1px solid rgba(255,255,255,0.12);
-    }
-    .card-title {
-      font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 800;
-      margin-bottom: 8px; color: #fff;
-    }
-    .card-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
-    .card-controls {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.74rem;
-      color: #cbd5e1; background: rgba(0,0,0,0.35); padding: 10px 12px;
-      border-radius: 8px; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.06);
-    }
-    .card-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;
-    }
-    .high-score { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--muted); }
-    .high-score strong { color: #fff; }
-    .launch-label {
-      font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 700;
-      color: var(--card-accent, var(--cyan)); letter-spacing: 1px;
-    }
+        .spec-btn.active {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: #f59e0b;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+        }
 
-    /* Active Game HUD */
-    #game-hud {
-      position: fixed; inset: 64px 0 0 0; z-index: 12; pointer-events: none;
-      display: none;
-    }
-    .hud-top {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      padding: 20px 28px;
-    }
-    .hud-panel {
-      background: rgba(8, 12, 22, 0.78); border: 1px solid var(--border);
-      backdrop-filter: blur(12px); padding: 14px 20px; border-radius: 12px;
-      min-width: 190px;
-    }
-    .hud-label {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
-      color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
-    }
-    .hud-val {
-      font-family: 'Orbitron', sans-serif; font-size: 1.65rem; font-weight: 900;
-      color: var(--cyan); margin-top: 2px;
-    }
-    .hud-bar-wrap {
-      width: 100%; height: 8px; background: rgba(255,255,255,0.1);
-      border-radius: 99px; overflow: hidden; margin-top: 8px;
-    }
-    .hud-bar-fill {
-      height: 100%; width: 100%; background: var(--emerald);
-      transition: width 0.15s ease;
-    }
-    /* Crosshair for FPS & Space */
-    #crosshair {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 28px; height: 28px; border: 2px solid rgba(0, 240, 255, 0.75);
-      border-radius: 50%; display: none; align-items: center; justify-content: center;
-      transition: transform 0.1s ease, border-color 0.1s ease;
-    }
-    #crosshair::after {
-      content: ''; width: 4px; height: 4px; background: var(--cyan); border-radius: 50%;
-    }
-    #crosshair.hit { border-color: var(--crimson); transform: translate(-50%, -50%) scale(1.35); }
-    #fps-prompt {
-      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
-      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      background: rgba(6, 10, 18, 0.85); border: 1px solid var(--border);
-      padding: 10px 20px; border-radius: 99px; color: #e2e8f0;
-    }
+        #screen-fx {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 18;
+            opacity: 0;
+            transition: opacity 0.16s ease-out;
+        }
 
-    /* Game Over Modal */
-    #gameover-modal {
-      position: fixed; inset: 0; z-index: 50;
-      background: rgba(4, 6, 12, 0.85); backdrop-filter: blur(12px);
-      display: none; align-items: center; justify-content: center;
-    }
-    .modal-box {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 18px; padding: 36px; width: 90%; max-width: 440px;
-      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    }
-    .modal-title {
-      font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 900;
-      color: var(--crimson); margin-bottom: 8px;
-    }
-    .modal-score {
-      font-family: 'Orbitron', sans-serif; font-size: 2.6rem; font-weight: 900;
-      color: #fff; margin: 16px 0 24px;
-    }
-    .modal-actions { display: flex; gap: 12px; justify-content: center; }
-  </style>
+        /* Blaster Optical Macro-Scope Overlay */
+        #blaster-scope-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 16;
+            background: radial-gradient(circle at center, transparent 27%, rgba(2, 8, 20, 0.96) 31%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Loading Screen for Real CC0 / Public Domain GLTF Models -->
-  <div id="asset-loader">
-    <div class="loader-title">NEXUS // ENGINE INITIALIZING</div>
-    <div class="loader-sub" id="loader-status">Fetching CC0 / Khronos PBR GLTF 3D Assets & Compiling Shaders...</div>
-    <div class="progress-track">
-      <div class="progress-fill" id="loader-bar"></div>
-    </div>
-  </div>
-
-  <!-- Top Navigation Bar -->
-  <header class="topbar">
-    <div class="brand">
-      NEXUS // 3D
-      <span class="brand-badge">PBR + GLTF 2.0</span>
-    </div>
-    <div class="topbar-controls">
-      <div class="pill-stat">ASSET PIPELINE: <span id="asset-badge">READY</span></div>
-      <div class="pill-stat">NEXUS RATING: <span id="total-rating">0</span></div>
-      <button class="btn" id="btn-audio">AUDIO: ON</button>
-      <button class="btn btn-back" id="btn-hub">← BACK TO HUB [ESC]</button>
-    </div>
-  </header>
-
-  <!-- 3D WebGL Viewport -->
-  <div id="canvas-container"></div>
-
-  <!-- Hub Game Selector Overlay -->
-  <main id="hub-overlay">
-    <div class="hero-header">
-      <span class="hero-tag">// Photorealistic PBR & GLTF 3D Suite</span>
-      <h1 class="hero-title">SELECT SIMULATION MODULE</h1>
-      <p class="hero-desc">
-        Powered by Three.js WebGL2, real-time Unreal Bloom post-processing, IBL environment reflections, and external 3D `.glb` meshes (Ferrari 458, Khronos Sci-Fi Helmet, and Animated Expressive Mechs) with automatic high-detail procedural fallbacks.
-      </p>
+    <!-- =========================================================================
+         ASSET PIPELINE LOADING OVERLAY
+         ========================================================================= -->
+    <div id="asset-loader" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 transition-opacity duration-500">
+        <div class="w-16 h-16 rounded-2xl border-2 border-cyan-400/50 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(56,189,248,0.4)]">
+            <div class="w-8 h-8 rounded-full border-t-2 border-r-2 border-cyan-400 animate-spin"></div>
+        </div>
+        <div class="font-tac text-xl sm:text-3xl font-black tracking-widest text-white uppercase text-center">
+            NEXUS // <span class="text-cyan-400">DUAL CORE ENGINE</span>
+        </div>
+        <div id="loader-status" class="font-mono-tech text-xs sm:text-sm text-slate-400 mt-2 mb-6 text-center">
+            Initializing WebGL2 PBR Shaders & Fetching CC0 GLTF 3D Models...
+        </div>
+        <div class="w-72 sm:w-96 h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+            <div id="loader-bar" class="h-full bg-gradient-to-r from-amber-500 via-cyan-400 to-emerald-400 transition-all duration-300" style="width: 8%"></div>
+        </div>
     </div>
 
-    <div class="games-grid">
-      <!-- Game 1: Apex Drift -->
-      <article class="game-card" style="--card-accent: #ff2a5f;" data-game="drift">
-        <div>
-          <div class="card-top">
-            <span class="card-num">MODULE 01 // RACING</span>
-            <span class="card-model-badge">GLB: Ferrari 458 + PBR Asphalt</span>
-          </div>
-          <h2 class="card-title">APEX DRIFT: GT</h2>
-          <p class="card-desc">
-            High-speed midnight highway street racing featuring clearcoat automotive paint shaders, real-time headlight projection, spinning alloy rims, and traffic near-miss multipliers.
-          </p>
-          <div class="card-controls">
-            <strong>[A/D or ◄/►]</strong> Steer & Drift<br>
-            <strong>[W / SHIFT]</strong> Twin-Turbo N2O Boost
-          </div>
-        </div>
-        <div class="card-footer">
-          <span class="high-score">BEST: <strong id="hs-drift">0</strong></span>
-          <span class="launch-label">LAUNCH SIM →</span>
-        </div>
-      </article>
+    <!-- 3D WEBGL VIEWPORT -->
+    <div id="webgl-container"></div>
 
-      <!-- Game 2: Orbital Breach FPS -->
-      <article class="game-card" style="--card-accent: #00f0ff;" data-game="fps">
-        <div>
-          <div class="card-top">
-            <span class="card-num">MODULE 02 // TACTICAL FPS</span>
-            <span class="card-model-badge">GLB: DamagedHelmet + Robot</span>
-          </div>
-          <h2 class="card-title">ORBITAL BREACH</h2>
-          <p class="card-desc">
-            First-person tactical shooter inside a metallic orbital hangar. Features pointer-lock mouse aim, 3 switchable PBR weapons, Aim-Down-Sights (ADS), and GLTF autonomous combat units.
-          </p>
-          <div class="card-controls">
-            <strong>[WASD]</strong> Move | <strong>[MOUSE]</strong> Aim & Fire<br>
-            <strong>[1/2/3]</strong> Weapons | <strong>[RMB]</strong> Aim Down Sights
-          </div>
-        </div>
-        <div class="card-footer">
-          <span class="high-score">BEST: <strong id="hs-fps">0</strong></span>
-          <span class="launch-label">LAUNCH SIM →</span>
-        </div>
-      </article>
+    <!-- SCREEN DAMAGE / NITRO / OVERHEAT FLASH -->
+    <div id="screen-fx"></div>
 
-      <!-- Game 3: Starfighter Assault -->
-      <article class="game-card" style="--card-accent: #ff9900;" data-game="space">
-        <div>
-          <div class="card-top">
-            <span class="card-num">MODULE 03 // DOGFIGHT</span>
-            <span class="card-model-badge">PBR Interceptor + Normal Asteroids</span>
-          </div>
-          <h2 class="card-title">STARFIGHTER ASSAULT</h2>
-          <p class="card-desc">
-            6-DOF orbital interceptor combat through a normal-mapped asteroid belt. Track and destroy hostile GLTF drone fighters using twin plasma cannons and deflector shields.
-          </p>
-          <div class="card-controls">
-            <strong>[WASD / MOUSE]</strong> Pitch & Roll Vector<br>
-            <strong>[CLICK / SPACE]</strong> Fire Twin Plasma Cannons
-          </div>
+    <!-- STAR WARS E-11 OPTICAL SCOPE RETICLE OVERLAY (Active on Right-Click ADS) -->
+    <div id="blaster-scope-overlay">
+        <div class="relative w-[360px] h-[360px] rounded-full border-2 border-emerald-400/70 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.3)_inset]">
+            <div class="absolute inset-6 rounded-full border border-emerald-400/30"></div>
+            <div class="w-full h-[1px] bg-emerald-400/40"></div>
+            <div class="h-full w-[1px] bg-emerald-400/40 absolute"></div>
+            <div class="w-12 h-12 rounded-full border border-rose-500/80 flex items-center justify-center">
+                <div class="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></div>
+            </div>
+            <div class="absolute bottom-9 font-mono-tech text-[11px] text-emerald-300 tracking-widest">
+                MACRO-OPTIC 3.2X // TIBANNA TARGETING
+            </div>
         </div>
-        <div class="card-footer">
-          <span class="high-score">BEST: <strong id="hs-space">0</strong></span>
-          <span class="launch-label">LAUNCH SIM →</span>
-        </div>
-      </article>
-
-      <!-- Game 4: Cyber Strike Mech Arena -->
-      <article class="game-card" style="--card-accent: #00ff9d;" data-game="mech">
-        <div>
-          <div class="card-top">
-            <span class="card-num">MODULE 04 // MECH ARENA</span>
-            <span class="card-model-badge">GLB: RobotExpressive + Bloom</span>
-          </div>
-          <h2 class="card-title">CYBER STRIKE</h2>
-          <p class="card-desc">
-            Top-down isometric mech warfare utilizing animated 3D RobotExpressive GLTF rigs, 360° laser-sight targeting, kinetic autocannons, and an EMP Shockwave nova.
-          </p>
-          <div class="card-controls">
-            <strong>[WASD]</strong> Chassis Move | <strong>[MOUSE]</strong> 360° Turret<br>
-            <strong>[LMB]</strong> Autocannon | <strong>[SPACE]</strong> EMP Nova
-          </div>
-        </div>
-        <div class="card-footer">
-          <span class="high-score">BEST: <strong id="hs-mech">0</strong></span>
-          <span class="launch-label">LAUNCH SIM →</span>
-        </div>
-      </article>
     </div>
-  </main>
 
-  <!-- Active Game HUD -->
-  <section id="game-hud">
-    <div class="hud-top">
-      <div class="hud-panel">
-        <div class="hud-label" id="hud-title">SIMULATION SCORE</div>
-        <div class="hud-val" id="hud-score">0</div>
-        <div class="hud-label" id="hud-sub" style="margin-top:6px;">MULTIPLIER: 1.0x</div>
-      </div>
-      <div class="hud-panel">
-        <div class="hud-label" id="hud-right-label">INTEGRITY / NITRO</div>
-        <div class="hud-val" id="hud-right-val">100%</div>
-        <div class="hud-bar-wrap">
-          <div class="hud-bar-fill" id="hud-bar"></div>
+    <!-- =========================================================================
+         GLOBAL TOP TELEMETRY & NAVIGATION BAR
+         ========================================================================= -->
+    <header class="fixed top-0 left-0 right-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between pointer-events-none">
+        <div class="flex items-center gap-3 pointer-events-auto">
+            <button id="back-to-hub-btn" class="hidden items-center gap-2 px-4 py-2 rounded-xl nexus-glass border border-rose-500/50 text-rose-300 hover:bg-rose-500/20 hover:text-white font-tac text-xs sm:text-sm font-bold tracking-wider transition cursor-pointer">
+                <span>◄ EXIT TO GARAGE / ARMORY [ESC]</span>
+            </button>
+
+            <div class="nexus-glass px-4 py-2 rounded-xl flex items-center gap-3">
+                <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#38bdf8]"></div>
+                <div>
+                    <span class="font-tac font-black text-sm sm:text-base tracking-widest text-white">NEXUS // DUAL CORE</span>
+                    <span id="asset-status-pill" class="hidden md:inline font-mono-tech text-xs text-cyan-400 ml-2">GLTF 2.0 + PBR</span>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div id="active-module-banner" class="hidden nexus-glass px-5 py-1.5 rounded-full border border-cyan-400/40 font-tac text-xs sm:text-sm tracking-widest text-cyan-300 uppercase">
+            SIMULATION ACTIVE
+        </div>
+
+        <div class="flex items-center gap-2.5 pointer-events-auto">
+            <div class="hidden sm:flex nexus-glass px-4 py-1.5 rounded-xl items-center gap-2">
+                <span class="font-mono-tech text-xs text-slate-400">COMBINED RATING:</span>
+                <span id="global-rating" class="font-tac text-sm font-bold text-amber-400">0</span>
+            </div>
+
+            <button id="audio-btn" class="px-3.5 py-2 rounded-xl nexus-glass text-cyan-300 hover:text-white border border-cyan-400/30 font-mono-tech text-xs tracking-wider cursor-pointer">
+                SYNTH AUDIO: ON
+            </button>
+        </div>
+    </header>
+
+    <!-- =========================================================================
+         3D INTERACTIVE GARAGE & ARMORY HUB DASHBOARD (2 HYPER-FOCUSED GAMES)
+         ========================================================================= -->
+    <main id="hub-overlay" class="fixed inset-0 z-30 overflow-y-auto pt-20 pb-8 px-4 sm:px-8 flex flex-col justify-between">
+        <div class="max-w-6xl w-full mx-auto my-auto">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 font-mono-tech text-xs uppercase tracking-widest mb-2">
+                    <span>100% DEDICATED DUAL-ENGINE ARCHITECTURE</span>
+                    <span>•</span>
+                    <span>CC0 GLTF + MULTI-MESH PBR</span>
+                </div>
+                <h1 class="font-tac text-2xl sm:text-4xl md:text-5xl font-black tracking-wider text-white uppercase">
+                    WANGAN <span class="text-amber-400">OVERDRIVE</span> &amp; IMPERIAL <span class="text-cyan-400">BREACH</span>
+                </h1>
+            </div>
+
+            <!-- 2-Column Showcase Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- CARD 1: APEX DRIFT: WANGAN OVERDRIVE -->
+                <div class="dual-card nexus-glass rounded-2xl p-6 flex flex-col justify-between border-t-4 border-t-amber-500 hover:border-amber-400">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-md bg-amber-500/20 border border-amber-400/40 font-mono-tech text-xs text-amber-300 uppercase">
+                                CORE 01 // SIM-CADE HIGHWAY RACING
+                            </span>
+                            <span class="font-mono-tech text-xs text-slate-300">RECORD: <strong id="best-drift" class="text-amber-400">0</strong></span>
+                        </div>
+
+                        <h2 class="font-tac text-2xl sm:text-3xl font-black text-white tracking-wide mb-2">
+                            APEX DRIFT: WANGAN OVERDRIVE
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                            100% custom procedural supercars, high-grip arcade-sim steering &amp; handbrake slip-angle physics, illuminated highway streetlights, high-speed oncoming traffic across all 4 lanes, and strict <strong class="text-rose-400">ONE-HIT ELIMINATION</strong> rules.
+                        </p>
+
+                        <!-- Interactive 3-Car Spec Selector -->
+                        <div class="mb-4">
+                            <div class="font-mono-tech text-xs text-amber-300 uppercase mb-2">SELECT CUSTOM PROCEDURAL CHASSIS:</div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button data-car="0" class="spec-btn active p-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-left transition cursor-pointer">
+                                    <div class="font-tac text-xs font-bold text-white">RX-78 WANGAN</div>
+                                    <div class="font-mono-tech text-[10px] text-amber-300">345 KM/H • BALANCED</div>
+                                </button>
+                                <button data-car="1" class="spec-btn p-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-left transition cursor-pointer">
+                                    <div class="font-tac text-xs font-bold text-white">VALKYRIE GT-R</div>
+                                    <div class="font-mono-tech text-[10px] text-cyan-300">365 KM/H • RAZOR GRIP</div>
+                                </button>
+                                <button data-car="2" class="spec-btn p-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-left transition cursor-pointer">
+                                    <div class="font-tac text-xs font-bold text-white">NIGHTSHADE V12</div>
+                                    <div class="font-mono-tech text-[10px] text-rose-400">380 KM/H • ULTRA N2O</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Controls Box -->
+                        <div class="p-3 rounded-xl bg-slate-950/85 border border-slate-800 font-mono-tech text-xs text-slate-300 space-y-1 mb-5">
+                            <div class="flex justify-between"><span class="text-amber-400">THROTTLE / BRAKE / STEER:</span> <span>W / S / A / D or Arrow Keys</span></div>
+                            <div class="flex justify-between"><span class="text-amber-400">HANDBRAKE DRIFT &amp; N2O BOOST:</span> <span>[SPACEBAR] Drift • [SHIFT] N2O</span></div>
+                            <div class="flex justify-between"><span class="text-rose-400">SUDDEN DEATH RULE:</span> <span>100% Oncoming Traffic • 1 Crash = OUT!</span></div>
+                        </div>
+                    </div>
+
+                    <button id="launch-drift-btn" class="w-full py-3.5 rounded-xl font-tac text-sm font-black tracking-widest uppercase bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 hover:from-amber-400 hover:to-orange-500 shadow-[0_0_25px_rgba(245,158,11,0.4)] transition cursor-pointer">
+                        IGNITE WANGAN OVERDRIVE →
+                    </button>
+                </div>
+
+                <!-- CARD 2: IMPERIAL BREACH // BLASTER COMMAND -->
+                <div class="dual-card nexus-glass rounded-2xl p-6 flex flex-col justify-between border-t-4 border-t-cyan-400 hover:border-cyan-300">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-md bg-cyan-500/20 border border-cyan-400/40 font-mono-tech text-xs text-cyan-300 uppercase">
+                                CORE 02 // STAR WARS TACTICAL BLASTER FPS
+                            </span>
+                            <span class="font-mono-tech text-xs text-slate-300">RECORD: <strong id="best-fps" class="text-cyan-400">0</strong></span>
+                        </div>
+
+                        <h2 class="font-tac text-2xl sm:text-3xl font-black text-white tracking-wide mb-2">
+                            IMPERIAL BREACH: BLASTER COMMAND
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                            Wield a 28-part E-11 / DL-44 Tibanna gas blaster inside an Imperial Orbital Detention Hangar. Fight articulated BX-Series &amp; Imperial Security Humanoid Droids that strafe, take cover, and fire physical laser bolts.
+                        </p>
+
+                        <!-- 3 Blaster Modes Preview -->
+                        <div class="grid grid-cols-3 gap-2 mb-4">
+                            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-rose-500/40">
+                                <div class="font-tac text-xs font-bold text-rose-400">[1] E-11 RIFLE</div>
+                                <div class="font-mono-tech text-[10px] text-slate-300">RAPID TIBANNA</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-amber-500/40">
+                                <div class="font-tac text-xs font-bold text-amber-400">[2] DL-44 HEAVY</div>
+                                <div class="font-mono-tech text-[10px] text-slate-300">OVERCHARGED BOLT</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-cyan-500/40">
+                                <div class="font-tac text-xs font-bold text-cyan-300">[3] SX-21 ION</div>
+                                <div class="font-mono-tech text-[10px] text-slate-300">5-BOLT SCATTER</div>
+                            </div>
+                        </div>
+
+                        <!-- Controls Box -->
+                        <div class="p-3 rounded-xl bg-slate-950/85 border border-slate-800 font-mono-tech text-xs text-slate-300 space-y-1 mb-5">
+                            <div class="flex justify-between"><span class="text-cyan-400">MOVE / CROUCH COVER / JUMP:</span> <span>WASD + [C/CTRL] Crouch + [SPACE]</span></div>
+                            <div class="flex justify-between"><span class="text-cyan-400">OPTICAL MACRO-SCOPE (ADS):</span> <span>Hold [RIGHT MOUSE BUTTON]</span></div>
+                            <div class="flex justify-between"><span class="text-cyan-400">ACTIVE TIBANNA COOLING FLUSH:</span> <span>Press [R] Before 100% Overheat</span></div>
+                        </div>
+                    </div>
+
+                    <button id="launch-fps-btn" class="w-full py-3.5 rounded-xl font-tac text-sm font-black tracking-widest uppercase bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 hover:from-cyan-300 hover:to-blue-500 shadow-[0_0_25px_rgba(56,189,248,0.4)] transition cursor-pointer">
+                        DEPLOY TO IMPERIAL HANGAR →
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- =========================================================================
+         HUD 1: APEX DRIFT: WANGAN OVERDRIVE
+         ========================================================================= -->
+    <section id="hud-drift" class="hidden fixed inset-0 pointer-events-none z-20 p-5 sm:p-8 flex flex-col justify-between pt-20">
+        <!-- Top Row: Score, Police Heat & Chassis Integrity -->
+        <div class="flex flex-wrap justify-between items-start gap-4">
+            <div class="nexus-glass rounded-2xl px-5 py-3 border-l-4 border-l-amber-400">
+                <div class="font-mono-tech text-xs text-amber-300">WANGAN TELEMETRY SCORE</div>
+                <div id="drift-score" class="font-tac text-3xl sm:text-4xl font-black text-white">000000</div>
+                <div id="drift-multiplier" class="font-mono-tech text-xs text-emerald-400 mt-0.5">CLEAN RUN // 1.0x</div>
+            </div>
+
+            <!-- Dynamic Event Callout (Oncoming Lane / Drift / Police Pursuit) -->
+            <div id="drift-callout" class="opacity-0 transition-opacity duration-200 nexus-glass px-5 py-2 rounded-xl border border-amber-400 font-tac text-xs sm:text-sm text-amber-300 tracking-widest uppercase">
+                CLOSE SHAVE +500!
+            </div>
+
+            <div class="nexus-glass rounded-2xl px-5 py-3 text-right min-w-[240px]">
+                <div class="flex items-center justify-between font-mono-tech text-xs mb-1">
+                    <span class="text-rose-400">NEAR MISS STREAK:</span>
+                    <span id="drift-heat-stars" class="text-amber-400 tracking-widest">☆☆☆☆☆</span>
+                </div>
+                <div class="flex items-center justify-between font-mono-tech text-xs text-rose-300 mb-1">
+                    <span>SUDDEN DEATH MODE</span>
+                    <span id="drift-hull-pct" class="font-bold text-rose-400">1 HIT = OUT</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-rose-500/50">
+                    <div id="drift-hull-bar" class="h-full bg-gradient-to-r from-rose-600 via-amber-400 to-emerald-400 transition-all" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: N2O Boost & Sim-Cade 6-Speed Tachometer Cluster -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-4">
+            <div class="nexus-glass rounded-2xl p-4 w-full sm:w-80">
+                <div class="flex justify-between font-mono-tech text-xs text-cyan-300 mb-1">
+                    <span>TWIN-TURBO N2O [SHIFT]</span>
+                    <span id="drift-n2o-txt">100%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-cyan-500/40 mb-2">
+                    <div id="drift-n2o-bar" class="h-full bg-gradient-to-r from-cyan-400 to-fuchsia-500 transition-all" style="width: 100%"></div>
+                </div>
+                <div class="flex justify-between font-mono-tech text-[11px] text-slate-400">
+                    <span>[SPACE] HANDBRAKE DRIFT</span>
+                    <span id="drift-slip-status" class="text-amber-300">TRACTION: OPTIMAL</span>
+                </div>
+            </div>
+
+            <!-- Digital Tachometer, Gear Indicator & Speedometer -->
+            <div class="nexus-glass rounded-2xl px-6 py-4 min-w-[290px] border-r-4 border-r-amber-400">
+                <div class="flex items-center justify-between gap-4 mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-center font-tac text-2xl font-black text-amber-300" id="drift-gear">
+                            3
+                        </div>
+                        <div>
+                            <div class="font-mono-tech text-[10px] text-slate-400">SEQUENTIAL</div>
+                            <div id="drift-rpm-txt" class="font-mono-tech text-xs text-white">5,400 RPM</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span id="drift-speed" class="font-tac text-4xl sm:text-5xl font-black text-white">185</span>
+                        <span class="font-mono-tech text-xs text-amber-400 ml-1">KM/H</span>
+                    </div>
+                </div>
+                <!-- RPM Redline Bar -->
+                <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                    <div id="drift-rpm-bar" class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-75" style="width: 65%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         HUD 2: IMPERIAL BREACH // BLASTER COMMAND (STAR WARS FPS)
+         ========================================================================= -->
+    <section id="hud-fps" class="hidden fixed inset-0 pointer-events-none z-20 p-5 sm:p-8 flex flex-col justify-between pt-20">
+        <!-- Dynamic Blaster Reticle & Critical Hitmarker -->
+        <div class="fixed inset-0 flex items-center justify-center pointer-events-none">
+            <div id="fps-reticle" class="relative w-8 h-8 flex items-center justify-center">
+                <div class="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_8px_#f43f5e]"></div>
+                <div class="absolute w-2.5 h-[2px] bg-cyan-300/85 -left-2"></div>
+                <div class="absolute w-2.5 h-[2px] bg-cyan-300/85 -right-2"></div>
+                <div class="absolute h-2.5 w-[2px] bg-cyan-300/85 -top-2"></div>
+                <div class="absolute h-2.5 w-[2px] bg-cyan-300/85 -bottom-2"></div>
+            </div>
+            <div id="fps-hitmarker" class="absolute w-7 h-7 opacity-0 transition-opacity duration-75">
+                <svg viewBox="0 0 24 24" class="w-full h-full stroke-current text-amber-400" stroke-width="2.5" fill="none">
+                    <line x1="4" y1="4" x2="9" y2="9"/><line x1="20" y1="4" x2="15" y2="9"/>
+                    <line x1="4" y1="20" x2="9" y2="15"/><line x1="20" y1="20" x2="15" y2="15"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Top Row -->
+        <div class="flex flex-wrap justify-between items-start gap-4">
+            <div class="nexus-glass rounded-2xl px-5 py-3 border-l-4 border-l-cyan-400">
+                <div class="font-mono-tech text-xs text-cyan-300">IMPERIAL HANGAR TELEMETRY</div>
+                <div id="fps-score" class="font-tac text-3xl sm:text-4xl font-black text-white">000000</div>
+                <div id="fps-wave" class="font-mono-tech text-xs text-amber-300 mt-0.5">WAVE 1 // BX-DROIDS REMAINING: 6</div>
+            </div>
+
+            <div id="fps-lock-banner" class="nexus-glass px-4 py-2 rounded-xl border border-cyan-400/50 font-mono-tech text-xs text-cyan-200">
+                CLICK VIEWPORT TO LOCK BLASTER AIM • [RMB] OPTICAL SCOPE • [C] CROUCH
+            </div>
+        </div>
+
+        <!-- Bottom Row: Deflector Shield / Armor & Tibanna Blaster Heat -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-4">
+            <div class="nexus-glass rounded-2xl p-4 w-full sm:w-80">
+                <div class="flex justify-between font-mono-tech text-xs text-cyan-300 mb-1">
+                    <span>RAY DEFLECTOR SHIELD</span>
+                    <span id="fps-shield-txt">100%</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden mb-2.5">
+                    <div id="fps-shield-bar" class="h-full bg-cyan-400 transition-all" style="width: 100%"></div>
+                </div>
+                <div class="flex justify-between font-mono-tech text-xs text-emerald-400 mb-1">
+                    <span>PLASTEEL TROOPER ARMOR</span>
+                    <span id="fps-armor-txt">100%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden">
+                    <div id="fps-armor-bar" class="h-full bg-emerald-400 transition-all" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <!-- Blaster Heat & Firing Mode Selector -->
+            <div class="nexus-glass rounded-2xl p-4 w-full sm:w-96 text-right border-r-4 border-r-rose-500">
+                <div class="flex items-center justify-between mb-1">
+                    <span id="fps-heat-status" class="font-mono-tech text-xs text-emerald-400">TIBANNA CHAMBER: NOMINAL</span>
+                    <span id="fps-blaster-title" class="font-tac text-sm font-bold text-rose-400">E-11 PLASMA RIFLE</span>
+                </div>
+
+                <!-- Blaster Heat Bar -->
+                <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700 my-2">
+                    <div id="fps-heat-bar" class="h-full bg-gradient-to-r from-cyan-400 via-amber-400 to-rose-600 transition-all duration-75" style="width: 0%"></div>
+                </div>
+
+                <div class="flex items-center justify-between font-mono-tech text-[11px] text-slate-400 mb-2">
+                    <span>PRESS [R] ACTIVE COOLING FLUSH</span>
+                    <span id="fps-heat-pct">HEAT: 0%</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-1.5 font-mono-tech text-[11px] text-center">
+                    <div id="fps-mode-0" class="py-1 rounded bg-rose-500/30 border border-rose-400 text-white font-bold">[1] E-11 RIFLE</div>
+                    <div id="fps-mode-1" class="py-1 rounded bg-slate-900 border border-slate-700 text-slate-400">[2] DL-44 HEAVY</div>
+                    <div id="fps-mode-2" class="py-1 rounded bg-slate-900 border border-slate-700 text-slate-400">[3] SX-21 ION</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         MISSION TERMINATED / PAUSE MODAL
+         ========================================================================= -->
+    <div id="gameover-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="nexus-glass max-w-md w-full rounded-2xl p-7 border border-cyan-400/50 text-center">
+            <div class="inline-block px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/40 font-mono-tech text-xs text-rose-300 uppercase mb-2">
+                TELEMETRY RECORDED
+            </div>
+            <h2 id="modal-title" class="font-tac text-2xl sm:text-3xl font-black text-white uppercase mb-1">
+                SIMULATION ENDED
+            </h2>
+            <p id="modal-reason" class="font-mono-tech text-xs text-slate-400 mb-5">
+                HULL INTEGRITY DEPLETED
+            </p>
+
+            <div class="grid grid-cols-2 gap-3 mb-6 p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                <div>
+                    <div class="font-mono-tech text-xs text-slate-400">FINAL SCORE</div>
+                    <div id="modal-score" class="font-tac text-2xl font-black text-cyan-400 mt-1">0</div>
+                </div>
+                <div class="border-l border-slate-800">
+                    <div class="font-mono-tech text-xs text-slate-400">PERSONAL RECORD</div>
+                    <div id="modal-best" class="font-tac text-2xl font-black text-amber-400 mt-1">0</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="modal-retry-btn" class="flex-1 py-3.5 rounded-xl font-tac text-xs font-black tracking-widest uppercase bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 cursor-pointer">
+                    REDEPLOY MODULE
+                </button>
+                <button id="modal-hub-btn" class="flex-1 py-3.5 rounded-xl font-tac text-xs font-bold tracking-widest uppercase bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 cursor-pointer">
+                    GARAGE / ARMORY
+                </button>
+            </div>
+        </div>
     </div>
-    <div id="crosshair"></div>
-    <div id="fps-prompt">CONTROLS ACTIVE — PRESS [ESC] TO RETURN TO HUB</div>
-  </section>
 
-  <!-- Game Over Modal -->
-  <div id="gameover-modal">
-    <div class="modal-box">
-      <div class="modal-title">SIMULATION TERMINATED</div>
-      <p style="color: var(--muted); font-size: 0.9rem;">Telemetry recorded to local storage</p>
-      <div class="modal-score" id="final-score">0</div>
-      <div class="modal-actions">
-        <button class="btn" id="btn-retry">RETRY MODULE</button>
-        <button class="btn btn-back" style="display:inline-block;" id="btn-modal-hub">RETURN TO HUB</button>
-      </div>
-    </div>
-  </div>
+    <!-- =========================================================================
+         MAIN ES MODULE APPLICATION SCRIPT
+         ========================================================================= -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
-  <!-- Main Application Script -->
-  <script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-    import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-
-    /* =========================================================================
-       1. PROCEDURAL WEB AUDIO SYNTHESIZER
-       ========================================================================= */
-    class SoundEngine {
-      constructor() {
-        this.ctx = null;
-        this.enabled = true;
-      }
-      init() {
-        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      play(type) {
-        if (!this.enabled) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        if (type === 'laser') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(520, now);
-          osc.frequency.exponentialRampToValueAtTime(90, now + 0.11);
-          gain.gain.setValueAtTime(0.15, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.11);
-          osc.start(now); osc.stop(now + 0.11);
-        } else if (type === 'hit') {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(240, now);
-          osc.frequency.exponentialRampToValueAtTime(55, now + 0.16);
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
-          osc.start(now); osc.stop(now + 0.16);
-        } else if (type === 'explosion') {
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(110, now);
-          osc.frequency.exponentialRampToValueAtTime(28, now + 0.35);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
-          osc.start(now); osc.stop(now + 0.35);
-        } else if (type === 'boost') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(140, now);
-          osc.frequency.linearRampToValueAtTime(380, now + 0.2);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-          osc.start(now); osc.stop(now + 0.2);
-        }
-      }
-    }
-    const sfx = new SoundEngine();
-
-    /* =========================================================================
-       2. PROCEDURAL PBR NORMAL & ROUGHNESS TEXTURE GENERATOR
-       ========================================================================= */
-    function createProceduralTextures() {
-      // Asphalt / Metal Micro-Bump Texture
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = 512;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#8080ff';
-      ctx.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 45000; i++) {
-        const x = Math.random() * 512;
-        const y = Math.random() * 512;
-        const r = 110 + Math.random() * 35;
-        const g = 110 + Math.random() * 35;
-        ctx.fillStyle = `rgb(${r},${g},255)`;
-        ctx.fillRect(x, y, 2, 2);
-      }
-      const normalMap = new THREE.CanvasTexture(canvas);
-      normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
-      normalMap.repeat.set(6, 24);
-
-      // Industrial Deck Grid Texture
-      const gridCanvas = document.createElement('canvas');
-      gridCanvas.width = gridCanvas.height = 512;
-      const gCtx = gridCanvas.getContext('2d');
-      gCtx.fillStyle = '#141a29';
-      gCtx.fillRect(0, 0, 512, 512);
-      gCtx.strokeStyle = '#25324d';
-      gCtx.lineWidth = 4;
-      for (let i = 0; i <= 512; i += 64) {
-        gCtx.beginPath(); gCtx.moveTo(i, 0); gCtx.lineTo(i, 512); gCtx.stroke();
-        gCtx.beginPath(); gCtx.moveTo(0, i); gCtx.lineTo(512, i); gCtx.stroke();
-      }
-      const gridTex = new THREE.CanvasTexture(gridCanvas);
-      gridTex.wrapS = gridTex.wrapT = THREE.RepeatWrapping;
-      gridTex.repeat.set(16, 16);
-
-      return { normalMap, gridTex };
-    }
-    const pbrTextures = createProceduralTextures();
-
-    /* =========================================================================
-       3. CC0 / OPEN-SOURCE GLTF ASSET LOADER + PROCEDURAL FALLBACKS
-       ========================================================================= */
-    const Assets = {
-      ferrari: null,
-      helmet: null,
-      robot: null,
-      loadedCount: 0
-    };
-
-    // High-detail fallback builders in case external CDN is unreachable
-    function createFallbackSupercar(colorHex = 0xff1e42) {
-      const group = new THREE.Group();
-      const paintMat = new THREE.MeshPhysicalMaterial({
-        color: colorHex, metalness: 0.7, roughness: 0.18, clearcoat: 1.0, clearcoatRoughness: 0.08
-      });
-      const glassMat = new THREE.MeshPhysicalMaterial({
-        color: 0x09101d, metalness: 0.9, roughness: 0.05, transparent: true, opacity: 0.85
-      });
-      const body = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.55, 4.4), paintMat);
-      body.position.y = 0.5; body.castShadow = true;
-      const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.48, 2.1), glassMat);
-      cabin.position.set(0, 0.95, -0.2);
-      const spoiler = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.08, 0.4), paintMat);
-      spoiler.position.set(0, 0.92, 1.95);
-      const tailLight = new THREE.Mesh(
-        new THREE.BoxGeometry(1.8, 0.14, 0.1),
-        new THREE.MeshBasicMaterial({ color: 0xff0033 })
-      );
-      tailLight.position.set(0, 0.62, 2.21);
-      group.add(body, cabin, spoiler, tailLight);
-      return group;
-    }
-
-    function createFallbackMech(colorHex = 0x00f0ff) {
-      const group = new THREE.Group();
-      const armorMat = new THREE.MeshStandardMaterial({ color: 0x263248, metalness: 0.85, roughness: 0.25 });
-      const glowMat = new THREE.MeshBasicMaterial({ color: colorHex });
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.8, 1.1), armorMat);
-      torso.position.y = 2.0; torso.castShadow = true;
-      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.3, 0.2), glowMat);
-      visor.position.set(0, 2.4, 0.52);
-      const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 1.4), armorMat);
-      leftArm.rotation.x = Math.PI / 2; leftArm.position.set(-1.05, 2.1, 0.4);
-      const rightArm = leftArm.clone(); rightArm.position.x = 1.05;
-      group.add(torso, visor, leftArm, rightArm);
-      return group;
-    }
-
-    async function loadExternalGLTFModels() {
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-      const loader = new GLTFLoader();
-      loader.setDRACOLoader(dracoLoader);
-
-      const bar = document.getElementById('loader-bar');
-      const status = document.getElementById('loader-status');
-      const badge = document.getElementById('asset-badge');
-
-      const urls = [
-        { key: 'ferrari', name: 'Ferrari 458 GLB', url: 'https://threejs.org/examples/models/gltf/ferrari.glb' },
-        { key: 'helmet', name: 'Sci-Fi DamagedHelmet GLB', url: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb' },
-        { key: 'robot', name: 'RobotExpressive Animated GLB', url: 'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb' }
-      ];
-
-      for (let i = 0; i < urls.length; i++) {
-        const item = urls[i];
-        status.textContent = `Loading ${item.name} (${i + 1}/${urls.length})...`;
-        try {
-          const gltf = await new Promise((resolve, reject) => {
-            const timer = setTimeout(() => reject(new Error('Timeout')), 8000);
-            loader.load(item.url, (res) => { clearTimeout(timer); resolve(res); }, undefined, reject);
-          });
-          Assets[item.key] = gltf;
-          Assets.loadedCount++;
-        } catch (err) {
-          console.warn(`Fallback activated for ${item.name}:`, err);
-        }
-        bar.style.width = `${((i + 1) / urls.length) * 100}%`;
-      }
-
-      badge.textContent = `${Assets.loadedCount}/3 GLTF + PBR`;
-      setTimeout(() => {
-        document.getElementById('asset-loader').classList.add('hidden');
-      }, 300);
-    }
-
-    /* =========================================================================
-       4. CORE THREE.JS RENDERER, POST-PROCESSING & ENVIRONMENT SETUP
-       ========================================================================= */
-    const container = document.getElementById('canvas-container');
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const globalEnvMap = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-
-    let scene = new THREE.Scene();
-    scene.environment = globalEnvMap;
-    let camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-    const composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(scene, camera);
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.75, // strength
-      0.35, // radius
-      0.82  // threshold
-    );
-    composer.addPass(renderPass);
-    composer.addPass(bloomPass);
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      composer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    /* =========================================================================
-       5. HIGH SCORE & STATE MANAGEMENT
-       ========================================================================= */
-    const HighScores = {
-      drift: parseInt(localStorage.getItem('nexus_hs_drift') || '0', 10),
-      fps: parseInt(localStorage.getItem('nexus_hs_fps') || '0', 10),
-      space: parseInt(localStorage.getItem('nexus_hs_space') || '0', 10),
-      mech: parseInt(localStorage.getItem('nexus_hs_mech') || '0', 10)
-    };
-
-    function updateHighScoreUI() {
-      document.getElementById('hs-drift').textContent = HighScores.drift;
-      document.getElementById('hs-fps').textContent = HighScores.fps;
-      document.getElementById('hs-space').textContent = HighScores.space;
-      document.getElementById('hs-mech').textContent = HighScores.mech;
-      const total = HighScores.drift + HighScores.fps + HighScores.space + HighScores.mech;
-      document.getElementById('total-rating').textContent = total.toLocaleString();
-    }
-    updateHighScoreUI();
-
-    const Keys = {};
-    const Mouse = { x: 0, y: 0, dx: 0, dy: 0, down: false, rightDown: false };
-
-    window.addEventListener('keydown', (e) => {
-      Keys[e.code] = true;
-      if (e.code === 'Escape' && activeModule !== 'hub') {
-        if (document.pointerLockElement) document.exitPointerLock();
-        returnToHub();
-      }
-    });
-    window.addEventListener('keyup', (e) => { Keys[e.code] = false; });
-    window.addEventListener('mousemove', (e) => {
-      Mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      Mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      Mouse.dx += e.movementX || 0;
-      Mouse.dy += e.movementY || 0;
-    });
-    window.addEventListener('mousedown', (e) => {
-      if (e.button === 0) Mouse.down = true;
-      if (e.button === 2) Mouse.rightDown = true;
-    });
-    window.addEventListener('mouseup', (e) => {
-      if (e.button === 0) Mouse.down = false;
-      if (e.button === 2) Mouse.rightDown = false;
-    });
-    window.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    /* =========================================================================
-       6. HUD HELPERS & GAME LOOP CONTROLLER
-       ========================================================================= */
-    let activeModule = 'hub';
-    let currentScore = 0;
-    let gameActive = false;
-    let currentSimulation = null;
-
-    function updateHUD(score, subText, rightLabel, rightVal, barPercent, barColor = '#00ff9d') {
-      currentScore = Math.floor(score);
-      document.getElementById('hud-score').textContent = currentScore.toLocaleString();
-      document.getElementById('hud-sub').textContent = subText;
-      document.getElementById('hud-right-label').textContent = rightLabel;
-      document.getElementById('hud-right-val').textContent = rightVal;
-      const bar = document.getElementById('hud-bar');
-      bar.style.width = `${Math.max(0, Math.min(100, barPercent))}%`;
-      bar.style.background = barColor;
-    }
-
-    function triggerGameOver() {
-      gameActive = false;
-      sfx.play('explosion');
-      if (document.pointerLockElement) document.exitPointerLock();
-      if (currentScore > (HighScores[activeModule] || 0)) {
-        HighScores[activeModule] = currentScore;
-        localStorage.setItem(`nexus_hs_${activeModule}`, String(currentScore));
-        updateHighScoreUI();
-      }
-      document.getElementById('final-score').textContent = currentScore.toLocaleString();
-      document.getElementById('gameover-modal').style.display = 'flex';
-    }
-
-    function resetSceneAndCamera(fov = 65) {
-      scene = new THREE.Scene();
-      scene.environment = globalEnvMap;
-      camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
-      renderPass.scene = scene;
-      renderPass.camera = camera;
-    }
-
-    /* =========================================================================
-       MODULE 00: INTERACTIVE 3D HUB BACKGROUND
-       ========================================================================= */
-    function initHubScene() {
-      resetSceneAndCamera(60);
-      scene.background = new THREE.Color(0x05070d);
-      scene.fog = new THREE.FogExp2(0x05070d, 0.035);
-      camera.position.set(0, 2.2, 6.5);
-
-      const showcaseGroup = new THREE.Group();
-      scene.add(showcaseGroup);
-
-      // Display either loaded DamagedHelmet or a PBR Cyber Torus Knot
-      let centerpiece;
-      if (Assets.helmet) {
-        centerpiece = Assets.helmet.scene.clone();
-        centerpiece.scale.set(1.45, 1.45, 1.45);
-      } else {
-        centerpiece = new THREE.Mesh(
-          new THREE.TorusKnotGeometry(1.1, 0.35, 128, 32),
-          new THREE.MeshPhysicalMaterial({ color: 0x00f0ff, metalness: 0.9, roughness: 0.1, clearcoat: 1 })
-        );
-      }
-      centerpiece.position.y = 1.6;
-      showcaseGroup.add(centerpiece);
-
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(2.6, 0.03, 16, 100),
-        new THREE.MeshBasicMaterial({ color: 0x00f0ff })
-      );
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = 0.3;
-      showcaseGroup.add(ring);
-
-      const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(80, 80),
-        new THREE.MeshStandardMaterial({
-          map: pbrTextures.gridTex, roughness: 0.25, metalness: 0.8
-        })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      scene.add(floor);
-
-      return {
-        update(dt, elapsed) {
-          centerpiece.rotation.y = elapsed * 0.45 + Mouse.x * 0.5;
-          centerpiece.rotation.x = Math.sin(elapsed * 0.7) * 0.15 - Mouse.y * 0.3;
-          ring.rotation.z = -elapsed * 0.3;
-        }
-      };
-    }
-
-    /* =========================================================================
-       MODULE 01: APEX DRIFT: GT (Ferrari 458 GLB + PBR Wet Asphalt)
-       ========================================================================= */
-    function initDriftGame() {
-      resetSceneAndCamera(68);
-      scene.background = new THREE.Color(0x04060c);
-      scene.fog = new THREE.FogExp2(0x04060c, 0.015);
-
-      const dirLight = new THREE.DirectionalLight(0xaaccff, 2.0);
-      dirLight.position.set(15, 30, 20);
-      dirLight.castShadow = true;
-      scene.add(dirLight);
-
-      // PBR Wet Asphalt Highway
-      const roadMat = new THREE.MeshStandardMaterial({
-        color: 0x151922,
-        roughness: 0.22,
-        metalness: 0.65,
-        normalMap: pbrTextures.normalMap,
-        normalScale: new THREE.Vector2(0.4, 0.4)
-      });
-      const road = new THREE.Mesh(new THREE.PlaneGeometry(22, 400), roadMat);
-      road.rotation.x = -Math.PI / 2;
-      road.position.z = -150;
-      road.receiveShadow = true;
-      scene.add(road);
-
-      // Glowing Neon Guardrails & Lane Dividers
-      const laneGroup = new THREE.Group();
-      scene.add(laneGroup);
-      for (let z = 20; z > -260; z -= 14) {
-        [-3.6, 3.6].forEach(lx => {
-          const stripe = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.18, 5.5),
-            new THREE.MeshBasicMaterial({ color: 0xffffff })
-          );
-          stripe.rotation.x = -Math.PI / 2;
-          stripe.position.set(lx, 0.02, z);
-          laneGroup.add(stripe);
-        });
-      }
-
-      // Build Player Car using Ferrari 458 GLTF or PBR Supercar Fallback
-      const playerGroup = new THREE.Group();
-      const wheels = [];
-      if (Assets.ferrari) {
-        const carModel = Assets.ferrari.scene.clone();
-        carModel.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            if (child.name.includes('wheel')) wheels.push(child);
-          }
-        });
-        playerGroup.add(carModel);
-      } else {
-        playerGroup.add(createFallbackSupercar(0xff1e42));
-      }
-
-      // Real-time Spotlights for Car Headlights
-      const headLightL = new THREE.SpotLight(0xffffff, 8, 65, Math.PI / 6, 0.5);
-      headLightL.position.set(-0.7, 0.75, -1.8);
-      headLightL.target.position.set(-0.7, 0.2, -25);
-      playerGroup.add(headLightL, headLightL.target);
-
-      const headLightR = headLightL.clone();
-      headLightR.position.x = 0.7;
-      headLightR.target.position.set(0.7, 0.2, -25);
-      playerGroup.add(headLightR, headLightR.target);
-
-      scene.add(playerGroup);
-
-      // Traffic Pool
-      const lanes = [-7.2, -2.4, 2.4, 7.2];
-      const traffic = [];
-      const trafficColors = [0x00f0ff, 0xffaa00, 0x3b82f6, 0x10b981, 0xe11d48];
-      for (let i = 0; i < 9; i++) {
-        let tMesh;
-        if (Assets.ferrari) {
-          tMesh = Assets.ferrari.scene.clone();
-          const paint = new THREE.MeshPhysicalMaterial({
-            color: trafficColors[i % trafficColors.length],
-            metalness: 0.75, roughness: 0.2, clearcoat: 1.0
-          });
-          tMesh.traverse((c) => {
-            if (c.isMesh && c.material && c.material.name === 'body') c.material = paint;
-          });
-        } else {
-          tMesh = createFallbackSupercar(trafficColors[i % trafficColors.length]);
-        }
-        tMesh.position.set(lanes[i % 4], 0, -45 - i * 32);
-        scene.add(tMesh);
-        traffic.push({ mesh: tMesh, speed: 24 + (i % 3) * 6, passed: false });
-      }
-
-      let score = 0;
-      let nitro = 100;
-      let combo = 1.0;
-      let steerVel = 0;
-
-      return {
-        update(dt) {
-          const boosting = (Keys['KeyW'] || Keys['ArrowUp'] || Keys['ShiftLeft']) && nitro > 0;
-          const speed = boosting ? 76 : 46;
-          if (boosting) {
-            nitro = Math.max(0, nitro - dt * 28);
-            if (Math.random() < 0.15) sfx.play('boost');
-          } else {
-            nitro = Math.min(100, nitro + dt * 14);
-          }
-
-          const steerInput = (Keys['KeyD'] || Keys['ArrowRight'] ? 1 : 0) - (Keys['KeyA'] || Keys['ArrowLeft'] ? 1 : 0);
-          steerVel = THREE.MathUtils.lerp(steerVel, steerInput * 16, dt * 8);
-          playerGroup.position.x = THREE.MathUtils.clamp(playerGroup.position.x + steerVel * dt, -8.5, 8.5);
-          playerGroup.rotation.y = -steerVel * 0.022;
-          playerGroup.rotation.z = -steerVel * 0.012;
-
-          wheels.forEach((w) => { w.rotation.x -= speed * dt * 0.6; });
-
-          // Scroll road texture & lane stripes
-          pbrTextures.normalMap.offset.y -= speed * dt * 0.05;
-          laneGroup.children.forEach((s) => {
-            s.position.z += speed * dt;
-            if (s.position.z > 15) s.position.z -= 280;
-          });
-
-          // Update Traffic & Near-Miss Telemetry
-          for (const t of traffic) {
-            t.mesh.position.z += (speed - t.speed) * dt;
-            const dz = Math.abs(t.mesh.position.z - playerGroup.position.z);
-            const dx = Math.abs(t.mesh.position.x - playerGroup.position.x);
-
-            if (dz < 3.6 && dx < 1.65) {
-              triggerGameOver();
-              return;
+        /* =====================================================================
+           1. PROCEDURAL WEB AUDIO SYNTHESIZER (TURBO, TIRE SCREECH & BLASTER)
+           ===================================================================== */
+        class SoundSynthesizer {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
             }
-            if (!t.passed && t.mesh.position.z > playerGroup.position.z + 2) {
-              t.passed = true;
-              if (dx < 3.1) {
-                combo = Math.min(5.0, +(combo + 0.5).toFixed(1));
-                score += 250 * combo;
-                sfx.play('hit');
-              }
-            }
-            if (t.mesh.position.z > 22) {
-              t.mesh.position.z = -240 - Math.random() * 45;
-              t.mesh.position.x = lanes[Math.floor(Math.random() * lanes.length)];
-              t.passed = false;
-            }
-          }
-
-          score += speed * dt * combo;
-          camera.position.x = THREE.MathUtils.lerp(camera.position.x, playerGroup.position.x * 0.65, dt * 6);
-          camera.position.y = THREE.MathUtils.lerp(camera.position.y, boosting ? 2.1 : 2.5, dt * 5);
-          camera.position.z = THREE.MathUtils.lerp(camera.position.z, boosting ? 5.2 : 6.4, dt * 5);
-          camera.lookAt(playerGroup.position.x * 0.5, 0.9, -12);
-
-          updateHUD(score, `NEAR-MISS COMBO: ${combo.toFixed(1)}x`, 'TWIN-TURBO N2O', `${Math.round(nitro)}%`, nitro, '#00f0ff');
-        }
-      };
-    }
-
-    /* =========================================================================
-       MODULE 02: ORBITAL BREACH (Tactical FPS with DamagedHelmet & Robot GLB)
-       ========================================================================= */
-    function initFPSGame() {
-      resetSceneAndCamera(72);
-      scene.background = new THREE.Color(0x060a14);
-      scene.fog = new THREE.FogExp2(0x060a14, 0.018);
-
-      const crosshair = document.getElementById('crosshair');
-      crosshair.style.display = 'flex';
-
-      const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(90, 90),
-        new THREE.MeshStandardMaterial({
-          map: pbrTextures.gridTex, normalMap: pbrTextures.normalMap, roughness: 0.3, metalness: 0.8
-        })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      floor.receiveShadow = true;
-      scene.add(floor);
-
-      // Hangar Pillars
-      const pillarMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.25 });
-      [[-16, -16], [16, -16], [-16, 16], [16, 16], [0, -26]].forEach(([px, pz]) => {
-        const p = new THREE.Mesh(new THREE.BoxGeometry(2.6, 12, 2.6), pillarMat);
-        p.position.set(px, 6, pz);
-        scene.add(p);
-      });
-
-      // First-Person PBR Weapon Viewmodel
-      const playerYaw = new THREE.Object3D();
-      const playerPitch = new THREE.Object3D();
-      playerYaw.position.set(0, 1.75, 12);
-      playerYaw.add(playerPitch);
-      playerPitch.add(camera);
-      scene.add(playerYaw);
-
-      const gunGroup = new THREE.Group();
-      const gunMetal = new THREE.MeshStandardMaterial({ color: 0x1e2430, metalness: 0.92, roughness: 0.18 });
-      const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 0.85), gunMetal);
-      const railGlow = new THREE.Mesh(
-        new THREE.BoxGeometry(0.05, 0.04, 0.65),
-        new THREE.MeshBasicMaterial({ color: 0x00f0ff })
-      );
-      railGlow.position.y = 0.09;
-      gunGroup.add(barrel, railGlow);
-      gunGroup.position.set(0.28, -0.24, -0.55);
-      camera.add(gunGroup);
-
-      const weapons = [
-        { name: 'M42 CARBINE', cooldown: 0.13, dmg: 35, color: 0x00f0ff },
-        { name: 'VX-9 SHOTGUN', cooldown: 0.55, dmg: 95, color: 0xff9900 },
-        { name: 'HYPERION RAIL', cooldown: 0.85, dmg: 160, color: 0xff2a5f }
-      ];
-      let weaponIdx = 0;
-      let fireTimer = 0;
-
-      // Spawn Autonomous Enemies using DamagedHelmet GLTF & RobotExpressive GLTF
-      const enemies = [];
-      function spawnEnemy(index) {
-        const holder = new THREE.Group();
-        let mesh;
-        if (index % 2 === 0 && Assets.helmet) {
-          mesh = Assets.helmet.scene.clone();
-          mesh.scale.set(0.95, 0.95, 0.95);
-          mesh.position.y = 1.9;
-        } else if (Assets.robot) {
-          mesh = SkeletonUtils.clone(Assets.robot.scene);
-          mesh.scale.set(0.55, 0.55, 0.55);
-        } else {
-          mesh = createFallbackMech(0xff2a5f);
-        }
-        holder.add(mesh);
-
-        // Invisible Hitbox for Reliable Raycasting
-        const hitbox = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.95, 0.95, 2.8, 12),
-          new THREE.MeshBasicMaterial({ visible: false })
-        );
-        hitbox.position.y = 1.4;
-        holder.add(hitbox);
-
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 22 + Math.random() * 14;
-        holder.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
-        scene.add(holder);
-        enemies.push({ holder, hitbox, hp: 100 });
-      }
-      for (let i = 0; i < 7; i++) spawnEnemy(i);
-
-      const raycaster = new THREE.Raycaster();
-      let score = 0;
-      let shield = 100;
-
-      const onCanvasClick = () => {
-        if (activeModule === 'fps' && document.pointerLockElement !== renderer.domElement) {
-          renderer.domElement.requestPointerLock();
-        }
-      };
-      renderer.domElement.addEventListener('click', onCanvasClick);
-
-      return {
-        cleanup() {
-          renderer.domElement.removeEventListener('click', onCanvasClick);
-          crosshair.style.display = 'none';
-        },
-        update(dt, elapsed) {
-          if (Keys['Digit1']) weaponIdx = 0;
-          if (Keys['Digit2']) weaponIdx = 1;
-          if (Keys['Digit3']) weaponIdx = 2;
-          const w = weapons[weaponIdx];
-          railGlow.material.color.setHex(w.color);
-
-          // Mouse Look
-          playerYaw.rotation.y -= Mouse.dx * 0.0022;
-          playerPitch.rotation.x = THREE.MathUtils.clamp(playerPitch.rotation.x - Mouse.dy * 0.0022, -1.3, 1.3);
-          Mouse.dx = 0; Mouse.dy = 0;
-
-          // ADS (Right Click)
-          const targetFov = Mouse.rightDown ? 42 : 72;
-          camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, dt * 12);
-          camera.updateProjectionMatrix();
-          gunGroup.position.x = THREE.MathUtils.lerp(gunGroup.position.x, Mouse.rightDown ? 0 : 0.28, dt * 12);
-
-          // WASD Movement
-          const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), playerYaw.rotation.y);
-          const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), playerYaw.rotation.y);
-          const moveSpeed = 9.5 * dt;
-          if (Keys['KeyW'] || Keys['ArrowUp']) playerYaw.position.addScaledVector(forward, moveSpeed);
-          if (Keys['KeyS'] || Keys['ArrowDown']) playerYaw.position.addScaledVector(forward, -moveSpeed);
-          if (Keys['KeyD'] || Keys['ArrowRight']) playerYaw.position.addScaledVector(right, moveSpeed);
-          if (Keys['KeyA'] || Keys['ArrowLeft']) playerYaw.position.addScaledVector(right, -moveSpeed);
-          playerYaw.position.x = THREE.MathUtils.clamp(playerYaw.position.x, -36, 36);
-          playerYaw.position.z = THREE.MathUtils.clamp(playerYaw.position.z, -36, 36);
-
-          // Firing & Raycast Hit Detection
-          fireTimer -= dt;
-          gunGroup.position.z = THREE.MathUtils.lerp(gunGroup.position.z, -0.55, dt * 14);
-          if (Mouse.down && fireTimer <= 0) {
-            fireTimer = w.cooldown;
-            gunGroup.position.z = -0.38;
-            sfx.play('laser');
-            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-            const hits = raycaster.intersectObjects(enemies.map(e => e.hitbox));
-            if (hits.length > 0) {
-              const target = enemies.find(e => e.hitbox === hits[0].object);
-              if (target) {
-                target.hp -= w.dmg;
-                crosshair.classList.add('hit');
-                setTimeout(() => crosshair.classList.remove('hit'), 90);
-                sfx.play('hit');
-                if (target.hp <= 0) {
-                  score += 300;
-                  target.hp = 100;
-                  const a = Math.random() * Math.PI * 2;
-                  target.holder.position.set(Math.cos(a) * 28, 0, Math.sin(a) * 28);
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 }
-              }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
             }
-          }
-
-          // Enemy Pursuit AI
-          for (const e of enemies) {
-            e.holder.lookAt(playerYaw.position.x, 0, playerYaw.position.z);
-            const dir = new THREE.Vector3().subVectors(playerYaw.position, e.holder.position);
-            dir.y = 0;
-            const dist = dir.length();
-            dir.normalize();
-            e.holder.position.addScaledVector(dir, 4.6 * dt);
-            e.holder.position.y = Math.abs(Math.sin(elapsed * 4)) * 0.15;
-
-            if (dist < 2.2) {
-              shield -= 28 * dt;
-              if (shield <= 0) {
-                triggerGameOver();
-                return;
-              }
+            playGearShiftBlowoff() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1450, now);
+                osc.frequency.exponentialRampToValueAtTime(260, now + 0.14);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.14);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.14);
             }
-          }
-
-          updateHUD(score, `WEAPON: ${w.name}`, 'ARMOR INTEGRITY', `${Math.round(shield)}%`, shield, '#00ff9d');
+            playTireScreech() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(680 + Math.random() * 140, now);
+                osc.frequency.linearRampToValueAtTime(510, now + 0.08);
+                gain.gain.setValueAtTime(0.035, now);
+                gain.gain.linearRampToValueAtTime(0.002, now + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+            playCrash() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(125, now);
+                osc.frequency.exponentialRampToValueAtTime(24, now + 0.38);
+                gain.gain.setValueAtTime(0.32, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.38);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.38);
+            }
+            playStarWarsBlaster(modeIdx = 0) {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                const startFreq = modeIdx === 1 ? 820 : (modeIdx === 2 ? 1200 : 980);
+                osc.frequency.setValueAtTime(startFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(135, now + 0.14);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.14);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.14);
+            }
+            playDroidBlaster() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(620, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.12);
+                gain.gain.setValueAtTime(0.09, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+            playCoolingVent() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(190, now + 0.25);
+                gain.gain.setValueAtTime(0.14, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
         }
-      };
-    }
+        const sfx = new SoundSynthesizer();
 
-    /* =========================================================================
-       MODULE 03: STARFIGHTER ASSAULT (Orbital Dogfight + Normal-Mapped Asteroids)
-       ========================================================================= */
-    function initSpaceGame() {
-      resetSceneAndCamera(68);
-      scene.background = new THREE.Color(0x020409);
+        /* =====================================================================
+           2. PROCEDURAL NORMAL, ASPHALT, BARRIER, CARBON & SKYLINE TEXTURES
+           ===================================================================== */
+        function generatePBRTextures() {
+            // 1. Micro-grain normal map for asphalt & brushed durasteel
+            const nCanvas = document.createElement('canvas');
+            nCanvas.width = nCanvas.height = 512;
+            const nCtx = nCanvas.getContext('2d');
+            nCtx.fillStyle = '#8080ff';
+            nCtx.fillRect(0, 0, 512, 512);
+            for (let i = 0; i < 42000; i++) {
+                const x = Math.random() * 512;
+                const y = Math.random() * 512;
+                const v = 108 + Math.random() * 38;
+                nCtx.fillStyle = `rgb(${v},${v},255)`;
+                nCtx.fillRect(x, y, 2, 2);
+            }
+            const normalMap = new THREE.CanvasTexture(nCanvas);
+            normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
+            normalMap.repeat.set(8, 30);
 
-      // Starfield Particles
-      const starGeo = new THREE.BufferGeometry();
-      const starPos = new Float32Array(1500 * 3);
-      for (let i = 0; i < 1500 * 3; i++) starPos[i] = (Math.random() - 0.5) * 300;
-      starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-      const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 }));
-      scene.add(stars);
+            // 2. Detailed Highway Asphalt Diffuse + Roughness Texture (Tire tracks, aggregate & lane lines)
+            const rCanvas = document.createElement('canvas');
+            rCanvas.width = rCanvas.height = 1024;
+            const rCtx = rCanvas.getContext('2d');
+            rCtx.fillStyle = '#141821';
+            rCtx.fillRect(0, 0, 1024, 1024);
 
-      // Player PBR Delta-Wing Interceptor
-      const ship = new THREE.Group();
-      const hullMat = new THREE.MeshPhysicalMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.2, clearcoat: 0.8 });
-      const fuselage = new THREE.Mesh(new THREE.ConeGeometry(0.65, 3.6, 6), hullMat);
-      fuselage.rotation.x = -Math.PI / 2;
-      const wings = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.12, 1.4), hullMat);
-      wings.position.z = 0.5;
-      const thruster = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.32, 0.45, 0.4, 12),
-        new THREE.MeshBasicMaterial({ color: 0x00f0ff })
-      );
-      thruster.rotation.x = Math.PI / 2;
-      thruster.position.z = 1.85;
-      ship.add(fuselage, wings, thruster);
-      scene.add(ship);
+            // Asphalt aggregate speckles
+            for (let i = 0; i < 55000; i++) {
+                const x = Math.random() * 1024;
+                const y = Math.random() * 1024;
+                const lum = 15 + Math.floor(Math.random() * 24);
+                rCtx.fillStyle = `rgb(${lum},${lum + 2},${lum + 6})`;
+                rCtx.fillRect(x, y, 2, 3);
+            }
 
-      // Normal-Mapped Asteroids + GLTF DamagedHelmet Drone Targets
-      const obstacles = [];
-      const rockMat = new THREE.MeshStandardMaterial({
-        color: 0x475569, roughness: 0.8, metalness: 0.2, normalMap: pbrTextures.normalMap
-      });
-      for (let i = 0; i < 20; i++) {
-        let mesh;
-        const isDrone = i % 4 === 0 && Assets.helmet;
-        if (isDrone) {
-          mesh = Assets.helmet.scene.clone();
-          mesh.scale.set(1.6, 1.6, 1.6);
-        } else {
-          mesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.8 + Math.random() * 1.6, 1), rockMat);
-        }
-        mesh.position.set((Math.random() - 0.5) * 38, (Math.random() - 0.5) * 24, -40 - i * 14);
-        scene.add(mesh);
-        obstacles.push({ mesh, speed: 32 + Math.random() * 15 });
-      }
-
-      const lasers = [];
-      let fireCooldown = 0;
-      let score = 0;
-      let shield = 100;
-
-      return {
-        update(dt) {
-          const ix = (Keys['KeyD'] || Keys['ArrowRight'] ? 1 : 0) - (Keys['KeyA'] || Keys['ArrowLeft'] ? 1 : 0) + Mouse.x * 0.9;
-          const iy = (Keys['KeyW'] || Keys['ArrowUp'] ? 1 : 0) - (Keys['KeyS'] || Keys['ArrowDown'] ? 1 : 0) + Mouse.y * 0.9;
-
-          ship.position.x = THREE.MathUtils.clamp(ship.position.x + ix * 18 * dt, -16, 16);
-          ship.position.y = THREE.MathUtils.clamp(ship.position.y + iy * 14 * dt, -10, 10);
-          ship.rotation.z = THREE.MathUtils.lerp(ship.rotation.z, -ix * 0.55, dt * 8);
-          ship.rotation.x = THREE.MathUtils.lerp(ship.rotation.x, iy * 0.35, dt * 8);
-
-          camera.position.set(ship.position.x * 0.4, ship.position.y * 0.4 + 2.2, 7.5);
-          camera.lookAt(ship.position.x * 0.7, ship.position.y * 0.7, -15);
-
-          // Twin Plasma Cannons
-          fireCooldown -= dt;
-          if ((Mouse.down || Keys['Space']) && fireCooldown <= 0) {
-            fireCooldown = 0.14;
-            sfx.play('laser');
-            [-1.4, 1.4].forEach((offset) => {
-              const bolt = new THREE.Mesh(
-                new THREE.BoxGeometry(0.12, 0.12, 2.2),
-                new THREE.MeshBasicMaterial({ color: 0xff9900 })
-              );
-              bolt.position.set(ship.position.x + offset, ship.position.y, ship.position.z - 1.5);
-              scene.add(bolt);
-              lasers.push(bolt);
+            // Darker worn tire-polished grooves down the 4 lane centers
+            const laneCentersPx = [168, 398, 626, 856];
+            laneCentersPx.forEach((lx) => {
+                const grad = rCtx.createLinearGradient(lx - 70, 0, lx + 70, 0);
+                grad.addColorStop(0, 'rgba(5, 8, 15, 0)');
+                grad.addColorStop(0.3, 'rgba(5, 8, 15, 0.45)');
+                grad.addColorStop(0.5, 'rgba(25, 33, 48, 0.15)');
+                grad.addColorStop(0.7, 'rgba(5, 8, 15, 0.45)');
+                grad.addColorStop(1, 'rgba(5, 8, 15, 0)');
+                rCtx.fillStyle = grad;
+                rCtx.fillRect(lx - 70, 0, 140, 1024);
             });
-          }
 
-          for (let i = lasers.length - 1; i >= 0; i--) {
-            const b = lasers[i];
-            b.position.z -= 115 * dt;
-            if (b.position.z < -260) {
-              scene.remove(b);
-              lasers.splice(i, 1);
-            }
-          }
-
-          for (const o of obstacles) {
-            o.mesh.position.z += o.speed * dt;
-            o.mesh.rotation.x += dt * 0.8;
-            o.mesh.rotation.y += dt * 0.9;
-
-            if (o.mesh.position.distanceTo(ship.position) < 2.5) {
-              shield -= 34;
-              sfx.play('hit');
-              o.mesh.position.z = -260;
-              if (shield <= 0) {
-                triggerGameOver();
-                return;
-              }
+            // Outer emergency shoulder solid lines (White + Red/Amber hazard rumble strips)
+            rCtx.fillStyle = '#e2e8f0';
+            rCtx.fillRect(36, 0, 14, 1024);
+            rCtx.fillRect(974, 0, 14, 1024);
+            for (let y = 0; y < 1024; y += 64) {
+                rCtx.fillStyle = (y / 64) % 2 === 0 ? '#f59e0b' : '#1e293b';
+                rCtx.fillRect(10, y, 22, 64);
+                rCtx.fillRect(992, y, 22, 64);
             }
 
-            for (let j = lasers.length - 1; j >= 0; j--) {
-              if (lasers[j].position.distanceTo(o.mesh.position) < 2.8) {
-                score += 200;
-                sfx.play('hit');
-                o.mesh.position.set((Math.random() - 0.5) * 38, (Math.random() - 0.5) * 24, -260);
-                scene.remove(lasers[j]);
-                lasers.splice(j, 1);
-                break;
-              }
+            // Center High-Contrast Hazard Double Line
+            rCtx.fillStyle = '#f59e0b';
+            rCtx.fillRect(498, 0, 10, 1024);
+            rCtx.fillRect(516, 0, 10, 1024);
+
+            // Dashed Lane Dividers
+            rCtx.fillStyle = '#cbd5e1';
+            for (let y = 0; y < 1024; y += 128) {
+                rCtx.fillRect(278, y + 16, 12, 72);
+                rCtx.fillRect(734, y + 16, 12, 72);
             }
 
-            if (o.mesh.position.z > 12) {
-              o.mesh.position.set((Math.random() - 0.5) * 38, (Math.random() - 0.5) * 24, -260);
-              score += 25;
-            }
-          }
+            const roadMap = new THREE.CanvasTexture(rCanvas);
+            roadMap.wrapS = roadMap.wrapT = THREE.RepeatWrapping;
+            roadMap.repeat.set(1, 20);
+            roadMap.anisotropy = 8;
 
-          score += dt * 30;
-          updateHUD(score, 'ORBITAL SECTOR 09', 'DEFLECTOR SHIELD', `${Math.round(shield)}%`, shield, '#ff9900');
+            // 3. Concrete Jersey Barrier Hazard Texture (Diagonal Black & Amber/White Chevrons + Weathered Concrete)
+            const bCanvas = document.createElement('canvas');
+            bCanvas.width = 512;
+            bCanvas.height = 256;
+            const bCtx = bCanvas.getContext('2d');
+            bCtx.fillStyle = '#334155';
+            bCtx.fillRect(0, 0, 512, 256);
+            for (let i = 0; i < 9000; i++) {
+                const c = 40 + Math.floor(Math.random() * 35);
+                bCtx.fillStyle = `rgb(${c},${c + 4},${c + 10})`;
+                bCtx.fillRect(Math.random() * 512, Math.random() * 256, 3, 2);
+            }
+            bCtx.fillStyle = '#f59e0b';
+            bCtx.fillRect(0, 28, 512, 46);
+            bCtx.fillStyle = '#0f172a';
+            for (let x = -64; x < 576; x += 64) {
+                bCtx.beginPath();
+                bCtx.moveTo(x, 28);
+                bCtx.lineTo(x + 32, 28);
+                bCtx.lineTo(x + 12, 74);
+                bCtx.lineTo(x - 20, 74);
+                bCtx.closePath();
+                bCtx.fill();
+            }
+            const barrierMap = new THREE.CanvasTexture(bCanvas);
+            barrierMap.wrapS = barrierMap.wrapT = THREE.RepeatWrapping;
+            barrierMap.repeat.set(45, 1);
+
+            // 4. Carbon Fiber Weave Texture for Spoilers, Splitters & Diffusers
+            const cCanvas = document.createElement('canvas');
+            cCanvas.width = cCanvas.height = 64;
+            const cCtx = cCanvas.getContext('2d');
+            cCtx.fillStyle = '#090d16';
+            cCtx.fillRect(0, 0, 64, 64);
+            cCtx.fillStyle = '#1e293b';
+            for (let y = 0; y < 64; y += 8) {
+                for (let x = 0; x < 64; x += 8) {
+                    if ((x + y) % 16 === 0) cCtx.fillRect(x, y, 6, 4);
+                    else cCtx.fillRect(x + 2, y + 4, 4, 6);
+                }
+            }
+            const carbonMap = new THREE.CanvasTexture(cCanvas);
+            carbonMap.wrapS = carbonMap.wrapT = THREE.RepeatWrapping;
+            carbonMap.repeat.set(8, 8);
+
+            // 5. Nighttime Cyberpunk City Building Window Façade Texture
+            const wCanvas = document.createElement('canvas');
+            wCanvas.width = 256;
+            wCanvas.height = 512;
+            const wCtx = wCanvas.getContext('2d');
+            wCtx.fillStyle = '#050814';
+            wCtx.fillRect(0, 0, 256, 512);
+            const winPalette = ['#38bdf8', '#f59e0b', '#e2e8f0', '#0284c7', '#1e293b'];
+            for (let wy = 16; wy < 496; wy += 18) {
+                for (let wx = 12; wx < 244; wx += 22) {
+                    if (Math.random() < 0.42) {
+                        wCtx.fillStyle = winPalette[Math.floor(Math.random() * winPalette.length)];
+                        wCtx.fillRect(wx, wy, 14, 10);
+                    }
+                }
+            }
+            const buildingMap = new THREE.CanvasTexture(wCanvas);
+            buildingMap.wrapS = buildingMap.wrapT = THREE.RepeatWrapping;
+
+            // 6. Imperial Hangar Deck Grating Texture
+            const dCanvas = document.createElement('canvas');
+            dCanvas.width = dCanvas.height = 512;
+            const dCtx = dCanvas.getContext('2d');
+            dCtx.fillStyle = '#0f172a';
+            dCtx.fillRect(0, 0, 512, 512);
+            dCtx.strokeStyle = '#1e293b';
+            dCtx.lineWidth = 6;
+            for (let i = 0; i <= 512; i += 64) {
+                dCtx.beginPath(); dCtx.moveTo(i, 0); dCtx.lineTo(i, 512); dCtx.stroke();
+                dCtx.beginPath(); dCtx.moveTo(0, i); dCtx.lineTo(512, i); dCtx.stroke();
+            }
+            const deckMap = new THREE.CanvasTexture(dCanvas);
+            deckMap.wrapS = deckMap.wrapT = THREE.RepeatWrapping;
+            deckMap.repeat.set(20, 20);
+
+            return { normalMap, roadMap, barrierMap, carbonMap, buildingMap, deckMap };
         }
-      };
-    }
+        const Textures = generatePBRTextures();
 
-    /* =========================================================================
-       MODULE 04: CYBER STRIKE (Isometric Mech Arena with RobotExpressive GLTF)
-       ========================================================================= */
-    function initMechGame() {
-      resetSceneAndCamera(52);
-      scene.background = new THREE.Color(0x050811);
+        /* =====================================================================
+           3. ASSET PIPELINE (NO EXTERNAL CAR MODELS — 100% PROCEDURAL VEHICLES)
+           ===================================================================== */
+        const LoadedGLTF = {
+            robot: null,
+            soldier: null
+        };
 
-      const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(80, 80),
-        new THREE.MeshStandardMaterial({
-          map: pbrTextures.gridTex, roughness: 0.3, metalness: 0.75
-        })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      scene.add(floor);
+        async function preloadGLTFModels() {
+            const draco = new DRACOLoader();
+            draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+            const loader = new GLTFLoader();
+            loader.setDRACOLoader(draco);
 
-      // Player Mech Rig (Uses RobotExpressive GLTF or Fallback Mech)
-      const playerHolder = new THREE.Group();
-      let playerMixer = null;
-      if (Assets.robot) {
-        const cloned = SkeletonUtils.clone(Assets.robot.scene);
-        cloned.scale.set(0.7, 0.7, 0.7);
-        playerHolder.add(cloned);
-        if (Assets.robot.animations.length > 0) {
-          playerMixer = new THREE.AnimationMixer(cloned);
-          const clip = THREE.AnimationClip.findByName(Assets.robot.animations, 'Walking') || Assets.robot.animations[0];
-          playerMixer.clipAction(clip).play();
+            const items = [
+                { key: 'robot', label: 'Imperial Security Droid Rig (GLB)', url: 'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb' },
+                { key: 'soldier', label: 'Humanoid Tactical Unit (GLB)', url: 'https://threejs.org/examples/models/gltf/Soldier.glb' }
+            ];
+
+            const bar = document.getElementById('loader-bar');
+            const status = document.getElementById('loader-status');
+
+            for (let i = 0; i < items.length; i++) {
+                status.textContent = `Compiling Procedural Car Textures & Loading ${items[i].label}...`;
+                try {
+                    const gltf = await new Promise((resolve, reject) => {
+                        const t = setTimeout(() => reject(new Error('timeout')), 6500);
+                        loader.load(items[i].url, (g) => { clearTimeout(t); resolve(g); }, undefined, reject);
+                    });
+                    LoadedGLTF[items[i].key] = gltf;
+                } catch (e) {
+                    console.warn(`Using procedural fallback for ${items[i].key}`);
+                }
+                bar.style.width = `${((i + 1) / items.length) * 100}%`;
+            }
+
+            document.getElementById('asset-status-pill').textContent = `PROCEDURAL WANGAN + PBR`;
+            setTimeout(() => {
+                const el = document.getElementById('asset-loader');
+                el.style.opacity = '0';
+                setTimeout(() => el.classList.add('hidden'), 500);
+            }, 220);
         }
-      } else {
-        playerHolder.add(createFallbackMech(0x00ff9d));
-      }
 
-      // Laser Sight Beam
-      const laserSight = new THREE.Mesh(
-        new THREE.BoxGeometry(0.06, 0.06, 18),
-        new THREE.MeshBasicMaterial({ color: 0x00ff9d, transparent: true, opacity: 0.45 })
-      );
-      laserSight.position.set(0, 1.5, 9);
-      playerHolder.add(laserSight);
-      scene.add(playerHolder);
+        /* ---------------------------------------------------------------------
+           3A. 100% PROCEDURAL CUSTOM MULTI-MESH PLAYER SUPERCAR BUILDER
+               (0: RX-78 Wangan Tuner | 1: Valkyrie GT-R | 2: Nightshade V12)
+           --------------------------------------------------------------------- */
+        function createDetailedWheel() {
+            const wheelGroup = new THREE.Group();
+            const tireMat = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                roughness: 0.85,
+                metalness: 0.15,
+                normalMap: Textures.normalMap
+            });
+            const rimMat = new THREE.MeshStandardMaterial({
+                color: 0xe2e8f0,
+                metalness: 0.92,
+                roughness: 0.18
+            });
+            const caliperMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
 
-      // Enemy Mech Swarm
-      const swarm = [];
-      for (let i = 0; i < 8; i++) {
-        const eGroup = new THREE.Group();
-        if (Assets.robot) {
-          const rClone = SkeletonUtils.clone(Assets.robot.scene);
-          rClone.scale.set(0.62, 0.62, 0.62);
-          eGroup.add(rClone);
-        } else {
-          eGroup.add(createFallbackMech(0xff2a5f));
+            const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.28, 24), tireMat);
+            tire.rotation.z = Math.PI / 2;
+            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.29, 16), rimMat);
+            rim.rotation.z = Math.PI / 2;
+
+            // 5 Alloy Spokes
+            for (let s = 0; s < 5; s++) {
+                const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.045, 0.44), rimMat);
+                spoke.rotation.x = (s / 5) * Math.PI;
+                wheelGroup.add(spoke);
+            }
+            const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.31, 12), caliperMat);
+            hub.rotation.z = Math.PI / 2;
+
+            wheelGroup.add(tire, rim, hub);
+            return wheelGroup;
         }
-        const a = (i / 8) * Math.PI * 2;
-        eGroup.position.set(Math.cos(a) * 24, 0, Math.sin(a) * 24);
-        scene.add(eGroup);
-        swarm.push({ mesh: eGroup, hp: 60 });
-      }
 
-      const projectiles = [];
-      let shootTimer = 0;
-      let empCharge = 100;
-      let score = 0;
-      const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-      const raycaster = new THREE.Raycaster();
-      const intersectPt = new THREE.Vector3();
+        function buildPlayerVehicle(specIndex = 0) {
+            const root = new THREE.Group();
+            const chassis = new THREE.Group();
+            root.add(chassis);
+            const wheels = [];
 
-      return {
-        update(dt) {
-          if (playerMixer) playerMixer.update(dt);
+            const specThemes = [
+                { body: 0xe11d48, accent: 0xf59e0b, glow: 0xff1133, clearcoat: 1.0 }, // 0: RX-78 Crimson Wangan
+                { body: 0x06b6d4, accent: 0x38bdf8, glow: 0x00f0ff, clearcoat: 1.0 }, // 1: Valkyrie GT-R Cyan
+                { body: 0x111827, accent: 0xf43f5e, glow: 0xa855f7, clearcoat: 0.95 } // 2: Nightshade V12 Stealth
+            ];
+            const theme = specThemes[specIndex] || specThemes[0];
 
-          const mx = (Keys['KeyD'] || Keys['ArrowRight'] ? 1 : 0) - (Keys['KeyA'] || Keys['ArrowLeft'] ? 1 : 0);
-          const mz = (Keys['KeyS'] || Keys['ArrowDown'] ? 1 : 0) - (Keys['KeyW'] || Keys['ArrowUp'] ? 1 : 0);
-          playerHolder.position.x = THREE.MathUtils.clamp(playerHolder.position.x + mx * 11 * dt, -30, 30);
-          playerHolder.position.z = THREE.MathUtils.clamp(playerHolder.position.z + mz * 11 * dt, -30, 30);
+            const paintMat = new THREE.MeshPhysicalMaterial({
+                color: theme.body,
+                metalness: specIndex === 2 ? 0.85 : 0.65,
+                roughness: specIndex === 2 ? 0.2 : 0.12,
+                clearcoat: theme.clearcoat,
+                clearcoatRoughness: 0.06
+            });
+            const carbonMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                map: Textures.carbonMap,
+                normalMap: Textures.normalMap,
+                roughness: 0.35,
+                metalness: 0.8
+            });
+            const glassMat = new THREE.MeshPhysicalMaterial({
+                color: 0x050814,
+                metalness: 0.95,
+                roughness: 0.05,
+                clearcoat: 1.0
+            });
 
-          camera.position.set(playerHolder.position.x, 24, playerHolder.position.z + 18);
-          camera.lookAt(playerHolder.position.x, 0, playerHolder.position.z);
+            // Sculpted Lower Aerodynamic Floorpan & Carbon Splitter
+            const floorPan = new THREE.Mesh(new THREE.BoxGeometry(2.04, 0.14, 4.65), carbonMat);
+            floorPan.position.set(0, 0.20, 0);
+            chassis.add(floorPan);
 
-          // 360-Degree Mouse Turret Aiming
-          raycaster.setFromCamera(new THREE.Vector2(Mouse.x, Mouse.y), camera);
-          raycaster.ray.intersectPlane(groundPlane, intersectPt);
-          if (intersectPt) playerHolder.lookAt(intersectPt.x, 0, intersectPt.z);
+            // Main Sculpted Body Tub
+            const mainBody = new THREE.Mesh(new THREE.BoxGeometry(1.94, 0.46, 4.4), paintMat);
+            mainBody.position.set(0, 0.48, 0);
+            mainBody.castShadow = true;
+            chassis.add(mainBody);
 
-          // Autocannon Fire
-          shootTimer -= dt;
-          if (Mouse.down && shootTimer <= 0) {
-            shootTimer = 0.13;
-            sfx.play('laser');
-            const dir = new THREE.Vector3(0, 0, 1).applyQuaternion(playerHolder.quaternion);
-            const bullet = new THREE.Mesh(
-              new THREE.SphereGeometry(0.24, 8, 8),
-              new THREE.MeshBasicMaterial({ color: 0x00ff9d })
+            // Sloped Aerodynamic Nose Hood
+            const noseCone = new THREE.Mesh(new THREE.BoxGeometry(1.86, 0.34, 1.35), paintMat);
+            noseCone.position.set(0, 0.43, -1.65);
+            noseCone.rotation.x = 0.14;
+            chassis.add(noseCone);
+
+            // Muscular Widebody Wheel Fenders (4 Arches)
+            const fenderGeo = new THREE.BoxGeometry(0.24, 0.38, 1.05);
+            [[-0.95, -1.35], [0.95, -1.35], [-0.95, 1.35], [0.95, 1.35]].forEach(([fx, fz]) => {
+                const fender = new THREE.Mesh(fenderGeo, paintMat);
+                fender.position.set(fx, 0.52, fz);
+                chassis.add(fender);
+            });
+
+            // Teardrop Tinted Glass Canopy & A-Pillars
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.54, 0.44, 2.05), glassMat);
+            cabin.position.set(0, 0.86, -0.05);
+            const roofScoop = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.85), carbonMat);
+            roofScoop.position.set(0, 1.10, 0.1);
+            chassis.add(cabin, roofScoop);
+
+            // Side Mirrors
+            const mirrorGeo = new THREE.BoxGeometry(0.26, 0.1, 0.16);
+            const mirrorL = new THREE.Mesh(mirrorGeo, paintMat);
+            mirrorL.position.set(-1.05, 0.78, -0.65);
+            const mirrorR = mirrorL.clone();
+            mirrorR.position.x = 1.05;
+            chassis.add(mirrorL, mirrorR);
+
+            // Spec-Specific Aero & Styling Packages
+            if (specIndex === 0) {
+                // RX-78 Wangan Tuner: Classic Dual-Element GT Wing + Hood Vent
+                const wingBlade = new THREE.Mesh(new THREE.BoxGeometry(1.98, 0.06, 0.34), carbonMat);
+                wingBlade.position.set(0, 1.08, 1.98);
+                const strutL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.32, 0.22), carbonMat);
+                strutL.position.set(-0.58, 0.90, 1.96);
+                const strutR = strutL.clone();
+                strutR.position.x = 0.58;
+                chassis.add(wingBlade, strutL, strutR);
+            } else if (specIndex === 1) {
+                // Valkyrie GT-R: Wide Time-Attack Swan-Neck Wing, Canards & Dorsal Shark Fin
+                const wingBlade = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.07, 0.42), carbonMat);
+                wingBlade.position.set(0, 1.18, 2.05);
+                const endplateL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.28, 0.48), paintMat);
+                endplateL.position.set(-1.11, 1.14, 2.05);
+                const endplateR = endplateL.clone();
+                endplateR.position.x = 1.11;
+                const sharkFin = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.28, 1.15), carbonMat);
+                sharkFin.position.set(0, 1.04, 1.25);
+                chassis.add(wingBlade, endplateL, endplateR, sharkFin);
+            } else {
+                // Nightshade V12: Le Mans Prototype Louvers, Neon Underglow Strip & Cyber Lightbar
+                const louver = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.14, 1.2), carbonMat);
+                louver.position.set(0, 0.82, 1.35);
+                const neonTrim = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.06, 0.05, 4.5),
+                    new THREE.MeshBasicMaterial({ color: 0xa855f7 })
+                );
+                neonTrim.position.set(0, 0.16, 0);
+                chassis.add(louver, neonTrim);
+            }
+
+            // 4 Spinning Alloy Wheels (Front 2 can steer laterally)
+            const wheelPositions = [
+                [-0.96, 0.35, -1.35, true],
+                [0.96, 0.35, -1.35, true],
+                [-0.96, 0.35, 1.35, false],
+                [0.96, 0.35, 1.35, false]
+            ];
+            wheelPositions.forEach(([wx, wy, wz, isFront]) => {
+                const w = createDetailedWheel();
+                w.position.set(wx, wy, wz);
+                w.userData.isFront = isFront;
+                chassis.add(w);
+                wheels.push(w);
+            });
+
+            // LED Headlights & Full-Width Emissive Rear Brake Light Bar
+            const headMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
+            const headL = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.1), headMat);
+            headL.position.set(-0.65, 0.50, -2.26);
+            const headR = headL.clone();
+            headR.position.x = 0.65;
+
+            const tailMat = new THREE.MeshBasicMaterial({ color: 0xff1133 });
+            const tailBar = new THREE.Mesh(new THREE.BoxGeometry(1.78, 0.12, 0.08), tailMat);
+            tailBar.position.set(0, 0.64, 2.22);
+            chassis.add(headL, headR, tailBar);
+
+            // Twin N2O Exhaust Flame Cones
+            const n2oMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0 });
+            const coneGeo = new THREE.ConeGeometry(0.16, 1.25, 10);
+            coneGeo.rotateX(Math.PI / 2);
+            const flameL = new THREE.Mesh(coneGeo, n2oMat);
+            flameL.position.set(-0.48, 0.28, 2.75);
+            const flameR = flameL.clone();
+            flameR.position.x = 0.48;
+            chassis.add(flameL, flameR);
+
+            // Real-time Headlight Spotlights illuminating the wet asphalt ahead
+            const spotL = new THREE.SpotLight(0xffffff, 14, 85, Math.PI / 5, 0.45);
+            spotL.position.set(-0.65, 0.65, -2.1);
+            spotL.target.position.set(-0.65, 0.0, -36);
+            const spotR = spotL.clone();
+            spotR.position.x = 0.65;
+            spotR.target.position.set(0.65, 0.0, -36);
+            chassis.add(spotL, spotL.target, spotR, spotR.target);
+
+            return { root, chassis, wheels, n2oMat, tailMat };
+        }
+
+        /* ---------------------------------------------------------------------
+           3B. 100% PROCEDURAL ONCOMING TRAFFIC VEHICLE BUILDER (Facing Player!)
+               0: Heavy Freight Semi-Truck | 1: Police Interceptor Cruiser
+               2: Luxury SUV | 3: Wangan Sports Coupe | 4: Commercial Box Van
+           --------------------------------------------------------------------- */
+        function buildTrafficVehicle(typeIndex) {
+            const group = new THREE.Group();
+            const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x090f1d, metalness: 0.9, roughness: 0.1 });
+
+            let halfLength = 2.25;
+            let halfWidth = 1.02;
+
+            if (typeIndex === 0) {
+                // 1. HEAVY FREIGHT SEMI-TRUCK + CONTAINER TRAILER
+                halfLength = 5.5;
+                halfWidth = 1.22;
+                const cabMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.65, roughness: 0.3 });
+                const trailerMat = new THREE.MeshStandardMaterial({
+                    color: 0xcbd5e1,
+                    metalness: 0.45,
+                    roughness: 0.4,
+                    normalMap: Textures.normalMap
+                });
+
+                const cab = new THREE.Mesh(new THREE.BoxGeometry(2.38, 2.65, 2.8), cabMat);
+                cab.position.set(0, 1.45, -3.5);
+                const grille = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.4, 1.1, 0.12),
+                    new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 })
+                );
+                grille.position.set(0, 1.05, -4.92);
+                const windshield = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.82, 0.1), glassMat);
+                windshield.position.set(0, 2.05, -4.91);
+                const trailer = new THREE.Mesh(new THREE.BoxGeometry(2.46, 3.35, 8.0), trailerMat);
+                trailer.position.set(0, 1.9, 2.05);
+
+                const clearance = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.85, 0.14, 0.15),
+                    new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+                );
+                clearance.position.set(0, 3.58, -1.9);
+                group.add(cab, grille, windshield, trailer, clearance);
+            } else if (typeIndex === 1) {
+                // 2. POLICE INTERCEPTOR CRUISER (Flashing Red/Blue Roof Lightbar)
+                const body = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.02, 0.65, 4.55),
+                    new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.85, roughness: 0.2 })
+                );
+                body.position.y = 0.52;
+                const doors = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.05, 0.58, 1.85),
+                    new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 })
+                );
+                doors.position.y = 0.52;
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.52, 2.1), glassMat);
+                cabin.position.set(0, 1.05, -0.1);
+
+                const sirenRed = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.78, 0.15, 0.3),
+                    new THREE.MeshBasicMaterial({ color: 0xff1133 })
+                );
+                sirenRed.position.set(-0.42, 1.38, -0.1);
+                const sirenBlue = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.78, 0.15, 0.3),
+                    new THREE.MeshBasicMaterial({ color: 0x0088ff })
+                );
+                sirenBlue.position.set(0.42, 1.38, -0.1);
+                group.userData.sirenRed = sirenRed;
+                group.userData.sirenBlue = sirenBlue;
+                group.add(body, doors, cabin, sirenRed, sirenBlue);
+            } else if (typeIndex === 2) {
+                // 3. LUXURY SUV / G-WAGON SILHOUETTE
+                const suvMat = new THREE.MeshPhysicalMaterial({ color: 0x10b981, metalness: 0.7, roughness: 0.22, clearcoat: 0.85 });
+                const base = new THREE.Mesh(new THREE.BoxGeometry(2.12, 0.82, 4.65), suvMat);
+                base.position.y = 0.6;
+                const top = new THREE.Mesh(new THREE.BoxGeometry(1.88, 0.68, 3.1), suvMat);
+                top.position.set(0, 1.3, 0.25);
+                const windshield = new THREE.Mesh(new THREE.BoxGeometry(1.76, 0.56, 0.1), glassMat);
+                windshield.position.set(0, 1.3, -1.31);
+                group.add(base, top, windshield);
+            } else if (typeIndex === 3) {
+                // 4. PROCEDURAL MID-ENGINE SPORTS COUPE
+                const coupeMat = new THREE.MeshPhysicalMaterial({ color: 0xf59e0b, metalness: 0.75, roughness: 0.18, clearcoat: 1.0 });
+                const lower = new THREE.Mesh(new THREE.BoxGeometry(1.98, 0.48, 4.4), coupeMat);
+                lower.position.y = 0.44;
+                const canopy = new THREE.Mesh(new THREE.BoxGeometry(1.58, 0.42, 1.95), glassMat);
+                canopy.position.set(0, 0.84, -0.1);
+                group.add(lower, canopy);
+            } else {
+                // 5. COMMERCIAL DELIVERY BOX VAN
+                halfLength = 2.85;
+                const cab = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.12, 1.62, 1.85),
+                    new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.35 })
+                );
+                cab.position.set(0, 1.0, -1.75);
+                const cargo = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.26, 2.4, 3.85),
+                    new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.45, normalMap: Textures.normalMap })
+                );
+                cargo.position.set(0, 1.4, 1.0);
+                group.add(cab, cargo);
+            }
+
+            // Add 4 Procedural Wheels to every traffic vehicle
+            const wGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.26, 16);
+            wGeo.rotateZ(Math.PI / 2);
+            const wMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
+            [[-0.98, -1.35], [0.98, -1.35], [-0.98, 1.35], [0.98, 1.35]].forEach(([wx, wz]) => {
+                const wheel = new THREE.Mesh(wGeo, wMat);
+                wheel.position.set(wx, 0.36, wz);
+                group.add(wheel);
+            });
+
+            // High-Beam Oncoming Headlights & Turn-Signal Indicators facing the player
+            const frontZ = -halfLength;
+            const headMat = new THREE.MeshBasicMaterial({ color: 0xffffdd });
+            const headL = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.20, 0.12), headMat);
+            headL.position.set(-0.72, 0.66, frontZ);
+            const headR = headL.clone();
+            headR.position.x = 0.72;
+
+            // Dual Volumetric Headlight Cones facing the player
+            const beamMat = new THREE.MeshBasicMaterial({
+                color: 0xfef08a,
+                transparent: true,
+                opacity: 0.18,
+                depthWrite: false
+            });
+            const beamGeo = new THREE.ConeGeometry(0.65, 4.2, 12, 1, true);
+            beamGeo.rotateX(-Math.PI / 2);
+            const beamL = new THREE.Mesh(beamGeo, beamMat);
+            beamL.position.set(-0.72, 0.55, frontZ - 2.1);
+            const beamR = beamL.clone();
+            beamR.position.x = 0.72;
+
+            // Left/Right Amber Turn Signal Indicators on the front bumper
+            const blinkLMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0 });
+            const blinkRMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0 });
+            const blinkL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.14), blinkLMat);
+            blinkL.position.set(-0.96, 0.66, frontZ - 0.02);
+            const blinkR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.14), blinkRMat);
+            blinkR.position.set(0.96, 0.66, frontZ - 0.02);
+
+            group.add(headL, headR, beamL, beamR, blinkL, blinkR);
+
+            // Rotate 180 degrees so all traffic faces +Z (driving directly toward the player!)
+            group.rotation.y = Math.PI;
+
+            group.userData.halfLength = halfLength;
+            group.userData.halfWidth = halfWidth;
+            group.userData.typeIndex = typeIndex;
+            group.userData.blinkLMat = blinkLMat;
+            group.userData.blinkRMat = blinkRMat;
+            return group;
+        }
+
+        /* ---------------------------------------------------------------------
+           3C. STAR WARS E-11 / DL-44 DETAILED 28-MESH BLASTER VIEWMODEL
+           --------------------------------------------------------------------- */
+        function buildStarWarsBlasterViewmodel() {
+            const blaster = new THREE.Group();
+
+            const gunmetal = new THREE.MeshStandardMaterial({
+                color: 0x181c24,
+                metalness: 0.92,
+                roughness: 0.22,
+                normalMap: Textures.normalMap
+            });
+            const brushedSteel = new THREE.MeshStandardMaterial({
+                color: 0x475569,
+                metalness: 0.88,
+                roughness: 0.28
+            });
+            const gripMat = new THREE.MeshStandardMaterial({
+                color: 0x090d16,
+                roughness: 0.75,
+                metalness: 0.2
+            });
+            const chamberGlowMat = new THREE.MeshBasicMaterial({ color: 0xff1133 });
+
+            // 1. Main Cylindrical Receiver Tube
+            const receiver = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 0.42, 20), gunmetal);
+            receiver.rotation.x = Math.PI / 2;
+            blaster.add(receiver);
+
+            // 2. Perforated Barrel Shroud + 6 T-Track Cooling Fins
+            const shroud = new THREE.Mesh(new THREE.CylinderGeometry(0.039, 0.039, 0.34, 20), gunmetal);
+            shroud.rotation.x = Math.PI / 2;
+            shroud.position.z = -0.26;
+            blaster.add(shroud);
+
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const tTrack = new THREE.Mesh(new THREE.BoxGeometry(0.009, 0.012, 0.31), gripMat);
+                tTrack.position.set(Math.cos(angle) * 0.039, Math.sin(angle) * 0.039, -0.26);
+                tTrack.rotation.z = angle;
+                blaster.add(tTrack);
+            }
+
+            // 3. Cooling Radiator Rings along Inner Barrel
+            for (let r = 0; r < 5; r++) {
+                const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.012, 16), brushedSteel);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.z = -0.14 - r * 0.055;
+                blaster.add(ring);
+            }
+
+            // 4. Heavy Flash Suppressor Muzzle Crown
+            const muzzle = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.035, 0.07, 16), brushedSteel);
+            muzzle.rotation.x = Math.PI / 2;
+            muzzle.position.z = -0.45;
+            blaster.add(muzzle);
+
+            // 5. Glowing Tibanna Plasma Core Chamber Slot (Changes color with firing mode!)
+            const plasmaCore = new THREE.Mesh(new THREE.BoxGeometry(0.078, 0.018, 0.16), chamberGlowMat);
+            plasmaCore.position.set(0, 0.012, -0.02);
+            blaster.add(plasmaCore);
+
+            // 6. Left-Side Horizontal Tibanna Gas Magazine Housing & Power Cell
+            const magHousing = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.038, 0.065), gunmetal);
+            magHousing.position.set(-0.065, 0.0, -0.06);
+            const tibannaCell = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.014, 0.014, 0.09, 12),
+                new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
             );
-            bullet.position.copy(playerHolder.position).add(new THREE.Vector3(0, 1.5, 0));
-            scene.add(bullet);
-            projectiles.push({ mesh: bullet, vel: dir.multiplyScalar(42) });
-          }
+            tibannaCell.rotation.z = Math.PI / 2;
+            tibannaCell.position.set(-0.09, 0.022, -0.06);
+            blaster.add(magHousing, tibannaCell);
 
-          // Spacebar EMP Shockwave Nova
-          empCharge = Math.min(100, empCharge + dt * 12);
-          if (Keys['Space'] && empCharge >= 100) {
-            empCharge = 0;
-            sfx.play('explosion');
-            swarm.forEach((s) => {
-              const a = Math.random() * Math.PI * 2;
-              s.mesh.position.set(Math.cos(a) * 28, 0, Math.sin(a) * 28);
-              score += 150;
-            });
-          }
+            // 7. Top Optical Macro-Scope Rail, Scope Tube, Bell Housings & Glowing Green Lens
+            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.022, 0.24), brushedSteel);
+            rail.position.set(0, 0.046, 0.01);
+            const scopeTube = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.22, 16), gunmetal);
+            scopeTube.rotation.x = Math.PI / 2;
+            scopeTube.position.set(0, 0.072, 0.01);
+            const scopeFrontBell = new THREE.Mesh(new THREE.CylinderGeometry(0.029, 0.022, 0.045, 16), gunmetal);
+            scopeFrontBell.rotation.x = Math.PI / 2;
+            scopeFrontBell.position.set(0, 0.072, -0.11);
+            const scopeRearBell = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.028, 0.04, 16), gunmetal);
+            scopeRearBell.rotation.x = Math.PI / 2;
+            scopeRearBell.position.set(0, 0.072, 0.12);
+            const scopeLens = new THREE.Mesh(
+                new THREE.CircleGeometry(0.023, 16),
+                new THREE.MeshBasicMaterial({ color: 0x10b981 })
+            );
+            scopeLens.position.set(0, 0.072, 0.141);
+            blaster.add(rail, scopeTube, scopeFrontBell, scopeRearBell, scopeLens);
 
-          for (let i = projectiles.length - 1; i >= 0; i--) {
-            const p = projectiles[i];
-            p.mesh.position.addScaledVector(p.vel, dt);
-            if (p.mesh.position.length() > 48) {
-              scene.remove(p.mesh);
-              projectiles.splice(i, 1);
-            }
-          }
+            // 8. Under-Barrel Folding Stock Struts & Contoured Pistol Grip
+            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.036, 0.13, 0.055), gripMat);
+            grip.position.set(0, -0.08, 0.11);
+            grip.rotation.x = 0.28;
+            const foldStock = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.022, 0.28), brushedSteel);
+            foldStock.position.set(0, -0.042, -0.18);
+            blaster.add(grip, foldStock);
 
-          for (const s of swarm) {
-            s.mesh.lookAt(playerHolder.position);
-            const dir = new THREE.Vector3().subVectors(playerHolder.position, s.mesh.position).normalize();
-            s.mesh.position.addScaledVector(dir, 5.2 * dt);
-
-            if (s.mesh.position.distanceTo(playerHolder.position) < 1.65) {
-              triggerGameOver();
-              return;
-            }
-
-            for (let j = projectiles.length - 1; j >= 0; j--) {
-              if (projectiles[j].mesh.position.distanceTo(s.mesh.position) < 1.8) {
-                s.hp -= 35;
-                sfx.play('hit');
-                scene.remove(projectiles[j].mesh);
-                projectiles.splice(j, 1);
-                if (s.hp <= 0) {
-                  score += 250;
-                  s.hp = 60;
-                  const a = Math.random() * Math.PI * 2;
-                  s.mesh.position.set(Math.cos(a) * 28, 0, Math.sin(a) * 28);
-                }
-                break;
-              }
-            }
-          }
-
-          updateHUD(score, 'SPACE: EMP NOVA SHOCKWAVE', 'EMP CAPACITOR', `${Math.round(empCharge)}%`, empCharge, '#00ff9d');
+            return { blaster, plasmaCore, chamberGlowMat };
         }
-      };
-    }
 
-    /* =========================================================================
-       7. MODULE SWITCHER & MAIN RENDER LOOP
-       ========================================================================= */
-    function launchGame(gameKey) {
-      if (currentSimulation && currentSimulation.cleanup) currentSimulation.cleanup();
-      activeModule = gameKey;
-      currentScore = 0;
-      gameActive = true;
+        /* ---------------------------------------------------------------------
+           3D. ARTICULATED BX-SERIES / IMPERIAL HUMANOID SECURITY DROID BUILDER
+               (Head + Photoreceptors = 3x Critical Headshot Zone)
+           --------------------------------------------------------------------- */
+        function buildHumanoidCombatDroid(wave = 1) {
+            const root = new THREE.Group();
 
-      document.getElementById('hub-overlay').classList.add('hidden');
-      document.getElementById('gameover-modal').style.display = 'none';
-      document.getElementById('game-hud').style.display = 'block';
-      document.getElementById('btn-hub').style.display = 'inline-block';
+            // Articulated Humanoid BX-Series / KX-Series Imperial Security Droid
+            const armorMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                metalness: 0.85,
+                roughness: 0.28
+            });
+            const jointMat = new THREE.MeshStandardMaterial({
+                color: 0x090d16,
+                metalness: 0.9,
+                roughness: 0.35
+            });
+            const eyeGlow = new THREE.MeshBasicMaterial({ color: 0xff1133 });
 
-      if (gameKey === 'drift') currentSimulation = initDriftGame();
-      else if (gameKey === 'fps') currentSimulation = initFPSGame();
-      else if (gameKey === 'space') currentSimulation = initSpaceGame();
-      else if (gameKey === 'mech') currentSimulation = initMechGame();
-    }
+            // Torso Chest Plate & Spine Actuator
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.05, 0.48), armorMat);
+            torso.position.y = 1.65;
+            torso.castShadow = true;
 
-    function returnToHub() {
-      if (currentSimulation && currentSimulation.cleanup) currentSimulation.cleanup();
-      activeModule = 'hub';
-      gameActive = false;
-      document.getElementById('hub-overlay').classList.remove('hidden');
-      document.getElementById('game-hud').style.display = 'none';
-      document.getElementById('gameover-modal').style.display = 'none';
-      document.getElementById('btn-hub').style.display = 'none';
-      currentSimulation = initHubScene();
-    }
+            const chestCore = new THREE.Mesh(
+                new THREE.CircleGeometry(0.14, 16),
+                new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+            );
+            chestCore.position.set(0, 1.75, 0.25);
 
-    document.querySelectorAll('.game-card').forEach((card) => {
-      card.addEventListener('click', () => launchGame(card.dataset.game));
-    });
-    document.getElementById('btn-hub').addEventListener('click', returnToHub);
-    document.getElementById('btn-modal-hub').addEventListener('click', returnToHub);
-    document.getElementById('btn-retry').addEventListener('click', () => launchGame(activeModule));
-    document.getElementById('btn-audio').addEventListener('click', (e) => {
-      sfx.enabled = !sfx.enabled;
-      e.target.textContent = `AUDIO: ${sfx.enabled ? 'ON' : 'OFF'}`;
-    });
+            // Shoulder Pauldrons
+            const pauldronGeo = new THREE.BoxGeometry(0.32, 0.28, 0.46);
+            const pauldronL = new THREE.Mesh(pauldronGeo, armorMat);
+            pauldronL.position.set(-0.58, 2.05, 0);
+            const pauldronR = pauldronL.clone();
+            pauldronR.position.x = 0.58;
 
-    // Boot Sequence: Load External CC0 / Open-Source GLTF Models First
-    await loadExternalGLTFModels();
-    currentSimulation = initHubScene();
+            // Articulated Head & Glowing Photoreceptors (3x Critical Hitbox)
+            const headGroup = new THREE.Group();
+            headGroup.position.set(0, 2.42, 0);
+            const cranium = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.48, 0.46), armorMat);
+            const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), eyeGlow);
+            eyeL.position.set(-0.1, 0.04, 0.23);
+            const eyeR = eyeL.clone();
+            eyeR.position.x = 0.1;
+            const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35), jointMat);
+            antenna.position.set(0.22, 0.3, -0.05);
+            headGroup.add(cranium, eyeL, eyeR, antenna);
 
-    const clock = new THREE.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05);
-      const elapsed = clock.getElapsedTime();
+            // Articulated Arms + Enemy E-11 Blaster Rifle
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.85, 0.22), jointMat);
+            armL.position.set(-0.58, 1.55, 0.15);
+            armL.rotation.x = -0.5;
 
-      if (activeModule === 'hub' && currentSimulation) {
-        currentSimulation.update(dt, elapsed);
-      } else if (gameActive && currentSimulation) {
-        currentSimulation.update(dt, elapsed);
-      }
+            const armR = new THREE.Group();
+            armR.position.set(0.58, 1.95, 0);
+            const rLimb = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.85, 0.22), jointMat);
+            rLimb.position.set(0, -0.35, 0.25);
+            rLimb.rotation.x = -Math.PI / 2.4;
+            const droidBlaster = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 0.75), jointMat);
+            droidBlaster.position.set(0, -0.45, 0.68);
+            const barrelTip = new THREE.Mesh(new THREE.SphereGeometry(0.05), eyeGlow);
+            barrelTip.position.set(0, -0.45, 1.06);
+            armR.add(rLimb, droidBlaster, barrelTip);
 
-      composer.render();
-    }
-    animate();
-  </script>
+            // Animated Striding Legs
+            const legGeo = new THREE.BoxGeometry(0.26, 1.1, 0.28);
+            const legL = new THREE.Mesh(legGeo, armorMat);
+            legL.position.set(-0.24, 0.55, 0);
+            const legR = new THREE.Mesh(legGeo, armorMat);
+            legR.position.set(0.24, 0.55, 0);
+
+            root.add(torso, chestCore, pauldronL, pauldronR, headGroup, armL, armR, legL, legR);
+
+            // Optionally attach cloned GLTF RobotExpressive crest if loaded
+            if (LoadedGLTF.robot && Math.random() < 0.5) {
+                const gltfBot = SkeletonUtils.clone(LoadedGLTF.robot.scene);
+                gltfBot.scale.set(0.52, 0.52, 0.52);
+                root.add(gltfBot);
+            }
+
+            // Explicit Raycast Hitboxes for Body (1x) and Head (3x Critical)
+            const bodyHitbox = new THREE.Mesh(
+                new THREE.BoxGeometry(1.15, 2.1, 0.85),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            bodyHitbox.position.y = 1.05;
+
+            const headHitbox = new THREE.Mesh(
+                new THREE.BoxGeometry(0.68, 0.68, 0.68),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            headHitbox.position.y = 2.42;
+
+            root.add(bodyHitbox, headHitbox);
+
+            const droidData = {
+                root,
+                headHitbox,
+                bodyHitbox,
+                cranium,
+                legL,
+                legR,
+                hp: 95 + wave * 20,
+                maxHp: 95 + wave * 20,
+                strafeDir: Math.random() < 0.5 ? 1 : -1,
+                strafeTimer: 1.5 + Math.random() * 2,
+                fireTimer: 0.9 + Math.random() * 1.4,
+                phase: Math.random() * Math.PI * 2
+            };
+
+            bodyHitbox.userData = { droid: droidData, isHead: false };
+            headHitbox.userData = { droid: droidData, isHead: true };
+            return droidData;
+        }
+
+        /* =====================================================================
+           4. RENDERER, POST-PROCESSING BLOOM & GLOBAL STATE
+           ===================================================================== */
+        const container = document.getElementById('webgl-container');
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        const envMap = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        let scene = new THREE.Scene();
+        scene.environment = envMap;
+        let camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.08, 900);
+
+        const composer = new EffectComposer(renderer);
+        const renderPass = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            0.72,
+            0.35,
+            0.82
+        );
+        composer.addPass(renderPass);
+        composer.addPass(bloomPass);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        let selectedCarSpec = 0;
+        let currentMode = 'hub'; // 'hub' | 'drift' | 'fps'
+        let activeSim = null;
+
+        const BestScores = {
+            drift: parseInt(localStorage.getItem('nexus_dual_drift') || '0', 10),
+            fps: parseInt(localStorage.getItem('nexus_dual_fps') || '0', 10)
+        };
+
+        function refreshHighScoresUI() {
+            document.getElementById('best-drift').textContent = BestScores.drift.toLocaleString();
+            document.getElementById('best-fps').textContent = BestScores.fps.toLocaleString();
+            document.getElementById('global-rating').textContent = (BestScores.drift + BestScores.fps).toLocaleString();
+        }
+        refreshHighScoresUI();
+
+        function flashScreen(colorCss) {
+            const fx = document.getElementById('screen-fx');
+            fx.style.background = `radial-gradient(circle at center, transparent 35%, ${colorCss} 100%)`;
+            fx.style.opacity = '1';
+            clearTimeout(fx._timer);
+            fx._timer = setTimeout(() => (fx.style.opacity = '0'), 180);
+        }
+
+        const Keys = {};
+        const Mouse = { x: 0, y: 0, dx: 0, dy: 0, left: false, right: false };
+
+        window.addEventListener('keydown', (e) => {
+            Keys[e.code] = true;
+            if (e.code === 'Escape' && currentMode !== 'hub') {
+                if (document.pointerLockElement) document.exitPointerLock();
+                switchToHub();
+            }
+            if (currentMode === 'fps' && activeSim && activeSim.onKeyDown) {
+                activeSim.onKeyDown(e.code);
+            }
+        });
+        window.addEventListener('keyup', (e) => { Keys[e.code] = false; });
+        window.addEventListener('mousemove', (e) => {
+            Mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            Mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            Mouse.dx += e.movementX || 0;
+            Mouse.dy += e.movementY || 0;
+        });
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 0) Mouse.left = true;
+            if (e.button === 2) Mouse.right = true;
+        });
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 0) Mouse.left = false;
+            if (e.button === 2) Mouse.right = false;
+        });
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        /* =====================================================================
+           5. INTERACTIVE 3D GARAGE & ARMORY TURNTABLE HUB SCENE
+           ===================================================================== */
+        function createHubTurntableScene() {
+            scene = new THREE.Scene();
+            scene.environment = envMap;
+            scene.background = new THREE.Color(0x030712);
+            scene.fog = new THREE.FogExp2(0x030712, 0.025);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+            camera.position.set(0, 2.4, 7.2);
+            renderPass.scene = scene;
+            renderPass.camera = camera;
+
+            const floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(90, 90),
+                new THREE.MeshStandardMaterial({
+                    map: Textures.deckMap,
+                    normalMap: Textures.normalMap,
+                    roughness: 0.22,
+                    metalness: 0.85
+                })
+            );
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            const stageGroup = new THREE.Group();
+            scene.add(stageGroup);
+
+            // Neon Turntable Ring
+            const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(3.2, 0.04, 16, 100),
+                new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+            );
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 0.05;
+            stageGroup.add(ring);
+
+            // Showcase Player Procedural Car on Left & BX-Humanoid Droid on Right
+            const carPreview = buildPlayerVehicle(selectedCarSpec);
+            carPreview.root.position.set(-1.35, 0.05, 0.4);
+            carPreview.root.rotation.y = 0.45;
+            stageGroup.add(carPreview.root);
+
+            const droidPreview = buildHumanoidCombatDroid(1);
+            droidPreview.root.position.set(1.75, 0.05, 0.2);
+            droidPreview.root.rotation.y = -0.45;
+            stageGroup.add(droidPreview.root);
+
+            return {
+                update(dt, elapsed) {
+                    stageGroup.rotation.y = elapsed * 0.28 + Mouse.x * 0.35;
+                    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 2.4 - Mouse.y * 0.4, dt * 4);
+                    camera.lookAt(0, 0.95, 0);
+                }
+            };
+        }
+
+        /* =====================================================================
+           6. GAME 1: APEX DRIFT: WANGAN OVERDRIVE (REBUILT FROM SCRATCH)
+              - 100% Custom Procedural Vehicles (Zero external car GLTFs)
+              - Rich Multi-Texture Environment (Wet Asphalt, Concrete Barriers,
+                Overhead Streetlights with Road Light Pools, Cyberpunk Skyline)
+              - Refined Arcade-Sim Steering, Grip, Weight Transfer & Handbrake Drift
+              - 100% Oncoming Traffic Across All 4 Lanes + ONE-HIT ELIMINATION
+           ===================================================================== */
+        function createWanganOverdriveGame(carSpecIdx) {
+            scene = new THREE.Scene();
+            scene.environment = envMap;
+            scene.background = new THREE.Color(0x030611);
+            scene.fog = new THREE.FogExp2(0x030611, 0.0085);
+
+            camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 650);
+            renderPass.scene = scene;
+            renderPass.camera = camera;
+
+            // Ambient & Cool Moonlight Directional Illumination
+            const ambLight = new THREE.AmbientLight(0x1e293b, 1.35);
+            const dirLight = new THREE.DirectionalLight(0x93c5fd, 1.6);
+            dirLight.position.set(25, 60, 30);
+            scene.add(ambLight, dirLight);
+
+            // 1. Textured 4-Lane Wangan Highway Asphalt
+            const road = new THREE.Mesh(
+                new THREE.PlaneGeometry(22, 600),
+                new THREE.MeshStandardMaterial({
+                    map: Textures.roadMap,
+                    normalMap: Textures.normalMap,
+                    normalScale: new THREE.Vector2(0.45, 0.45),
+                    roughness: 0.24,
+                    metalness: 0.62
+                })
+            );
+            road.rotation.x = -Math.PI / 2;
+            road.position.z = -240;
+            road.receiveShadow = true;
+            scene.add(road);
+
+            // 2. Textured Concrete Jersey Barriers (Left & Right Highway Walls)
+            const barrierMat = new THREE.MeshStandardMaterial({
+                map: Textures.barrierMap,
+                normalMap: Textures.normalMap,
+                roughness: 0.55,
+                metalness: 0.25
+            });
+            const barrierL = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.15, 600), barrierMat);
+            barrierL.position.set(-10.5, 0.57, -240);
+            const barrierR = barrierL.clone();
+            barrierR.position.x = 10.5;
+            scene.add(barrierL, barrierR);
+
+            // 3. Double-Sided Highway Streetlights + Glowing Lamps + Road Light Pools + Skyline Buildings
+            const streetLights = [];
+            const poleMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.88, roughness: 0.25 });
+            const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffb74d });
+            const poolMat = new THREE.MeshBasicMaterial({
+                color: 0xf59e0b,
+                transparent: true,
+                opacity: 0.14,
+                depthWrite: false
+            });
+            const bldgMat = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                map: Textures.buildingMap,
+                roughness: 0.4,
+                metalness: 0.6
+            });
+
+            const numLightRows = 12;
+            const lightSpacing = 32;
+            for (let i = 0; i < numLightRows; i++) {
+                const rowGroup = new THREE.Group();
+                const zPos = 20 - i * lightSpacing;
+                rowGroup.position.z = zPos;
+
+                [-10.8, 10.8].forEach((sideX) => {
+                    const isLeft = sideX < 0;
+                    // Vertical tapered lamppost
+                    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 8.8, 10), poleMat);
+                    pole.position.set(sideX, 4.4, 0);
+                    // Overhanging mast arm reaching over the highway lanes
+                    const arm = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.14, 0.16), poleMat);
+                    arm.position.set(sideX + (isLeft ? 1.7 : -1.7), 8.6, 0);
+                    // Glowing Sodium-Vapor LED Fixture
+                    const housing = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.18, 0.42), poleMat);
+                    housing.position.set(sideX + (isLeft ? 3.2 : -3.2), 8.55, 0);
+                    const bulb = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.34), bulbMat);
+                    bulb.rotation.x = Math.PI / 2;
+                    bulb.position.set(sideX + (isLeft ? 3.2 : -3.2), 8.44, 0);
+
+                    // Warm circular light pool projected onto the wet asphalt below each lamp
+                    const pool = new THREE.Mesh(new THREE.CircleGeometry(5.2, 20), poolMat);
+                    pool.rotation.x = -Math.PI / 2;
+                    pool.position.set(sideX + (isLeft ? 3.5 : -3.5), 0.03, 0);
+
+                    rowGroup.add(pole, arm, housing, bulb, pool);
+                });
+
+                // Add real-time PointLight on nearest clusters for authentic specular sheen on car paint
+                if (i % 3 === 0) {
+                    const ptLight = new THREE.PointLight(0xffa726, 22, 34, 1.6);
+                    ptLight.position.set(0, 8.0, 0);
+                    rowGroup.add(ptLight);
+                }
+
+                // Distant Illuminated Wangan Skyscrapers flanking the highway bridge
+                const hL = 22 + (i % 4) * 14;
+                const bldgL = new THREE.Mesh(new THREE.BoxGeometry(12, hL, 18), bldgMat);
+                bldgL.position.set(-24 - (i % 2) * 6, hL / 2 - 4, 0);
+                const hR = 26 + ((i + 2) % 4) * 12;
+                const bldgR = new THREE.Mesh(new THREE.BoxGeometry(12, hR, 18), bldgMat);
+                bldgR.position.set(24 + (i % 2) * 6, hR / 2 - 4, 0);
+                rowGroup.add(bldgL, bldgR);
+
+                scene.add(rowGroup);
+                streetLights.push(rowGroup);
+            }
+
+            // 4. Vehicle Spec Performance Profiles
+            const specs = [
+                { topSpeed: 345, accel: 1.02, steerRate: 30, grip: 10.5, n2oDrain: 22 },
+                { topSpeed: 365, accel: 1.12, steerRate: 35, grip: 13.5, n2oDrain: 24 },
+                { topSpeed: 380, accel: 1.20, steerRate: 28, grip: 9.5, n2oDrain: 17 }
+            ];
+            const carStats = specs[carSpecIdx] || specs[0];
+            const playerCar = buildPlayerVehicle(carSpecIdx);
+            playerCar.root.position.set(2.4, 0, 0);
+            scene.add(playerCar.root);
+
+            // 5. Responsive Sim-Cade Physics State
+            let speedKmh = 155;
+            let gear = 3;
+            let rpm = 4800;
+            const gearMaxSpeeds = [0, 88, 145, 202, 258, 314, carStats.topSpeed];
+            let posX = 2.4;
+            let latVel = 0;
+            let headingAngle = 0;
+            let slipAngle = 0;
+            let pitchAngle = 0;
+            let rollAngle = 0;
+
+            let score = 0;
+            let n2o = 100;
+            let nearMissStreak = 0;
+
+            // Tire Smoke Particle Pool
+            const particles = [];
+            function spawnSmoke(pos, colorHex, scaleVal) {
+                const p = new THREE.Mesh(
+                    new THREE.DodecahedronGeometry(scaleVal, 0),
+                    new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.7 })
+                );
+                p.position.copy(pos);
+                p.userData = { life: 0.42, velY: 1.4 };
+                scene.add(p);
+                particles.push(p);
+            }
+
+            // 6. 100% ONCOMING TRAFFIC ACROSS ALL 4 LANES (Driving Straight Toward Us!)
+            // Guaranteed open lane logic so waves are challenging but never an unavoidable 4-lane wall
+            const laneCenters = [-7.2, -2.4, 2.4, 7.2];
+            const trafficList = [];
+            const numTraffic = 12;
+
+            function pickSafeLane(zTarget, excludeVehicle = null) {
+                // Find which lanes already have traffic near zTarget
+                const occupied = new Set();
+                for (const other of trafficList) {
+                    if (other === excludeVehicle) continue;
+                    if (Math.abs(other.mesh.position.z - zTarget) < 28) {
+                        occupied.add(other.laneIdx);
+                    }
+                }
+                const available = [0, 1, 2, 3].filter((l) => !occupied.has(l));
+                // Always leave at least 1 lane clear at any Z slice so the player can thread the needle
+                if (occupied.size >= 3 && available.length === 1) {
+                    return -1; // Signal to push further back in Z
+                }
+                const pool = available.length > 0 ? available : [0, 1, 2, 3];
+                return pool[Math.floor(Math.random() * pool.length)];
+            }
+
+            for (let i = 0; i < numTraffic; i++) {
+                const typeIdx = i % 5;
+                const mesh = buildTrafficVehicle(typeIdx);
+                const zStart = -65 - i * 34;
+                const laneIdx = i % 4;
+                mesh.position.set(laneCenters[laneIdx], 0, zStart);
+                scene.add(mesh);
+
+                trafficList.push({
+                    mesh,
+                    laneIdx,
+                    targetX: laneCenters[laneIdx],
+                    speedKmh: 115 + (i % 4) * 22,
+                    blinkerTimer: 2.5 + Math.random() * 4.5,
+                    switching: false,
+                    nearMissed: false
+                });
+            }
+
+            function showCallout(text) {
+                const el = document.getElementById('drift-callout');
+                el.textContent = text;
+                el.style.opacity = '1';
+                clearTimeout(el._t);
+                el._t = setTimeout(() => (el.style.opacity = '0'), 900);
+            }
+
+            return {
+                update(dt, elapsed) {
+                    const throttle = Keys['KeyW'] || Keys['ArrowUp'];
+                    const brake = Keys['KeyS'] || Keys['ArrowDown'];
+                    const handbrake = Keys['Space'];
+                    const nitroActive = (Keys['ShiftLeft'] || Keys['ShiftRight']) && n2o > 2;
+
+                    // 1. Longitudinal Acceleration, Aerodynamic Drag & Braking
+                    const drag = 0.00042 * speedKmh * speedKmh;
+                    playerCar.tailMat.color.setHex(brake || handbrake ? 0xff0022 : 0x990011);
+
+                    if (nitroActive) {
+                        speedKmh += 96 * carStats.accel * dt;
+                        n2o = Math.max(0, n2o - carStats.n2oDrain * dt);
+                        playerCar.n2oMat.opacity = 0.95;
+                        pitchAngle = THREE.MathUtils.lerp(pitchAngle, -0.045, dt * 8);
+                    } else {
+                        playerCar.n2oMat.opacity = 0;
+                        n2o = Math.min(100, n2o + 8.5 * dt);
+                        if (throttle) {
+                            const gearTorque = 1.24 - gear * 0.11;
+                            speedKmh += 64 * gearTorque * carStats.accel * dt;
+                            pitchAngle = THREE.MathUtils.lerp(pitchAngle, -0.025, dt * 6);
+                        } else if (brake) {
+                            speedKmh -= 155 * dt;
+                            pitchAngle = THREE.MathUtils.lerp(pitchAngle, 0.06, dt * 9);
+                        } else {
+                            speedKmh -= 20 * dt;
+                            pitchAngle = THREE.MathUtils.lerp(pitchAngle, 0, dt * 6);
+                        }
+                    }
+
+                    const maxAllowed = nitroActive ? carStats.topSpeed + 30 : carStats.topSpeed;
+                    speedKmh = THREE.MathUtils.clamp(speedKmh - drag * dt, 90, maxAllowed);
+
+                    // 2. 6-Speed Sequential Gearbox & Live RPM Calculation
+                    let newGear = 1;
+                    for (let g = 1; g <= 6; g++) {
+                        if (speedKmh > gearMaxSpeeds[g - 1] + 5) newGear = g;
+                    }
+                    if (newGear !== gear) {
+                        gear = newGear;
+                        sfx.playGearShiftBlowoff();
+                    }
+                    const minSpd = gearMaxSpeeds[gear - 1];
+                    const maxSpd = gearMaxSpeeds[gear];
+                    const ratio = THREE.MathUtils.clamp((speedKmh - minSpd) / (maxSpd - minSpd), 0.18, 0.99);
+                    rpm = Math.floor(2500 + ratio * 6300);
+
+                    // 3. Crisp Sim-Cade Lateral Steering, Tire Grip & Handbrake Slip-Angle Physics
+                    const steerInput = (Keys['KeyD'] || Keys['ArrowRight'] ? 1 : 0) - (Keys['KeyA'] || Keys['ArrowLeft'] ? 1 : 0);
+                    const speedFactor = THREE.MathUtils.clamp(speedKmh / 240, 0.65, 1.25);
+
+                    if (steerInput !== 0) {
+                        const accelLat = steerInput * carStats.steerRate * speedFactor;
+                        latVel += accelLat * dt * 3.4;
+                    }
+
+                    // Lateral tire damping: high grip snaps cleanly into lanes; handbrake slides wide
+                    const lateralDamping = handbrake ? 2.4 : carStats.grip;
+                    latVel = THREE.MathUtils.lerp(latVel, 0, Math.min(1, lateralDamping * dt));
+                    latVel = THREE.MathUtils.clamp(latVel, -24, 24);
+
+                    posX += latVel * dt;
+
+                    // Concrete Jersey Barrier Scrape / Bounce
+                    if (posX < -9.05 || posX > 9.05) {
+                        posX = THREE.MathUtils.clamp(posX, -9.05, 9.05);
+                        latVel *= -0.35;
+                        speedKmh = Math.max(95, speedKmh - 45 * dt);
+                        if (Math.random() < 0.35) {
+                            spawnSmoke(new THREE.Vector3(posX, 0.5, 0), 0xf59e0b, 0.22);
+                        }
+                    }
+
+                    // Calculate Heading Angle & Drift Slip Angle
+                    headingAngle = THREE.MathUtils.lerp(headingAngle, -latVel * 0.015, dt * 12);
+                    const targetSlip = handbrake
+                        ? -steerInput * 0.44 - latVel * 0.014
+                        : -latVel * 0.008;
+                    slipAngle = THREE.MathUtils.lerp(slipAngle, targetSlip, dt * (handbrake ? 7 : 12));
+                    rollAngle = THREE.MathUtils.lerp(rollAngle, -latVel * 0.013, dt * 10);
+
+                    playerCar.root.position.x = posX;
+                    playerCar.chassis.rotation.y = headingAngle + slipAngle;
+                    playerCar.chassis.rotation.z = rollAngle;
+                    playerCar.chassis.rotation.x = pitchAngle;
+
+                    // Spin all 4 wheels & visually turn front wheels when steering
+                    playerCar.wheels.forEach((w) => {
+                        w.rotation.x -= (speedKmh / 3.6) * dt * 0.65;
+                        if (w.userData.isFront) {
+                            w.rotation.y = THREE.MathUtils.lerp(w.rotation.y, -steerInput * 0.38, dt * 15);
+                        }
+                    });
+
+                    // Emit Tire Smoke & Screech when Drifting
+                    const isDrifting = Math.abs(slipAngle) > 0.15 && speedKmh > 125;
+                    if (isDrifting) {
+                        score += Math.floor(240 * dt);
+                        n2o = Math.min(100, n2o + 12 * dt); // Drifting recharges N2O faster!
+                        if (Math.random() < 0.55) {
+                            spawnSmoke(new THREE.Vector3(posX - 0.85, 0.22, 1.85), 0xe2e8f0, 0.30);
+                            spawnSmoke(new THREE.Vector3(posX + 0.85, 0.22, 1.85), 0xe2e8f0, 0.30);
+                        }
+                        if (Math.random() < 0.28) sfx.playTireScreech();
+                    }
+
+                    // 4. Scroll Highway Textures, Barrier Chevrons & Overhead Streetlights
+                    const worldStep = (speedKmh / 3.6) * dt;
+                    const mult = 1.0 + nearMissStreak * 0.25 + (isDrifting ? 0.5 : 0);
+                    score += Math.floor(worldStep * mult * 1.8);
+
+                    Textures.roadMap.offset.y -= worldStep * 0.033;
+                    Textures.normalMap.offset.y -= worldStep * 0.05;
+                    Textures.barrierMap.offset.x += worldStep * 0.075;
+
+                    const totalLightSpan = numLightRows * lightSpacing;
+                    for (const row of streetLights) {
+                        row.position.z += worldStep;
+                        if (row.position.z > 28) {
+                            row.position.z -= totalLightSpan;
+                        }
+                    }
+
+                    // 5. Update 100% Oncoming Traffic & ONE-HIT ELIMINATION Collision Check
+                    for (const t of trafficList) {
+                        // Because all traffic is oncoming (+Z), closing speed is Player Speed + Traffic Speed!
+                        const closingKmh = speedKmh + t.speedKmh;
+                        t.mesh.position.z += (closingKmh / 3.6) * dt;
+
+                        // Police Cruiser Roof Siren Strobe
+                        if (t.mesh.userData.typeIndex === 1) {
+                            const flash = Math.sin(elapsed * 24) > 0;
+                            t.mesh.userData.sirenRed.material.color.setHex(flash ? 0xff1133 : 0x220008);
+                            t.mesh.userData.sirenBlue.material.color.setHex(!flash ? 0x0088ff : 0x001133);
+                        }
+
+                        // Oncoming Lane-Change AI with Flashing Amber Turn Signals
+                        t.blinkerTimer -= dt;
+                        if (t.blinkerTimer <= 0 && !t.switching && t.mesh.position.z < -95 && t.mesh.position.z > -260) {
+                            const nextLane = t.laneIdx + (Math.random() < 0.5 ? -1 : 1);
+                            if (nextLane >= 0 && nextLane <= 3) {
+                                // Ensure target lane isn't blocked
+                                const blocked = trafficList.some(
+                                    (o) => o !== t && o.laneIdx === nextLane && Math.abs(o.mesh.position.z - t.mesh.position.z) < 32
+                                );
+                                if (!blocked) {
+                                    t.switching = true;
+                                    t.laneIdx = nextLane;
+                                    t.targetX = laneCenters[nextLane];
+                                }
+                            }
+                            t.blinkerTimer = 3.5 + Math.random() * 4.5;
+                        }
+
+                        if (t.switching) {
+                            const movingRight = t.targetX > t.mesh.position.x;
+                            const blinkOn = Math.sin(elapsed * 18) > 0;
+                            t.mesh.userData.blinkLMat.opacity = !movingRight && blinkOn ? 1 : 0;
+                            t.mesh.userData.blinkRMat.opacity = movingRight && blinkOn ? 1 : 0;
+
+                            t.mesh.position.x = THREE.MathUtils.lerp(t.mesh.position.x, t.targetX, dt * 3.2);
+                            if (Math.abs(t.mesh.position.x - t.targetX) < 0.1) {
+                                t.switching = false;
+                                t.mesh.userData.blinkLMat.opacity = 0;
+                                t.mesh.userData.blinkRMat.opacity = 0;
+                            }
+                        }
+
+                        // Strict Bounding-Box Collision Check: ONE CRASH = INSTANT GAME OVER
+                        const dz = Math.abs(t.mesh.position.z - playerCar.root.position.z);
+                        const dx = Math.abs(t.mesh.position.x - posX);
+                        const hitZ = t.mesh.userData.halfLength + 1.98;
+                        const hitX = t.mesh.userData.halfWidth + 0.82;
+
+                        if (dz < hitZ && dx < hitX) {
+                            sfx.playCrash();
+                            flashScreen('rgba(239, 68, 68, 0.85)');
+                            document.getElementById('drift-hull-pct').textContent = '0% // WRECKED';
+                            document.getElementById('drift-hull-bar').style.width = '0%';
+                            endSimulation(score, `HEAD-ON COLLISION AT ${Math.round(speedKmh)} KM/H // ONE-HIT ELIMINATION`);
+                            return;
+                        }
+
+                        // High-Speed Oncoming Near-Miss Bonus Detection
+                        if (!t.nearMissed && t.mesh.position.z > 1.8 && dz < hitZ + 2.4 && dx < hitX + 1.45) {
+                            t.nearMissed = true;
+                            nearMissStreak = Math.min(5, nearMissStreak + 1);
+                            const bonus = 400 + nearMissStreak * 150;
+                            score += bonus;
+                            n2o = Math.min(100, n2o + 12);
+                            showCallout(`ONCOMING NEAR MISS +${bonus}! (${nearMissStreak}x STREAK)`);
+                        }
+
+                        // Recycle Oncoming Vehicle once it passes behind the camera
+                        if (t.mesh.position.z > 24) {
+                            let newZ = -340 - Math.random() * 65;
+                            let safeLane = pickSafeLane(newZ, t);
+                            if (safeLane === -1) {
+                                newZ -= 38;
+                                safeLane = Math.floor(Math.random() * 4);
+                            }
+                            t.laneIdx = safeLane;
+                            t.targetX = laneCenters[safeLane];
+                            t.mesh.position.set(t.targetX, 0, newZ);
+                            t.switching = false;
+                            t.nearMissed = false;
+                            t.speedKmh = 115 + Math.floor(Math.random() * 4) * 24 + Math.min(60, score * 0.0015);
+                        }
+                    }
+
+                    // 6. Update Tire Smoke Particles
+                    for (let i = particles.length - 1; i >= 0; i--) {
+                        const p = particles[i];
+                        p.userData.life -= dt;
+                        p.position.y += p.userData.velY * dt;
+                        p.position.z += worldStep * 0.45;
+                        p.scale.multiplyScalar(1 + 2.4 * dt);
+                        p.material.opacity = Math.max(0, p.userData.life * 1.6);
+                        if (p.userData.life <= 0) {
+                            scene.remove(p);
+                            particles.splice(i, 1);
+                        }
+                    }
+
+                    // 7. Dynamic Chase Camera with Speed FOV & Lateral Lag
+                    const targetFov = nitroActive ? 82 : 66 + (speedKmh - 130) * 0.045;
+                    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, dt * 6);
+                    camera.updateProjectionMatrix();
+                    camera.position.x = THREE.MathUtils.lerp(camera.position.x, posX * 0.76, dt * 8);
+                    camera.position.y = THREE.MathUtils.lerp(camera.position.y, nitroActive ? 2.15 : 2.4, dt * 6);
+                    camera.position.z = THREE.MathUtils.lerp(camera.position.z, nitroActive ? 5.5 : 6.5, dt * 6);
+                    camera.lookAt(posX * 0.62, 0.88, -22);
+
+                    // 8. Update HUD Telemetry
+                    document.getElementById('drift-score').textContent = String(score).padStart(6, '0');
+                    document.getElementById('drift-multiplier').textContent = isDrifting
+                        ? `HANDBRAKE DRIFT // ${(mult).toFixed(2)}x MULTIPLIER`
+                        : `ONCOMING SUDDEN DEATH // ${(mult).toFixed(2)}x MULTIPLIER`;
+                    document.getElementById('drift-speed').textContent = Math.round(speedKmh);
+                    document.getElementById('drift-gear').textContent = gear;
+                    document.getElementById('drift-rpm-txt').textContent = `${rpm.toLocaleString()} RPM`;
+                    document.getElementById('drift-rpm-bar').style.width = `${(rpm / 8800) * 100}%`;
+                    document.getElementById('drift-n2o-txt').textContent = `${Math.round(n2o)}%`;
+                    document.getElementById('drift-n2o-bar').style.width = `${n2o}%`;
+                    document.getElementById('drift-slip-status').textContent = isDrifting
+                        ? 'SLIP ANGLE: DRIFTING (+N2O)'
+                        : 'TRACTION: LOCKED';
+                    document.getElementById('drift-heat-stars').textContent = '★'.repeat(nearMissStreak) + '☆'.repeat(5 - nearMissStreak);
+                }
+            };
+        }
+
+        /* =====================================================================
+           7. GAME 2: IMPERIAL BREACH // BLASTER COMMAND (STAR WARS FPS)
+              - 28-Part Star Wars E-11 / DL-44 Blaster Viewmodel + Macro-Scope ADS
+              - 3 Tibanna Firing Modes + Active Cooling Flush [R]
+              - Multi-Zone Imperial Orbital Hangar Map + Space Battle Window
+              - Articulated Humanoid BX-Series Combat Droids with Physical Laser Bolts
+           ===================================================================== */
+        function createImperialBreachFPS() {
+            scene = new THREE.Scene();
+            scene.environment = envMap;
+            scene.background = new THREE.Color(0x02040a);
+            scene.fog = new THREE.FogExp2(0x02040a, 0.012);
+
+            camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.06, 600);
+            renderPass.scene = scene;
+            renderPass.camera = camera;
+
+            // Build Multi-Zone Imperial Star Destroyer Orbital Hangar Map
+            const wallMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                metalness: 0.85,
+                roughness: 0.3,
+                normalMap: Textures.normalMap
+            });
+            const darkSteel = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                metalness: 0.9,
+                roughness: 0.22
+            });
+
+            // Main Hangar Deck
+            const deck = new THREE.Mesh(
+                new THREE.PlaneGeometry(96, 96),
+                new THREE.MeshStandardMaterial({
+                    map: Textures.deckMap,
+                    normalMap: Textures.normalMap,
+                    roughness: 0.26,
+                    metalness: 0.82
+                })
+            );
+            deck.rotation.x = -Math.PI / 2;
+            deck.receiveShadow = true;
+            scene.add(deck);
+
+            // Zone 1: Central Sunken Command Pit & Glowing Tactical Holotable
+            const holoBase = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 0.9, 16), darkSteel);
+            holoBase.position.set(0, 0.45, 0);
+            const holoProj = new THREE.Mesh(
+                new THREE.IcosahedronGeometry(1.35, 1),
+                new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true })
+            );
+            holoProj.position.set(0, 2.1, 0);
+            scene.add(holoBase, holoProj);
+
+            // Zone 2: Waist-High Durasteel Cover Crates (For Player & Droids)
+            const coverPositions = [
+                [-10, 8], [10, 8], [-10, -8], [10, -8],
+                [-18, 0], [18, 0], [0, 14], [0, -14]
+            ];
+            const crateGeo = new THREE.BoxGeometry(3.6, 1.55, 1.8);
+            coverPositions.forEach(([cx, cz]) => {
+                const crate = new THREE.Mesh(crateGeo, wallMat);
+                crate.position.set(cx, 0.78, cz);
+                const stripe = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.64, 0.14, 1.84),
+                    new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+                );
+                stripe.position.set(cx, 1.25, cz);
+                scene.add(crate, stripe);
+            });
+
+            // Zone 3: Reactor Cooling Columns & Imperial Light Strips
+            [[-22, -18], [22, -18], [-22, 18], [22, 18]].forEach(([px, pz]) => {
+                const col = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 14, 16), darkSteel);
+                col.position.set(px, 7, pz);
+                const lightBar = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.25, 11, 0.25),
+                    new THREE.MeshBasicMaterial({ color: 0xe2e8f0 })
+                );
+                lightBar.position.set(px > 0 ? px - 1.42 : px + 1.42, 7, pz);
+                scene.add(col, lightBar);
+            });
+
+            // Zone 4: North Magnetic Force-Field Hangar Shield Window + Imperial Star Destroyer Silhouette
+            const shieldWindow = new THREE.Mesh(
+                new THREE.PlaneGeometry(54, 18),
+                new THREE.MeshBasicMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.14, side: THREE.DoubleSide })
+            );
+            shieldWindow.position.set(0, 9, -42);
+            scene.add(shieldWindow);
+
+            // Distant Wedge-Shaped Star Destroyer Cruiser & Ringed Planet Outside Hangar Bay
+            const cruiser = new THREE.Group();
+            const wedge = new THREE.Mesh(
+                new THREE.ConeGeometry(16, 48, 4),
+                new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.4 })
+            );
+            wedge.rotation.x = Math.PI / 2;
+            wedge.rotation.z = Math.PI / 4;
+            wedge.scale.set(1.2, 0.28, 1);
+            const bridge = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 4), wallMat);
+            bridge.position.set(0, 3.5, 14);
+            cruiser.add(wedge, bridge);
+            cruiser.position.set(-22, 16, -135);
+            cruiser.rotation.y = 0.35;
+            scene.add(cruiser);
+
+            // First-Person Player Controller & 28-Part Star Wars Blaster Viewmodel
+            const yawObj = new THREE.Object3D();
+            const pitchObj = new THREE.Object3D();
+            yawObj.position.set(0, 1.85, 22);
+            yawObj.add(pitchObj);
+            pitchObj.add(camera);
+            scene.add(yawObj);
+
+            const { blaster, chamberGlowMat } = buildStarWarsBlasterViewmodel();
+            blaster.position.set(0.24, -0.21, -0.44);
+            camera.add(blaster);
+
+            // 3 Blaster Firing Modes
+            const modes = [
+                { name: 'E-11 PLASMA RIFLE', rate: 0.13, heatCost: 8.5, dmg: 34, bolts: 1, spread: 0.012, color: 0xff1133, speed: 115 },
+                { name: 'DL-44 HEAVY BLASTER', rate: 0.42, heatCost: 22.0, dmg: 92, bolts: 1, spread: 0.004, color: 0xf59e0b, speed: 145 },
+                { name: 'SX-21 ION SCATTER', rate: 0.55, heatCost: 26.0, dmg: 28, bolts: 5, spread: 0.068, color: 0x38bdf8, speed: 95 }
+            ];
+            let curMode = 0;
+            let cooldown = 0;
+            let heat = 0;
+            let overheated = false;
+
+            let score = 0;
+            let wave = 1;
+            let shield = 100;
+            let armor = 100;
+            let velY = 0;
+            let grounded = true;
+
+            const droids = [];
+            const laserBolts = [];
+            const sparks = [];
+
+            function spawnDroidWave(waveNum) {
+                wave = waveNum;
+                const count = 4 + waveNum * 2;
+                for (let i = 0; i < count; i++) {
+                    const d = buildHumanoidCombatDroid(waveNum);
+                    const angle = (i / count) * Math.PI * 2;
+                    const dist = 24 + Math.random() * 10;
+                    d.root.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist - 6);
+                    scene.add(d.root);
+                    droids.push(d);
+                }
+            }
+            spawnDroidWave(1);
+
+            function spawnHitSparks(pt, colorHex, count = 7) {
+                for (let i = 0; i < count; i++) {
+                    const s = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.08, 0.08, 0.08),
+                        new THREE.MeshBasicMaterial({ color: colorHex })
+                    );
+                    s.position.copy(pt);
+                    s.userData = {
+                        vel: new THREE.Vector3((Math.random() - 0.5) * 8, 2 + Math.random() * 5, (Math.random() - 0.5) * 8),
+                        life: 0.32
+                    };
+                    scene.add(s);
+                    sparks.push(s);
+                }
+            }
+
+            function fireBlaster() {
+                if (cooldown > 0 || overheated) return;
+                const m = modes[curMode];
+                cooldown = m.rate;
+                heat = Math.min(100, heat + m.heatCost);
+                if (heat >= 100) {
+                    overheated = true;
+                    sfx.playCoolingVent();
+                    flashScreen('rgba(245, 158, 11, 0.35)');
+                }
+
+                sfx.playStarWarsBlaster(curMode);
+                blaster.position.z += 0.09;
+                pitchObj.rotation.x += 0.014;
+
+                const muzzleWorld = new THREE.Vector3();
+                blaster.getWorldPosition(muzzleWorld);
+
+                for (let b = 0; b < m.bolts; b++) {
+                    const dir = new THREE.Vector3(
+                        (Math.random() - 0.5) * m.spread,
+                        (Math.random() - 0.5) * m.spread,
+                        -1
+                    ).normalize();
+                    dir.applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
+
+                    const bolt = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.032, 0.032, 1.85, 8),
+                        new THREE.MeshBasicMaterial({ color: m.color })
+                    );
+                    bolt.geometry.rotateX(Math.PI / 2);
+                    bolt.position.copy(muzzleWorld).addScaledVector(dir, 0.7);
+                    bolt.lookAt(bolt.position.clone().add(dir));
+                    bolt.userData = {
+                        vel: dir.multiplyScalar(m.speed),
+                        dmg: m.dmg,
+                        color: m.color,
+                        friendly: true,
+                        life: 1.8
+                    };
+                    scene.add(bolt);
+                    laserBolts.push(bolt);
+                }
+            }
+
+            const onCanvasClick = () => {
+                if (currentMode === 'fps' && document.pointerLockElement !== renderer.domElement) {
+                    renderer.domElement.requestPointerLock();
+                }
+            };
+            renderer.domElement.addEventListener('click', onCanvasClick);
+
+            return {
+                cleanup() {
+                    renderer.domElement.removeEventListener('click', onCanvasClick);
+                    document.getElementById('blaster-scope-overlay').style.display = 'none';
+                },
+                onKeyDown(code) {
+                    if (code === 'Digit1') curMode = 0;
+                    if (code === 'Digit2') curMode = 1;
+                    if (code === 'Digit3') curMode = 2;
+                    chamberGlowMat.color.setHex(modes[curMode].color);
+
+                    // Active Cooling Vent Flush [R]
+                    if (code === 'KeyR' && heat > 15) {
+                        heat = 0;
+                        overheated = false;
+                        sfx.playCoolingVent();
+                    }
+                    // Jump
+                    if (code === 'Space' && grounded) {
+                        grounded = false;
+                        velY = 8.2;
+                    }
+                },
+                update(dt, elapsed) {
+                    holoProj.rotation.y += 0.8 * dt;
+                    if (cooldown > 0) cooldown -= dt;
+
+                    // Passive Tibanna Cooling
+                    const coolRate = overheated ? 34 : 22;
+                    heat = Math.max(0, heat - coolRate * dt);
+                    if (overheated && heat <= 0) overheated = false;
+
+                    // Mouse Look
+                    if (document.pointerLockElement === renderer.domElement || Mouse.left) {
+                        const sens = Mouse.right ? 0.0011 : 0.0021;
+                        yawObj.rotation.y -= Mouse.dx * sens;
+                        pitchObj.rotation.x = THREE.MathUtils.clamp(pitchObj.rotation.x - Mouse.dy * sens, -1.35, 1.35);
+                    }
+                    Mouse.dx = 0;
+                    Mouse.dy = 0;
+
+                    // Right-Click Optical Scope ADS
+                    const scopeEl = document.getElementById('blaster-scope-overlay');
+                    const reticleEl = document.getElementById('fps-reticle');
+                    if (Mouse.right) {
+                        camera.fov = THREE.MathUtils.lerp(camera.fov, 26, dt * 14);
+                        blaster.visible = false;
+                        scopeEl.style.display = 'flex';
+                        reticleEl.style.display = 'none';
+                    } else {
+                        camera.fov = THREE.MathUtils.lerp(camera.fov, 72, dt * 14);
+                        blaster.visible = true;
+                        scopeEl.style.display = 'none';
+                        reticleEl.style.display = 'flex';
+                    }
+                    camera.updateProjectionMatrix();
+
+                    // Viewmodel Recoil Recovery & Idle Bob
+                    blaster.position.z = THREE.MathUtils.lerp(blaster.position.z, -0.44, dt * 14);
+
+                    if (Mouse.left) fireBlaster();
+
+                    // WASD Movement + Crouch Cover [KeyC / ControlLeft]
+                    const crouching = Keys['KeyC'] || Keys['ControlLeft'];
+                    const targetEyeY = crouching ? 1.05 : 1.85;
+                    const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yawObj.rotation.y);
+                    const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yawObj.rotation.y);
+                    const move = new THREE.Vector3();
+                    if (Keys['KeyW'] || Keys['ArrowUp']) move.add(fwd);
+                    if (Keys['KeyS'] || Keys['ArrowDown']) move.sub(fwd);
+                    if (Keys['KeyD'] || Keys['ArrowRight']) move.add(right);
+                    if (Keys['KeyA'] || Keys['ArrowLeft']) move.sub(right);
+                    if (move.lengthSq() > 0) move.normalize();
+
+                    const moveSpeed = crouching ? 6.0 : 10.8;
+                    yawObj.position.addScaledVector(move, moveSpeed * dt);
+                    yawObj.position.x = THREE.MathUtils.clamp(yawObj.position.x, -40, 40);
+                    yawObj.position.z = THREE.MathUtils.clamp(yawObj.position.z, -38, 40);
+
+                    if (!grounded) {
+                        yawObj.position.y += velY * dt;
+                        velY -= 19 * dt;
+                        if (yawObj.position.y <= targetEyeY) {
+                            yawObj.position.y = targetEyeY;
+                            grounded = true;
+                        }
+                    } else {
+                        yawObj.position.y = THREE.MathUtils.lerp(yawObj.position.y, targetEyeY, dt * 10);
+                    }
+
+                    // Shield Regeneration
+                    shield = Math.min(100, shield + 6 * dt);
+
+                    // Update Articulated Humanoid Combat Droids
+                    for (const d of droids) {
+                        d.root.lookAt(yawObj.position.x, 0, yawObj.position.z);
+
+                        const toPlayer = new THREE.Vector3().subVectors(yawObj.position, d.root.position);
+                        toPlayer.y = 0;
+                        const dist = toPlayer.length();
+                        toPlayer.normalize();
+
+                        // Strafe + Advance Tactical Movement
+                        d.strafeTimer -= dt;
+                        if (d.strafeTimer <= 0) {
+                            d.strafeDir *= -1;
+                            d.strafeTimer = 1.4 + Math.random() * 2;
+                        }
+                        const perp = new THREE.Vector3(-toPlayer.z * d.strafeDir, 0, toPlayer.x * d.strafeDir);
+                        if (dist > 11) {
+                            d.root.position.addScaledVector(toPlayer, 4.8 * dt);
+                        }
+                        d.root.position.addScaledVector(perp, 3.4 * dt);
+
+                        // Animate Humanoid Legs Walking Cycle
+                        d.phase += 9 * dt;
+                        d.legL.rotation.x = Math.sin(d.phase) * 0.55;
+                        d.legR.rotation.x = -Math.sin(d.phase) * 0.55;
+
+                        // Droid Fires Visible Crimson Laser Bolt at Player
+                        d.fireTimer -= dt;
+                        if (d.fireTimer <= 0) {
+                            d.fireTimer = Math.max(0.75, 1.9 - wave * 0.1) + Math.random() * 0.7;
+                            sfx.playDroidBlaster();
+
+                            const startPos = d.root.position.clone().add(new THREE.Vector3(0, 1.75, 0));
+                            const aimTarget = yawObj.position.clone().add(new THREE.Vector3(
+                                (Math.random() - 0.5) * 1.1,
+                                (Math.random() - 0.5) * 0.6,
+                                (Math.random() - 0.5) * 1.1
+                            ));
+                            const bDir = new THREE.Vector3().subVectors(aimTarget, startPos).normalize();
+
+                            const eBolt = new THREE.Mesh(
+                                new THREE.CylinderGeometry(0.04, 0.04, 1.9, 8),
+                                new THREE.MeshBasicMaterial({ color: 0xff2244 })
+                            );
+                            eBolt.geometry.rotateX(Math.PI / 2);
+                            eBolt.position.copy(startPos);
+                            eBolt.lookAt(startPos.clone().add(bDir));
+                            eBolt.userData = {
+                                vel: bDir.multiplyScalar(42),
+                                dmg: 16,
+                                friendly: false,
+                                life: 2.5
+                            };
+                            scene.add(eBolt);
+                            laserBolts.push(eBolt);
+                        }
+                    }
+
+                    // Update Physical 3D Laser Bolts & Locational Damage (Headshot = 3x)
+                    for (let i = laserBolts.length - 1; i >= 0; i--) {
+                        const b = laserBolts[i];
+                        b.position.addScaledVector(b.userData.vel, dt);
+                        b.userData.life -= dt;
+
+                        if (b.userData.friendly) {
+                            let hitRegistered = false;
+                            for (let j = droids.length - 1; j >= 0; j--) {
+                                const d = droids[j];
+                                const headCenter = d.root.position.clone().add(new THREE.Vector3(0, 2.42, 0));
+                                const bodyCenter = d.root.position.clone().add(new THREE.Vector3(0, 1.35, 0));
+
+                                const isHeadshot = b.position.distanceTo(headCenter) < 0.52;
+                                const isBodyHit = !isHeadshot && b.position.distanceTo(bodyCenter) < 0.95;
+
+                                if (isHeadshot || isBodyHit) {
+                                    hitRegistered = true;
+                                    const finalDmg = isHeadshot ? b.userData.dmg * 3.0 : b.userData.dmg;
+                                    d.hp -= finalDmg;
+
+                                    spawnHitSparks(b.position, isHeadshot ? 0xf59e0b : 0x38bdf8, isHeadshot ? 12 : 6);
+
+                                    const hm = document.getElementById('fps-hitmarker');
+                                    hm.style.opacity = '1';
+                                    clearTimeout(hm._t);
+                                    hm._t = setTimeout(() => (hm.style.opacity = '0'), 90);
+
+                                    if (d.hp <= 0) {
+                                        sfx.playCrash();
+                                        score += isHeadshot ? 450 : 200;
+                                        scene.remove(d.root);
+                                        droids.splice(j, 1);
+                                        if (droids.length === 0) {
+                                            setTimeout(() => spawnDroidWave(wave + 1), 1200);
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            if (hitRegistered) b.userData.life = 0;
+                        } else {
+                            // Enemy laser bolt hitting player
+                            if (b.position.distanceTo(yawObj.position) < 0.95) {
+                                b.userData.life = 0;
+                                flashScreen('rgba(244, 63, 94, 0.5)');
+                                if (shield >= b.userData.dmg) {
+                                    shield -= b.userData.dmg;
+                                } else {
+                                    const rem = b.userData.dmg - shield;
+                                    shield = 0;
+                                    armor -= rem;
+                                }
+                                if (armor <= 0) {
+                                    endSimulation(score, 'TROOPER ARMOR BREACHED BY BX-DROIDS');
+                                    return;
+                                }
+                            }
+                        }
+
+                        if (b.userData.life <= 0) {
+                            scene.remove(b);
+                            laserBolts.splice(i, 1);
+                        }
+                    }
+
+                    // Update Sparks
+                    for (let i = sparks.length - 1; i >= 0; i--) {
+                        const s = sparks[i];
+                        s.position.addScaledVector(s.userData.vel, dt);
+                        s.userData.vel.y -= 14 * dt;
+                        s.userData.life -= dt;
+                        if (s.userData.life <= 0) {
+                            scene.remove(s);
+                            sparks.splice(i, 1);
+                        }
+                    }
+
+                    // Update HUD
+                    const m = modes[curMode];
+                    document.getElementById('fps-score').textContent = String(score).padStart(6, '0');
+                    document.getElementById('fps-wave').textContent = `WAVE ${wave} // BX-DROIDS REMAINING: ${droids.length}`;
+                    document.getElementById('fps-shield-txt').textContent = `${Math.round(shield)}%`;
+                    document.getElementById('fps-shield-bar').style.width = `${shield}%`;
+                    document.getElementById('fps-armor-txt').textContent = `${Math.max(0, Math.round(armor))}%`;
+                    document.getElementById('fps-armor-bar').style.width = `${Math.max(0, armor)}%`;
+                    document.getElementById('fps-blaster-title').textContent = m.name;
+                    document.getElementById('fps-heat-bar').style.width = `${heat}%`;
+                    document.getElementById('fps-heat-pct').textContent = `HEAT: ${Math.round(heat)}%`;
+                    document.getElementById('fps-heat-status').textContent = overheated
+                        ? 'OVERHEATED! PRESS [R] VENT FLUSH!'
+                        : 'TIBANNA CHAMBER: NOMINAL';
+
+                    for (let idx = 0; idx < 3; idx++) {
+                        document.getElementById(`fps-mode-${idx}`).className = idx === curMode
+                            ? 'py-1 rounded bg-rose-500/30 border border-rose-400 text-white font-bold'
+                            : 'py-1 rounded bg-slate-900 border border-slate-700 text-slate-400';
+                    }
+                }
+            };
+        }
+
+        /* =====================================================================
+           8. NAVIGATION, CAR SPEC SELECTION & MAIN LOOP
+           ===================================================================== */
+        function launchSimulation(modeKey) {
+            sfx.init();
+            if (activeSim && activeSim.cleanup) activeSim.cleanup();
+
+            currentMode = modeKey;
+            document.getElementById('hub-overlay').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('back-to-hub-btn').classList.remove('hidden');
+            document.getElementById('back-to-hub-btn').classList.add('flex');
+            document.getElementById('active-module-banner').classList.remove('hidden');
+
+            document.getElementById('hud-drift').classList.toggle('hidden', modeKey !== 'drift');
+            document.getElementById('hud-fps').classList.toggle('hidden', modeKey !== 'fps');
+
+            if (modeKey === 'drift') {
+                document.getElementById('active-module-banner').textContent = '01 // APEX DRIFT: WANGAN OVERDRIVE';
+                activeSim = createWanganOverdriveGame(selectedCarSpec);
+            } else {
+                document.getElementById('active-module-banner').textContent = '02 // IMPERIAL BREACH: BLASTER COMMAND';
+                activeSim = createImperialBreachFPS();
+            }
+        }
+
+        function switchToHub() {
+            if (activeSim && activeSim.cleanup) activeSim.cleanup();
+            if (document.pointerLockElement) document.exitPointerLock();
+
+            currentMode = 'hub';
+            document.getElementById('hub-overlay').classList.remove('hidden');
+            document.getElementById('hud-drift').classList.add('hidden');
+            document.getElementById('hud-fps').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('back-to-hub-btn').classList.add('hidden');
+            document.getElementById('active-module-banner').classList.add('hidden');
+
+            activeSim = createHubTurntableScene();
+        }
+
+        function endSimulation(finalScore, reasonText) {
+            if (document.pointerLockElement) document.exitPointerLock();
+            const key = currentMode;
+            if (finalScore > (BestScores[key] || 0)) {
+                BestScores[key] = finalScore;
+                localStorage.setItem(`nexus_dual_${key}`, String(finalScore));
+                refreshHighScoresUI();
+            }
+
+            const prevMode = currentMode;
+            currentMode = 'gameover';
+            document.getElementById('modal-reason').textContent = reasonText;
+            document.getElementById('modal-score').textContent = finalScore.toLocaleString();
+            document.getElementById('modal-best').textContent = (BestScores[key] || 0).toLocaleString();
+            document.getElementById('gameover-modal').classList.remove('hidden');
+
+            document.getElementById('modal-retry-btn').onclick = () => launchSimulation(prevMode);
+        }
+
+        // Bind UI Controls
+        document.querySelectorAll('.spec-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.spec-btn').forEach((b) => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedCarSpec = parseInt(btn.dataset.car, 10);
+                if (currentMode === 'hub') {
+                    activeSim = createHubTurntableScene();
+                }
+            });
+        });
+
+        document.getElementById('launch-drift-btn').addEventListener('click', () => launchSimulation('drift'));
+        document.getElementById('launch-fps-btn').addEventListener('click', () => launchSimulation('fps'));
+        document.getElementById('back-to-hub-btn').addEventListener('click', switchToHub);
+        document.getElementById('modal-hub-btn').addEventListener('click', switchToHub);
+
+        document.getElementById('audio-btn').addEventListener('click', (e) => {
+            sfx.enabled = !sfx.enabled;
+            e.target.textContent = `SYNTH AUDIO: ${sfx.enabled ? 'ON' : 'OFF'}`;
+        });
+
+        // Boot Sequence
+        await preloadGLTFModels();
+        activeSim = createHubTurntableScene();
+
+        const clock = new THREE.Clock();
+        function animateLoop() {
+            requestAnimationFrame(animateLoop);
+            const dt = Math.min(clock.getDelta(), 0.05);
+            const elapsed = clock.getElapsedTime();
+
+            if (activeSim && currentMode !== 'gameover') {
+                activeSim.update(dt, elapsed);
+            }
+            composer.render();
+        }
+        animateLoop();
+    </script>
 </body>
 </html>
