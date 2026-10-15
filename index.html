@@ -2,164 +2,2579 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to My Website</title>
+    <!-- iOS Safari & Home Screen Web App Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DigiLocker">
+    <meta name="theme-color" content="#3A24D6" id="theme-color-meta">
+    <title>DigiLocker</title>
+
+    <!-- Embedded DigiLocker Favicon (Works automatically on Netlify with zero external files) -->
+    <link
+        id="svg-favicon"
+        rel="icon"
+        type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='docGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%235B2AF6'/%3E%3Cstop offset='75%25' stop-color='%234C1CE5'/%3E%3Cstop offset='100%25' stop-color='%233A10C2'/%3E%3C/linearGradient%3E%3Cfilter id='docInner' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeDropShadow dx='0' dy='3' stdDeviation='5' flood-color='%2323077A' flood-opacity='0.45'/%3E%3C/filter%3E%3Cfilter id='cloudShadow' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeDropShadow dx='0' dy='4' stdDeviation='5' flood-color='%23000000' flood-opacity='0.22'/%3E%3C/filter%3E%3CradialGradient id='cloud3D' cx='50%25' cy='42%25' r='58%25'%3E%3Cstop offset='0%25' stop-color='%23FFFFFF'/%3E%3Cstop offset='76%25' stop-color='%23FAFAFC'/%3E%3Cstop offset='100%25' stop-color='%23D6D6DF'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='64' fill='%23FFFFFF'/%3E%3Cpath d='M177 98 H253 V184 H365 V312 C365 324.15 355.15 334 343 334 H177 C164.85 334 155 324.15 155 312 V120 C155 107.85 164.85 98 177 98 Z' fill='url(%23docGrad)' filter='url(%23docInner)'/%3E%3Cpath d='M266 98 L365 171 H266 Z' fill='url(%23docGrad)' filter='url(%23docInner)'/%3E%3Cpath d='M147 296 H266 C287.5 296 304 280.2 304 260.5 C304 242.8 290.8 228.1 273.5 225.5 C268.2 212.1 255.1 202.8 239.8 202.8 C233.4 202.8 227.4 204.4 222.2 207.3 C213.6 189.6 195.4 177.5 174.4 177.5 C145.2 177.5 121.5 200.8 121.5 229.5 C121.5 231.7 121.7 233.9 122 236 C109.8 242.2 101.5 254.7 101.5 269.2 C101.5 284.5 114.2 296 131 296 H147 Z' fill='url(%23cloud3D)' stroke='%23491AE0' stroke-width='7.5' stroke-linejoin='round' filter='url(%23cloudShadow)'/%3E%3Ccircle cx='194' cy='236' r='10' fill='%234E1EE4'/%3E%3Cpath d='M189.5 242 H198.5 L203.5 268 H184.5 Z' fill='%234E1EE4'/%3E%3Ctext x='256' y='392' fill='%234819D2' font-family='Arial, Helvetica, sans-serif' font-size='62' font-weight='800' text-anchor='middle' letter-spacing='-0.5'%3EDigiLocker%3C/text%3E%3Cline x1='178' y1='403' x2='380' y2='403' stroke='%236B93B5' stroke-width='1.8'/%3E%3Ctext x='260' y='423' fill='%237E7E7E' font-family='Arial, Helvetica, sans-serif' font-size='19.5' font-style='italic' text-anchor='middle'%3EYour documents anytime, anywhere%3C/text%3E%3C/svg%3E"
+    >
+    <link id="png-favicon" rel="icon" type="image/png" sizes="512x512">
+    <link id="shortcut-favicon" rel="shortcut icon" type="image/png">
+    <link id="apple-touch-icon" rel="apple-touch-icon" sizes="180x180">
+
+    <script>
+        // Synchronously generate a crisp 512x512 PNG favicon & iOS Home Screen icon from the embedded vector
+        (function initDigiLockerFavicon() {
+            const svgLink = document.getElementById('svg-favicon');
+            if (!svgLink) return;
+            const img = new Image();
+            img.onload = function() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 512;
+                    canvas.height = 512;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 512, 512);
+                    const pngDataUrl = canvas.toDataURL('image/png');
+                    const pngEl = document.getElementById('png-favicon');
+                    const shortEl = document.getElementById('shortcut-favicon');
+                    const appleEl = document.getElementById('apple-touch-icon');
+                    if (pngEl) pngEl.href = pngDataUrl;
+                    if (shortEl) shortEl.href = pngDataUrl;
+                    if (appleEl) appleEl.href = pngDataUrl;
+                } catch (e) {}
+            };
+            img.src = svgLink.href;
+        })();
+    </script>
+
+    <!-- Google Fonts for Devanagari (Hindi) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        /* Modern Reset & Typography */
+        /* ==========================================================================
+           RESET & NATIVE iOS SAFARI STYLING
+           ========================================================================== */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #333;
-            line-height: 1.6;
-            background-color: #f8f9fa;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
         }
 
-        /* Navigation Bar */
-        header {
-            background-color: #ffffff;
-            border-bottom: 1px solid #eaeaea;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        :root {
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
-        .nav-container {
-            max-width: 1100px;
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #e5e7eb;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Mobile container: full screen on iPhone, centered 430px max-width on larger screens */
+        #app-shell {
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+            height: 100dvh;
             margin: 0 auto;
+            background-color: #F8F9FB;
+            overflow: hidden;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-        }
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #111;
-            text-decoration: none;
-        }
-        nav a {
-            color: #555;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-        nav a:hover {
-            color: #0070f3;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
         }
 
-        /* Hero Section */
-        .hero {
-            background-color: #ffffff;
-            padding: 90px 20px;
-            text-align: center;
-            border-bottom: 1px solid #eaeaea;
+        /* Hide scrollbars while preserving smooth iOS momentum scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            color: #111;
-            margin-bottom: 20px;
-            letter-spacing: -0.5px;
-        }
-        .hero p {
-            font-size: 1.25rem;
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto 30px auto;
-        }
-        .btn {
-            display: inline-block;
-            background-color: #0070f3;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background 0.2s ease;
-        }
-        .btn:hover {
-            background-color: #0051b3;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* Content Sections */
-        .main-content {
-            max-width: 800px;
-            margin: 60px auto;
-            padding: 0 20px;
-        }
-        section {
-            margin-bottom: 40px;
-        }
-        section h2 {
-            font-size: 1.8rem;
-            color: #111;
-            margin-bottom: 15px;
-        }
-        section p {
-            margin-bottom: 15px;
-            color: #444;
+        /* ==========================================================================
+           TAB PANES & NAVIGATION
+           ========================================================================== */
+        .tab-view {
+            display: none;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: calc(82px + var(--safe-bottom));
         }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: #888;
-            font-size: 0.9rem;
-            border-top: 1px solid #eaeaea;
+        .tab-view.active {
+            display: block;
+        }
+
+        /* ==========================================================================
+           HOME TAB HERO & CARDS
+           ========================================================================== */
+        .home-hero {
+            background: linear-gradient(180deg, #3A24D6 0%, #452CE9 100%);
+            padding-top: calc(var(--safe-top) + 14px);
+            padding-left: 18px;
+            padding-right: 18px;
+            padding-bottom: 92px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Angled / Curved white bottom transition matching screenshot */
+        .home-hero::after {
+            content: "";
+            position: absolute;
+            left: -8%;
+            right: -8%;
+            bottom: -34px;
+            height: 68px;
+            background-color: #F8F9FB;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            transform: rotate(-2.5deg);
+            z-index: 1;
+        }
+
+        .issued-carousel {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding: 4px 18px 16px 18px;
+            margin-top: -74px;
+            position: relative;
+            z-index: 10;
+            scroll-snap-type: x mandatory;
+        }
+
+        .issued-doc-card {
+            flex: 0 0 77%;
+            max-width: 305px;
+            min-height: 164px;
             background: #ffffff;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 8px 20px rgba(17, 24, 39, 0.08), 0 1px 3px rgba(17, 24, 39, 0.04);
+            border: 1px solid #f1f5f9;
+            position: relative;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: left;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: transform 0.12s ease;
+        }
+
+        .issued-doc-card:active {
+            transform: scale(0.98);
+        }
+
+        /* ==========================================================================
+           AADHAAR DETAIL SLIDE-OVER VIEW
+           ========================================================================== */
+        #aadhaar-detail-screen {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F3F4F6;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        #aadhaar-detail-screen.open {
+            transform: translateX(0%);
+            pointer-events: auto;
+        }
+
+        /* ==========================================================================
+           MY PROFILE SLIDE-OVER VIEW (Matches My Profile Screenshot)
+           ========================================================================== */
+        #profile-screen {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F7F8FA;
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: none;
+        }
+
+        #profile-screen.open {
+            transform: translateX(0%);
+            pointer-events: auto;
+        }
+
+        @keyframes spinOnce {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spin-anim {
+            animation: spinOnce 0.55s ease-in-out;
+        }
+
+        /* ==========================================================================
+           FIXED BOTTOM NAVIGATION BAR
+           ========================================================================== */
+        .main-bottom-nav {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 8px;
+            padding-bottom: max(var(--safe-bottom), 10px);
+            padding-left: 8px;
+            padding-right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 40;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-tab-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #111827;
+            padding: 2px 0;
+            touch-action: manipulation;
+        }
+
+        .nav-tab-btn span {
+            font-size: 11px;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .nav-tab-btn.active span {
+            color: #5A35F0;
+            font-weight: 600;
+        }
+
+        .umang-pill-btn {
+            background-color: #F38120;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px 0 0 12px;
+            padding: 13px 15px;
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 4px;
+            box-shadow: -2px 2px 8px rgba(243, 129, 32, 0.25);
+            touch-action: manipulation;
+        }
+
+        /* ==========================================================================
+           iOS BOTTOM SHEET & FULL-SCREEN QR MODAL
+           ========================================================================== */
+        .sheet-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(17, 24, 39, 0.5);
+            z-index: 80;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .sheet-overlay.open {
+            display: flex;
+        }
+
+        .sheet-panel {
+            width: 100%;
+            max-height: 84%;
+            background-color: #ffffff;
+            border-radius: 22px 22px 0 0;
+            padding: 14px 20px calc(22px + var(--safe-bottom)) 20px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18);
+            overflow-y: auto;
+            animation: sheetUp 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        @keyframes sheetUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .center-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(17, 24, 39, 0.65);
+            z-index: 90;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .center-modal-overlay.open {
+            display: flex;
+        }
+
+        /* Toast Banner */
+        #toast-banner {
+            position: absolute;
+            bottom: calc(88px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: rgba(17, 24, 39, 0.94);
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.22s ease;
+            white-space: nowrap;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+        }
+
+        #toast-banner.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .hindi-font {
+            font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation -->
-    <header>
-        <div class="nav-container">
-            <a href="#" class="logo">MyCustomSite</a>
-            <nav>
-                <a href="#about">About</a>
-                <a href="#services">Services</a>
-                <a href="#contact">Contact</a>
-            </nav>
-        </div>
-    </header>
+<div id="app-shell">
 
-    <!-- Hero Introduction -->
-    <div class="hero">
-        <h1>Hello, World!</h1>
-        <p>Welcome to my brand new website hosted completely for free via GitHub Pages and mapped to my GoDaddy domain.</p>
-        <a href="#about" class="btn">Learn More</a>
-    </div>
+    <!-- Hidden File Inputs for Screenshot Auto-Extraction & Individual Photo Uploads -->
+    <input type="file" id="screenshot-file-input" accept="image/*" class="hidden">
+    <input type="file" id="profile-screenshot-file-input" accept="image/*" class="hidden">
+    <input type="file" id="portrait-file-input" accept="image/*" class="hidden">
+    <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
 
-    <!-- Main Text Content -->
-    <main class="main-content">
-        <section id="about">
-            <h2>About This Project</h2>
-            <p>This is a lightweight, high-performance HTML template designed to display text and basic navigation beautifully on desktops, tablets, and smartphones.</p>
-            <p>Because there are no heavy frameworks or bloated databases behind it, this website will load almost instantly for your visitors anywhere in the world.</p>
+    <!-- ==========================================================================
+         TAB 1: HOME SCREEN (Exact match to DigiLocker Home Screenshot)
+         ========================================================================== -->
+    <main id="tab-home" class="tab-view active no-scrollbar">
+        <!-- Royal Blue/Purple Header -->
+        <section class="home-hero">
+            <!-- Top Brand Bar -->
+            <div class="flex items-center gap-2 mb-5 relative z-10">
+                <!-- White State Emblem of India SVG with inline fallback -->
+                <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+                    alt="State Emblem of India"
+                    class="w-[22px] h-[32px] object-contain shrink-0"
+                    style="filter: brightness(0) invert(1);"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                >
+                <svg style="display:none;" width="22" height="32" viewBox="0 0 60 84" fill="none" class="shrink-0">
+                    <path d="M25 8C25 4 35 4 35 8L37 22H23L25 8Z" fill="white"/>
+                    <path d="M15 16C13 12 19 10 21 14L24 32H16L15 16Z" fill="white"/>
+                    <path d="M45 16C47 12 41 10 39 14L36 32H44L45 16Z" fill="white"/>
+                    <circle cx="30" cy="13" r="5.5" fill="white"/>
+                    <circle cx="18" cy="19" r="5" fill="white"/>
+                    <circle cx="42" cy="19" r="5" fill="white"/>
+                    <path d="M18 24H42L39 48H21L18 24Z" fill="white"/>
+                    <rect x="12" y="49" width="36" height="5" rx="2" fill="white"/>
+                    <circle cx="30" cy="59" r="4.5" stroke="white" stroke-width="2.2"/>
+                    <rect x="11" y="65" width="38" height="4" rx="1.5" fill="white"/>
+                    <text x="30" y="78" fill="white" font-size="7.5" font-weight="700" text-anchor="middle">सत्यमेव जयते</text>
+                </svg>
+
+                <div class="w-[1px] h-[22px] bg-white/30 mx-0.5"></div>
+
+                <!-- White DigiLocker Logo (Document with folded top-right corner + overlapping left cloud + keyhole) -->
+                <svg width="31" height="30" viewBox="0 0 42 40" fill="none" class="shrink-0">
+                    <path d="M12 3C10.3431 3 9 4.34315 9 6V34C9 35.6569 10.3431 37 12 37H34C35.6569 37 37 35.6569 37 34V13.5L26.5 3H12Z" fill="white"/>
+                    <path d="M26.5 3V11.5C26.5 12.6046 27.3954 13.5 28.5 13.5H37L26.5 3Z" fill="#d8d0ff"/>
+                    <path d="M26.5 3L37 13.5H28.5C27.3954 13.5 26.5 12.6046 26.5 11.5V3Z" stroke="#3A24D6" stroke-width="1.2" stroke-linejoin="round"/>
+                    <path d="M8.5 30.5H24.5C27.2614 30.5 29.5 28.2614 29.5 25.5C29.5 23.02 27.69 20.96 25.32 20.57C24.64 16.84 21.38 14 17.45 14C13.06 14 9.5 17.56 9.5 21.95C9.5 22.22 9.51 22.49 9.54 22.75C7.11 23.34 5.3 25.53 5.3 28.15C5.3 29.65 6.73 30.5 8.5 30.5Z" fill="white" stroke="#3A24D6" stroke-width="2.2" stroke-linejoin="round"/>
+                    <circle cx="17.5" cy="22.8" r="1.8" fill="#3A24D6"/>
+                    <path d="M16.7 23.8L16.1 27.3H18.9L18.3 23.8H16.7Z" fill="#3A24D6"/>
+                </svg>
+
+                <span class="text-white text-[22px] font-bold tracking-tight">DigiLocker</span>
+            </div>
+
+            <!-- Welcome Row -->
+            <div class="flex items-center justify-between gap-3 mb-3.5 relative z-10">
+                <h1 class="text-white text-[22px] font-bold leading-tight tracking-tight" id="home-welcome-heading">
+                    Welcome, Akshit Khandelwal
+                </h1>
+                <button
+                    type="button"
+                    onclick="window.openProfileScreen('home')"
+                    class="w-[48px] h-[48px] rounded-full border-2 border-white overflow-hidden shrink-0 shadow-md bg-gray-200 cursor-pointer active:scale-95 transition-transform"
+                    title="Open My Profile"
+                >
+                    <img id="home-avatar-img" alt="Profile Avatar" class="w-full h-full object-cover block pointer-events-none">
+                </button>
+            </div>
+
+            <!-- Subtitle -->
+            <p class="text-white/95 text-[13.8px] leading-[1.42] mb-5 pr-2 relative z-10">
+                DigiLocker 'Issued Documents' are at par with original documents as per IT ACT, 2000
+            </p>
+
+            <!-- Issued Document Header Row -->
+            <div class="flex items-center justify-between relative z-10">
+                <h2 class="text-white text-[18px] font-bold tracking-tight">Issued Document</h2>
+                <button
+                    type="button"
+                    onclick="window.switchTab('issued')"
+                    class="bg-[#DDD9F8] text-[#3A24D6] border border-white/70 rounded-full px-4 py-1.5 text-[13.5px] font-semibold active:scale-95 transition-transform"
+                >
+                    See All
+                </button>
+            </div>
         </section>
 
-        <section id="services">
-            <h2>What I Do</h2>
-            <p>You can use this area to describe your business offerings, showcase your portfolio projects, or publish your personal writing. Simply open the file in a text editor to swap out this text with your own ideas.</p>
+        <!-- Horizontal Issued Documents Carousel -->
+        <section class="issued-carousel no-scrollbar">
+            <!-- Card 1: Aadhaar Card -->
+            <button
+                type="button"
+                onclick="window.openAadhaarDetail()"
+                class="issued-doc-card"
+            >
+                <div class="flex items-start gap-4 relative z-10">
+                    <!-- Official Aadhaar Logo with Inline SVG Fallback -->
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/en/c/cf/Aadhaar_Logo.svg"
+                        alt="Aadhaar"
+                        class="w-[76px] h-[54px] object-contain shrink-0"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <svg style="display:none;" width="76" height="54" viewBox="0 0 120 86" fill="none" class="shrink-0">
+                        <polygon points="60,3 56,22 64,22" fill="#f59e0b"/>
+                        <polygon points="41,7 45,25 52,22" fill="#f59e0b"/>
+                        <polygon points="79,7 68,22 75,25" fill="#f59e0b"/>
+                        <polygon points="24,17 35,31 41,26" fill="#f97316"/>
+                        <polygon points="96,17 79,26 85,31" fill="#f97316"/>
+                        <polygon points="12,32 28,39 32,33" fill="#ea580c"/>
+                        <polygon points="108,32 88,33 92,39" fill="#ea580c"/>
+                        <polygon points="5,49 24,49 25,43" fill="#dc2626"/>
+                        <polygon points="115,49 95,43 96,49" fill="#dc2626"/>
+                        <path d="M24 56 A36 36 0 0 1 96 56" stroke="#f59e0b" stroke-width="4.5" fill="none"/>
+                        <path d="M32 56 A28 28 0 0 1 88 56" stroke="#dc2626" stroke-width="3.5" fill="none"/>
+                        <path d="M40 56 A20 20 0 0 1 80 56" stroke="#dc2626" stroke-width="3" fill="none"/>
+                        <path d="M48 56 A12 12 0 0 1 72 56" stroke="#dc2626" stroke-width="3" fill="none"/>
+                        <path d="M55 56 A5 5 0 0 1 65 56" stroke="#dc2626" stroke-width="3" fill="none"/>
+                        <text x="60" y="72" fill="#dc2626" font-size="16" font-weight="800" text-anchor="middle" letter-spacing="0.8">AADHAAR</text>
+                    </svg>
+
+                    <div class="pt-0.5">
+                        <div class="text-[17px] font-bold text-gray-900 leading-snug mb-2">Aadhaar Card</div>
+                        <div class="text-[14.5px] text-gray-500 font-normal tracking-wide" id="home-card-aadhaar-id">[Aadhaar Redacted]</div>
+                    </div>
+                </div>
+
+                <div class="text-[11.5px] text-gray-500 mt-5 relative z-10 truncate">
+                    Unique Identification Authority of India (UIDAI)
+                </div>
+
+                <!-- Faint Watermark in Bottom-Right Corner -->
+                <img
+                    src="https://upload.wikimedia.org/wikipedia/en/c/cf/Aadhaar_Logo.svg"
+                    alt=""
+                    class="absolute right-2 bottom-1.5 w-[96px] h-[68px] object-contain opacity-[0.11] pointer-events-none"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                >
+                <svg style="display:none;" viewBox="0 0 120 86" fill="none" class="absolute right-2 bottom-1.5 w-[96px] h-[68px] opacity-[0.11] pointer-events-none">
+                    <path d="M24 56 A36 36 0 0 1 96 56" stroke="#f59e0b" stroke-width="5" fill="none"/>
+                    <path d="M33 56 A27 27 0 0 1 87 56" stroke="#dc2626" stroke-width="4" fill="none"/>
+                    <text x="60" y="74" fill="#dc2626" font-size="17" font-weight="800" text-anchor="middle">AADHAAR</text>
+                </svg>
+            </button>
+
+            <!-- Card 2: Driving Licence Preview Card -->
+            <button
+                type="button"
+                onclick="window.openSheet('Driving Licence', 'Ministry of Road Transport and Highways (MoRTH)\n\nFetch your digital Driving Licence directly from the Sarathi Parivahan repository by entering your DL number in the Search tab.')"
+                class="issued-doc-card"
+            >
+                <div class="flex items-start gap-4 relative z-10">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+                        alt="State Emblem"
+                        class="w-[38px] h-[54px] object-contain shrink-0"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <svg style="display:none;" width="38" height="54" viewBox="0 0 60 84" fill="none" class="shrink-0">
+                        <circle cx="30" cy="13" r="5.5" fill="#1f2937"/>
+                        <path d="M18 24H42L39 48H21L18 24Z" fill="#1f2937"/>
+                        <rect x="12" y="49" width="36" height="5" rx="2" fill="#1f2937"/>
+                        <text x="30" y="77" fill="#1f2937" font-size="7.5" font-weight="700" text-anchor="middle">सत्यमेव जयते</text>
+                    </svg>
+
+                    <div class="pt-1.5">
+                        <div class="text-[17px] font-bold text-gray-900 leading-snug mb-2">Driving Licence</div>
+                        <div class="text-[12px] text-gray-500 truncate max-w-[170px]">Ministry of Road Transport and Highways</div>
+                    </div>
+                </div>
+
+                <div class="w-full h-[38px] bg-[#5538FF] text-white rounded-full flex items-center justify-center text-[13px] font-semibold mt-3">
+                    Fetch Now
+                </div>
+            </button>
         </section>
 
-        <section id="contact">
-            <h2>Get in Touch</h2>
-            <p>Feel free to reach out to me via email or follow my updates on social media.</p>
-            <p><strong>Email:</strong> hello@yourdomain.com</p>
+        <!-- "Your Credentials Wallet" Banner -->
+        <section class="px-4 pt-1 pb-2">
+            <div
+                onclick="window.openAadhaarDetail()"
+                class="bg-[#EEEBFA] rounded-2xl pl-4 pr-0 py-4 flex items-center justify-between relative overflow-hidden min-h-[154px] cursor-pointer active:scale-[0.99] transition-transform"
+            >
+                <!-- Subtle Concentric Rings Graphic -->
+                <svg class="absolute right-[12%] -top-[18%] w-[190px] h-[190px] opacity-40 pointer-events-none" viewBox="0 0 200 200" fill="none">
+                    <circle cx="100" cy="100" r="35" stroke="#d5cff7" stroke-width="1.5"/>
+                    <circle cx="100" cy="100" r="52" stroke="#d5cff7" stroke-width="1.5"/>
+                    <circle cx="100" cy="100" r="69" stroke="#d5cff7" stroke-width="1.5"/>
+                    <circle cx="100" cy="100" r="86" stroke="#d5cff7" stroke-width="1.5"/>
+                </svg>
+
+                <!-- Left Text & Button -->
+                <div class="w-[58%] relative z-10 pr-2">
+                    <h3 class="text-[#3A24D6] text-[16.5px] font-bold tracking-tight mb-1">Your Credentials Wallet</h3>
+                    <p class="text-gray-600 text-[13px] leading-snug mb-4">All Your Identity cards in one place</p>
+                    <button
+                        type="button"
+                        class="bg-[#3D1EE3] text-white text-[13px] font-bold px-4 py-2.5 rounded-full shadow-sm"
+                    >
+                        View All Credentials
+                    </button>
+                </div>
+
+                <!-- Right Stacked Verified Credential Graphic -->
+                <div class="w-[42%] flex justify-end relative z-10">
+                    <div class="relative w-[138px] h-[120px] -mr-1">
+                        <div class="absolute -bottom-2.5 left-3.5 right-0 h-5 bg-[#a597f9] rounded-b-xl opacity-50"></div>
+                        <div class="absolute -bottom-1.5 left-2 right-0 h-5 bg-[#7c69f6] rounded-b-xl opacity-75"></div>
+                        <div class="relative w-full h-[112px] rounded-l-xl bg-gradient-to-br from-[#4B27FF] to-[#3D18E8] p-2.5 text-white shadow-md overflow-hidden">
+                            <div class="flex items-center gap-1.5 mb-2">
+                                <svg width="20" height="20" viewBox="0 0 36 36" fill="none" class="shrink-0">
+                                    <path d="M6 7C6 5.34 7.34 4 9 4H22L30 12V29C30 30.66 28.66 32 27 32H9C7.34 32 6 30.66 6 29V7Z" fill="white"/>
+                                    <path d="M12 24H23C24.6 24 26 22.6 26 21C26 19.5 24.9 18.2 23.4 18C23 15.8 21 14 18.5 14C15.8 14 13.6 16.2 13.6 18.9C12.1 19.3 11 20.6 11 22.2C11 23.2 11.5 24 12 24Z" fill="#4B27FF"/>
+                                </svg>
+                                <div class="leading-tight overflow-hidden">
+                                    <div class="text-[8.5px] font-semibold truncate">DigiLocker Verified Credential</div>
+                                    <div class="text-[7px] opacity-90 flex items-center gap-1 mt-0.5">
+                                        <span>Verified from Aadhaar</span>
+                                        <span class="inline-flex w-2.5 h-2.5 bg-white text-[#4B27FF] rounded-[2px] items-center justify-center text-[7px] font-black">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-[7px] opacity-80">Name</div>
+                            <div class="text-[9.5px] font-bold mb-1.5">Aman Mittal</div>
+                            <div class="text-[6.5px] opacity-80">Created on</div>
+                            <div class="text-[8.5px] font-semibold">23/05/2024</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination Dots -->
+                <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-white/50"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Divider -->
+        <div class="h-1.5 bg-gray-100 my-2.5"></div>
+
+        <!-- "DigiLocker Utility" Section (3x2 Grid of 6 Interactive Soft-Gray Cards) -->
+        <section class="px-4 pb-6">
+            <h2 class="text-[18px] font-bold text-gray-800 tracking-tight mb-3.5">DigiLocker Utility</h2>
+            <div class="grid grid-cols-3 gap-2.5">
+                <!-- 1. Authenticator -->
+                <button
+                    type="button"
+                    onclick="window.openSheet('Authenticator', 'MeriPehchaan Two-Factor Authenticator (TOTP)\n\nCurrent Verification Code: 482 910\nRefreshes every 30 seconds for secure National Single Sign-On login.')"
+                    class="bg-[#F4F5F7] rounded-xl p-3 min-h-[94px] flex flex-col justify-between items-start text-left shadow-sm border border-gray-200/70 active:scale-95 transition-transform"
+                >
+                    <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                        <rect x="13" y="6" width="22" height="36" rx="4" stroke="#1d70b8" stroke-width="2.5" fill="#e0f2fe"/>
+                        <line x1="20" y1="38" x2="28" y2="38" stroke="#1d70b8" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="19" y="15" width="10" height="8" rx="1.5" fill="#f59e0b"/>
+                        <path d="M21 15V12.5C21 10.8 22.3 9.5 24 9.5C25.7 9.5 27 10.8 27 12.5V15" stroke="#1d70b8" stroke-width="2"/>
+                        <rect x="9" y="26" width="30" height="8" rx="2" fill="#f59e0b"/>
+                        <text x="24" y="32.5" fill="white" font-size="8" font-weight="900" text-anchor="middle" letter-spacing="1.5">****</text>
+                    </svg>
+                    <span class="text-[13px] text-gray-700 leading-tight mt-2">Authenticator</span>
+                </button>
+
+                <!-- 2. Drive -->
+                <button
+                    type="button"
+                    onclick="window.openSheet('DigiLocker Drive', '1 GB Free Citizen Cloud Storage\n\n• Storage Used: 14.8 MB of 1 GB\n• Folders: Documents, Certificates, Health Records\n• Upload PDF, JPEG, or PNG files securely.')"
+                    class="bg-[#F4F5F7] rounded-xl p-3 min-h-[94px] flex flex-col justify-between items-start text-left shadow-sm border border-gray-200/70 active:scale-95 transition-transform"
+                >
+                    <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                        <path d="M6 13C6 10.7909 7.79086 9 10 9H19L23 14H38C40.2091 14 42 15.7909 42 18V35C42 37.2091 40.2091 39 38 39H10C7.79086 39 6 37.2091 6 35V13Z" fill="#fbbf24"/>
+                        <path d="M6 19H42V35C42 37.2091 40.2091 39 38 39H10C7.79086 39 6 37.2091 6 35V19Z" fill="#fcd34d"/>
+                        <path d="M6 18H42" stroke="#f59e0b" stroke-width="1.5"/>
+                    </svg>
+                    <span class="text-[13px] text-gray-700 leading-tight mt-2">Drive</span>
+                </button>
+
+                <!-- 3. Verifiable Credential -->
+                <button
+                    type="button"
+                    onclick="window.openSheet('Verifiable Credential', 'W3C Standard Digital Identity Credentials\n\n• Aadhaar Verified Credential (Active)\n• Offline QR Cryptographic Verification Enabled')"
+                    class="bg-[#F4F5F7] rounded-xl p-3 min-h-[94px] flex flex-col justify-between items-start text-left shadow-sm border border-gray-200/70 active:scale-95 transition-transform"
+                >
+                    <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                        <rect x="10" y="6" width="28" height="36" rx="3" fill="#38bdf8"/>
+                        <rect x="14" y="13" width="20" height="15" rx="1.5" fill="#e0f2fe"/>
+                        <circle cx="24" cy="18.5" r="3.2" fill="#f59e0b"/>
+                        <path d="M18 26C18 23.2 20.7 21.5 24 21.5C27.3 21.5 30 23.2 30 26" fill="#0284c7"/>
+                        <line x1="16" y1="33" x2="32" y2="33" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="text-[13px] text-gray-700 leading-tight mt-2">Verifiable Credential</span>
+                </button>
+
+                <!-- 4. Govt. Employee -->
+                <button
+                    type="button"
+                    onclick="window.openSheet('Govt. Employee', 'Government of India Employee Digital Identity\n\nVerify and link your Karmayogi / Central or State Government Employee ID with DigiLocker.')"
+                    class="bg-[#F4F5F7] rounded-xl p-3 min-h-[94px] flex flex-col justify-between items-start text-left shadow-sm border border-gray-200/70 active:scale-95 transition-transform"
+                >
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+                        alt="State Emblem"
+                        class="w-[26px] h-[36px] object-contain"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <svg style="display:none;" width="26" height="36" viewBox="0 0 60 80" fill="none">
+                        <circle cx="30" cy="13" r="5.5" fill="#1f2937"/>
+                        <path d="M18 24H42L39 48H21L18 24Z" fill="#1f2937"/>
+                        <rect x="12" y="49" width="36" height="5" rx="2" fill="#1f2937"/>
+                        <text x="30" y="76" fill="#1f2937" font-size="7.5" font-weight="700" text-anchor="middle">सत्यमेव जयते</text>
+                    </svg>
+                    <span class="text-[13px] text-gray-700 leading-tight mt-2">Govt. Employee</span>
+                </button>
+
+                <!-- 5. Nominee -->
+                <button
+                    type="button"
+                    onclick="window.openSheet('DigiLocker Nominee', 'Account Nominee Management\n\nNominate a family member to access your digital documents in case of emergency.')"
+                    class="bg-[#F4F5F7] rounded-xl p-3 min-h-[94px] flex flex-col justify-between items-start text-left shadow-sm border border-gray-200/70 active:scale-95 transition-transform"
+                >
+                    <svg width="38" height="36" viewBox="0 0 48 48" fill="none">
+                        <path d="M21 10L23.5 12.5L28.5 7.5" stroke="#22c55e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="15" cy="24" r="4" fill="#d97706"/>
+                        <path d="M8 35C8 31.5 11 29.5 15 29.5C19 29.5 22 31.5 22 35" fill="#0284c7"/>
+                        <circle cx="33" cy="24" r="4" fill="#d97706"/>
+                        <path d="M26 35C26 31.5 29 29.5 33 29.5C37 29.5 40 31.5 40 35" fill="#1e293b"/>
+                        <circle cx="24" cy="21" r="4.8" fill="#f59e0b"/>
+                        <path d="M15 36C15 31.8 19 29 24 29C29 29 33 31.8 33 36" fill="#334155"/>
+                    </svg>
+                    <span class="text-[13px] text-gray-700 leading-tight mt-2">Nominee</span>
+                </button>
+
+                <!-- 6. My Consent -->
+                <button
+                    type="button"
+                    onclick="window.openSheet('My Consent', 'Active Document Sharing Consents\n\n• UIDAI e-KYC Service: Active\n• Academic Bank of Credits (ABC): Active\nYou can revoke document sharing access at any time.')"
+                    class="bg-[#F4F5F7] rounded-xl p-3 min-h-[94px] flex flex-col justify-between items-start text-left shadow-sm border border-gray-200/70 active:scale-95 transition-transform"
+                >
+                    <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                        <rect x="11" y="6" width="26" height="36" rx="3" fill="#6d5cae"/>
+                        <line x1="16" y1="13" x2="32" y2="13" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+                        <line x1="16" y1="18" x2="28" y2="18" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M24 23L31 26V31.5C31 35.5 28 38.8 24 40C20 38.8 17 35.5 17 31.5V26L24 23Z" fill="#38bdf8"/>
+                        <path d="M21 31.5L23.2 33.7L27.5 29.4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="text-[13px] text-gray-700 leading-tight mt-2">My Consent</span>
+                </button>
+            </div>
         </section>
     </main>
 
-    <!-- Footer Copyright -->
-    <footer>
-        <p>&copy; 2026 MyCustomSite. Powered by GitHub Pages.</p>
-    </footer>
+    <!-- ==========================================================================
+         TAB 2: SEARCH SCREEN (Live Filtering, Most Popular Chips, Categories)
+         ========================================================================== -->
+    <main id="tab-search" class="tab-view no-scrollbar">
+        <div class="bg-[#3A24D6] pt-[calc(var(--safe-top)+14px)] pb-4 px-4 text-white sticky top-0 z-20">
+            <h1 class="text-[20px] font-bold mb-3">Search Documents</h1>
+            <div class="relative">
+                <input
+                    type="text"
+                    id="doc-search-input"
+                    oninput="window.filterSearchList(this.value)"
+                    placeholder="Search for documents..."
+                    class="w-full bg-white text-gray-900 rounded-xl py-2.5 pl-10 pr-4 text-[14px] focus:outline-none shadow-sm"
+                >
+                <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" viewBox="0 0 24 24" fill="none">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                    <path d="M16.2 16.2L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="p-4 space-y-6">
+            <!-- Most Popular Grid/Chips -->
+            <div>
+                <h2 class="text-[15px] font-bold text-gray-800 mb-3">Most Popular</h2>
+                <div class="grid grid-cols-2 gap-2.5" id="popular-docs-grid">
+                    <button type="button" data-search="aadhaar card uidai" onclick="window.openAadhaarDetail()" class="search-item bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2.5 text-left active:scale-95 transition-transform">
+                        <span class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs shrink-0">ID</span>
+                        <div>
+                            <div class="text-[13px] font-bold text-gray-900 leading-tight">Aadhaar Card</div>
+                            <div class="text-[11px] text-gray-500">UIDAI</div>
+                        </div>
+                    </button>
+
+                    <button type="button" data-search="pan verification income tax" onclick="window.openSheet('PAN Verification Record', 'Income Tax Department\n\nEnter your 10-character PAN number to pull your verified PAN record into Issued Documents.')" class="search-item bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2.5 text-left active:scale-95 transition-transform">
+                        <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">PAN</span>
+                        <div>
+                            <div class="text-[13px] font-bold text-gray-900 leading-tight">PAN Verification</div>
+                            <div class="text-[11px] text-gray-500">Income Tax Dept</div>
+                        </div>
+                    </button>
+
+                    <button type="button" data-search="driving license morth" onclick="window.openSheet('Driving License', 'Ministry of Road Transport and Highways\n\nFetch your digital Driving License valid across India under the Motor Vehicles Act.')" class="search-item bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2.5 text-left active:scale-95 transition-transform">
+                        <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xs shrink-0">DL</span>
+                        <div>
+                            <div class="text-[13px] font-bold text-gray-900 leading-tight">Driving License</div>
+                            <div class="text-[11px] text-gray-500">MoRTH</div>
+                        </div>
+                    </button>
+
+                    <button type="button" data-search="class x marksheet cbse" onclick="window.openSheet('Class X Marksheet', 'Central Board of Secondary Education (CBSE)\n\nEnter Roll Number and Year of Passing to download your verified Class X Marksheet & Passing Certificate.')" class="search-item bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2.5 text-left active:scale-95 transition-transform">
+                        <span class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center font-bold text-xs shrink-0">X</span>
+                        <div>
+                            <div class="text-[13px] font-bold text-gray-900 leading-tight">Class X Marksheet</div>
+                            <div class="text-[11px] text-gray-500">CBSE / State Boards</div>
+                        </div>
+                    </button>
+
+                    <button type="button" data-search="class xii marksheet cbse" onclick="window.openSheet('Class XII Marksheet', 'Central Board of Secondary Education (CBSE)\n\nEnter Roll Number and Year of Passing to download your verified Class XII Marksheet.')" class="search-item bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2.5 text-left active:scale-95 transition-transform">
+                        <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xs shrink-0">XII</span>
+                        <div>
+                            <div class="text-[13px] font-bold text-gray-900 leading-tight">Class XII Marksheet</div>
+                            <div class="text-[11px] text-gray-500">CBSE / State Boards</div>
+                        </div>
+                    </button>
+
+                    <button type="button" data-search="vehicle registration rc" onclick="window.openSheet('Registration of Vehicles (RC)', 'Ministry of Road Transport and Highways\n\nEnter Vehicle Registration Number and Chassis Number (last 5 digits) to fetch your digital RC.')" class="search-item bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2.5 text-left active:scale-95 transition-transform">
+                        <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs shrink-0">RC</span>
+                        <div>
+                            <div class="text-[13px] font-bold text-gray-900 leading-tight">Vehicle Registration</div>
+                            <div class="text-[11px] text-gray-500">Vahan / MoRTH</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categories List -->
+            <div>
+                <h2 class="text-[15px] font-bold text-gray-800 mb-3">Categories</h2>
+                <div class="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100 overflow-hidden shadow-sm" id="categories-list">
+                    <button type="button" data-search="central government uidai income tax morth" onclick="window.openSheet('Central Government', '• Unique Identification Authority of India (UIDAI)\n• Income Tax Department\n• Ministry of Road Transport and Highways\n• Ministry of Petroleum and Natural Gas')" class="search-item w-full p-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                        <div>
+                            <div class="text-[14px] font-semibold text-gray-900">Central Government</div>
+                            <div class="text-[12px] text-gray-500">UIDAI, Income Tax, MoRTH, Passport Seva</div>
+                        </div>
+                        <span class="text-gray-400 font-bold">›</span>
+                    </button>
+
+                    <button type="button" data-search="state government delhi edistrict" onclick="window.openSheet('State Government - Delhi', '• Revenue Department (e-District Delhi)\n• Delhi Transport Corporation\n• Delhi Jal Board\n• Ration Card Department')" class="search-item w-full p-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                        <div>
+                            <div class="text-[14px] font-semibold text-gray-900">State Government - Delhi</div>
+                            <div class="text-[12px] text-gray-500">e-District Delhi, Transport Dept, Ration Card</div>
+                        </div>
+                        <span class="text-gray-400 font-bold">›</span>
+                    </button>
+
+                    <button type="button" data-search="education cbse ncert university abc id" onclick="window.openSheet('Education', '• Central Board of Secondary Education (CBSE)\n• Academic Bank of Credits (ABC ID)\n• National Testing Agency (NTA)\n• Delhi University & 600+ Universities')" class="search-item w-full p-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                        <div>
+                            <div class="text-[14px] font-semibold text-gray-900">Education</div>
+                            <div class="text-[12px] text-gray-500">CBSE, CISCE, NTA, Academic Bank of Credits</div>
+                        </div>
+                        <span class="text-gray-400 font-bold">›</span>
+                    </button>
+
+                    <button type="button" data-search="banking and insurance lic hdfc sbi" onclick="window.openSheet('Banking and Insurance', '• Life Insurance Corporation of India (LIC)\n• New India Assurance\n• Motor & Health Policy Certificates')" class="search-item w-full p-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                        <div>
+                            <div class="text-[14px] font-semibold text-gray-900">Banking and Insurance</div>
+                            <div class="text-[12px] text-gray-500">LIC, Vehicle Insurance, Policy Certificates</div>
+                        </div>
+                        <span class="text-gray-400 font-bold">›</span>
+                    </button>
+
+                    <button type="button" data-search="health abha card ayushman bharat" onclick="window.openSheet('Health', '• Ayushman Bharat Health Account (ABHA ID)\n• National Health Authority\n• Vaccination Certificates')" class="search-item w-full p-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                        <div>
+                            <div class="text-[14px] font-semibold text-gray-900">Health</div>
+                            <div class="text-[12px] text-gray-500">ABHA Card, Ayushman Bharat, NHA</div>
+                        </div>
+                        <span class="text-gray-400 font-bold">›</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==========================================================================
+         TAB 3: ISSUED DOCUMENTS SCREEN
+         ========================================================================== -->
+    <main id="tab-issued" class="tab-view no-scrollbar">
+        <div class="bg-[#3A24D6] pt-[calc(var(--safe-top)+14px)] pb-4 px-4 text-white flex items-center justify-between sticky top-0 z-20">
+            <div>
+                <h1 class="text-[20px] font-bold">Issued Documents</h1>
+                <p class="text-[12px] text-white/80">1 Issued Document • At par with originals</p>
+            </div>
+            <button type="button" onclick="window.switchTab('search')" class="p-2 rounded-full bg-white/15 active:scale-95">
+                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                    <path d="M16.2 16.2L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-4 space-y-4">
+            <!-- Issued Aadhaar Card Row -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 flex items-center justify-between gap-3">
+                <button
+                    type="button"
+                    onclick="window.openAadhaarDetail()"
+                    class="flex items-center gap-3.5 flex-1 text-left cursor-pointer"
+                >
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/en/c/cf/Aadhaar_Logo.svg"
+                        alt="Aadhaar"
+                        class="w-[56px] h-[40px] object-contain shrink-0"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <svg style="display:none;" width="56" height="40" viewBox="0 0 120 86" fill="none" class="shrink-0">
+                        <path d="M24 56 A36 36 0 0 1 96 56" stroke="#f59e0b" stroke-width="5" fill="none"/>
+                        <path d="M33 56 A27 27 0 0 1 87 56" stroke="#dc2626" stroke-width="4" fill="none"/>
+                        <text x="60" y="74" fill="#dc2626" font-size="16" font-weight="800" text-anchor="middle">AADHAAR</text>
+                    </svg>
+
+                    <div class="min-w-0">
+                        <div class="text-[16px] font-bold text-gray-900 leading-snug">Aadhaar Card</div>
+                        <div class="text-[13px] text-gray-500 mt-0.5" id="issued-tab-aadhaar-id">[Aadhaar Redacted]</div>
+                        <div class="text-[11.5px] text-gray-400 truncate mt-0.5">Unique Identification Authority of India</div>
+                    </div>
+                </button>
+
+                <!-- 3-Dot Action Menu Button -->
+                <button
+                    type="button"
+                    onclick="window.openIssuedDocActionSheet()"
+                    class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 active:bg-gray-200 shrink-0"
+                    aria-label="Document Actions"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="2"/>
+                        <circle cx="12" cy="12" r="2"/>
+                        <circle cx="12" cy="19" r="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- + Get More Issued Documents Button -->
+            <button
+                type="button"
+                onclick="window.switchTab('search')"
+                class="w-full py-3.5 px-4 rounded-2xl border-2 border-dashed border-[#5A35F0]/40 bg-[#EEEBFA]/60 text-[#3A24D6] font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+            >
+                <span>+ Get More Issued Documents</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- ==========================================================================
+         TAB 4: MENU SCREEN (Profile Header + Photo/Card Customizer + Authentic Menu)
+         ========================================================================== -->
+    <main id="tab-menu" class="tab-view no-scrollbar">
+        <!-- Top Profile Header -->
+        <div class="bg-[#3A24D6] pt-[calc(var(--safe-top)+16px)] pb-5 px-4 text-white">
+            <div class="flex items-center justify-between gap-3.5">
+                <div class="flex items-center gap-3.5">
+                    <button
+                        type="button"
+                        onclick="window.openProfileScreen('menu')"
+                        class="w-[58px] h-[58px] rounded-full border-2 border-white overflow-hidden shrink-0 bg-gray-200 shadow-md active:scale-95 transition-transform"
+                    >
+                        <img id="menu-avatar-img" alt="Avatar" class="w-full h-full object-cover block pointer-events-none">
+                    </button>
+                    <div>
+                        <div class="text-[19px] font-bold leading-tight" id="menu-profile-name">Akshit Khandelwal</div>
+                        <div class="inline-flex items-center gap-1.5 bg-white/15 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium mt-1.5">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            <span>Verified DigiLocker Account</span>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onclick="window.openProfileScreen('menu')"
+                    class="bg-white/15 hover:bg-white/25 text-white text-[12.5px] font-semibold px-3 py-1.5 rounded-full shrink-0 active:scale-95"
+                >
+                    View Profile ›
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4 space-y-5">
+            <!-- Prominent Customize Card & Photos Section -->
+            <section class="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
+                <div class="bg-[#EEEBFA] px-4 py-3 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-[15px] font-bold text-[#3A24D6]">Customize Card & Photos</h2>
+                        <p class="text-[11.5px] text-gray-600">Saved locally on your iPhone (localStorage)</p>
+                    </div>
+                    <span class="text-xs font-bold bg-[#3A24D6] text-white px-2.5 py-1 rounded-full">Local Editor</span>
+                </div>
+
+                <div class="p-4 space-y-3">
+                    <!-- Button 1: Auto-Extract Photos from Aadhaar Screenshot -->
+                    <button
+                        type="button"
+                        onclick="window.triggerScreenshotAutoExtract()"
+                        class="w-full bg-[#3A24D6] text-white font-bold text-[13.5px] py-3 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 active:scale-[0.99]"
+                    >
+                        <span>📸 Auto-Extract from Aadhaar Screenshot</span>
+                    </button>
+
+                    <!-- Button 1B: Auto-Extract Avatar from My Profile Screenshot -->
+                    <button
+                        type="button"
+                        onclick="window.triggerProfileScreenshotAutoExtract()"
+                        class="w-full bg-[#4B25E5] text-white font-bold text-[13.5px] py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 active:scale-[0.99]"
+                    >
+                        <span>👤 Auto-Extract Avatar from Profile Screenshot</span>
+                    </button>
+                    <p class="text-[11.5px] text-gray-500 leading-snug">
+                        Upload your Aadhaar screenshot or your My Profile screenshot from iPhone Photos to automatically crop and save your exact portrait and avatar.
+                    </p>
+
+                    <!-- Buttons 2 & 3: Individual Photo Uploads -->
+                    <div class="grid grid-cols-2 gap-2.5 pt-1">
+                        <button
+                            type="button"
+                            onclick="window.triggerPortraitUpload()"
+                            class="bg-indigo-50 text-[#3A24D6] border border-indigo-200 font-semibold text-[12.5px] py-2.5 px-3 rounded-xl active:scale-95"
+                        >
+                            Upload Portrait Photo
+                        </button>
+                        <button
+                            type="button"
+                            onclick="window.triggerAvatarUpload()"
+                            class="bg-indigo-50 text-[#3A24D6] border border-indigo-200 font-semibold text-[12.5px] py-2.5 px-3 rounded-xl active:scale-95"
+                        >
+                            Upload Top-Right Avatar
+                        </button>
+                    </div>
+
+                    <hr class="border-gray-100 my-2">
+
+                    <!-- Editable Card & Profile Fields -->
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="block text-[12px] font-semibold text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="form-name" value="Akshit Khandelwal" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-gray-700 mb-1">Date of Birth (Aadhaar)</label>
+                                <input type="text" id="form-dob" value="2008-04-23" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-gray-700 mb-1">Gender</label>
+                                <input type="text" id="form-gender" value="MALE" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-gray-700 mb-1">Mobile Number</label>
+                                <input type="text" id="form-mobile" value="7982274479" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-gray-700 mb-1">Email (Leave blank for button)</label>
+                                <input type="email" id="form-email" value="" placeholder="Add Email button shown" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-gray-700 mb-1">ID Number (Saved locally only)</label>
+                            <input type="text" id="form-id-num" value="[Aadhaar Redacted]" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900 font-mono">
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-gray-700 mb-1">Address</label>
+                            <textarea id="form-address" rows="3" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[13.5px] text-gray-900">S/O Saurabh Khandelwal, B-242, DERAWAL NAGAR, MODEL TOWN, NEAR PENTAMED HOSPITAL, North West Delhi, Delhi, 110009</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Save & Reset Buttons -->
+                    <div class="flex gap-2.5 pt-2">
+                        <button
+                            type="button"
+                            onclick="window.saveCustomizerChanges()"
+                            class="flex-[2] bg-emerald-600 text-white font-bold text-[14px] py-2.5 rounded-xl shadow-sm active:scale-95"
+                        >
+                            Save Changes
+                        </button>
+                        <button
+                            type="button"
+                            onclick="window.resetCustomizerDefaults()"
+                            class="flex-1 bg-rose-50 text-rose-600 border border-rose-200 font-semibold text-[13px] py-2.5 rounded-xl active:scale-95"
+                        >
+                            Reset to Default
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Authentic DigiLocker Menu List Items -->
+            <section class="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100 overflow-hidden shadow-sm">
+                <button type="button" onclick="window.openProfileScreen('menu')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">My Profile</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('Nominee', 'No active nominee added yet.\n\nYou can add a family member using their Aadhaar-linked mobile number.')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">Nominee</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('DigiLocker Drive', 'Cloud Storage: 14.8 MB used of 1 GB.\n\nAll uploaded files are encrypted at rest.')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">DigiLocker Drive</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('My Consent', 'Active Consents:\n• UIDAI Profile Sync (Granted)\n• Academic Bank of Credits (Granted)')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">My Consent</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('Activities', 'Recent Account Activity:\n• Aadhaar Card viewed just now\n• Logged in on iPhone iOS Safari')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">Activities</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('Settings', '• 6-Digit Security PIN: Enabled\n• Face ID / Biometric Lock: Enabled\n• Add to iPhone Home Screen for full-screen native experience')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">Settings</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('Help & Support', 'DigiLocker National Support Desk\n• Portal: support.digitallocker.gov.in\n• Available 24x7 for citizen queries')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">Help & Support</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('About DigiLocker', 'DigiLocker iOS App Replica\nVersion: 10.4.2 (Build 2026)\n\nNational e-Governance Division (NeGD), Ministry of Electronics & Information Technology (MeitY), Government of India.')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">About DigiLocker</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.openSheet('Switch Language', 'Current Language: English (Default)\nAvailable: हिन्दी (Hindi), मराठी, தமிழ், తెలుగు, ಕನ್ನಡ, বাংলা, ગુજરાતી, മലയാളം, ਪੰਜਾਬੀ')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-medium text-gray-800">Switch Language (English / Hindi)</span>
+                    <span class="text-gray-400 font-bold">›</span>
+                </button>
+
+                <button type="button" onclick="window.showToast('Session active on this device')" class="w-full px-4 py-3.5 flex items-center justify-between text-left active:bg-gray-50">
+                    <span class="text-[14.5px] font-semibold text-rose-600">Logout</span>
+                    <span class="text-rose-400 font-bold">›</span>
+                </button>
+            </section>
+        </div>
+    </main>
+
+    <!-- ==========================================================================
+         FIXED BOTTOM NAVIGATION BAR (Main Screens)
+         ========================================================================== -->
+    <nav class="main-bottom-nav" aria-label="Bottom Navigation">
+        <!-- Home Tab -->
+        <button type="button" id="tab-btn-home" class="nav-tab-btn active" onclick="window.switchTab('home')">
+            <svg width="26" height="25" viewBox="0 0 42 40" fill="none">
+                <path id="nav-home-doc" d="M12 3C10.3431 3 9 4.34315 9 6V34C9 35.6569 10.3431 37 12 37H34C35.6569 37 37 35.6569 37 34V13.5L26.5 3H12Z" fill="#5A35F0"/>
+                <path d="M26.5 3V11.5C26.5 12.6046 27.3954 13.5 28.5 13.5H37L26.5 3Z" fill="#b7a4ff"/>
+                <path d="M8.5 30.5H24.5C27.2614 30.5 29.5 28.2614 29.5 25.5C29.5 23.02 27.69 20.96 25.32 20.57C24.64 16.84 21.38 14 17.45 14C13.06 14 9.5 17.56 9.5 21.95C9.5 22.22 9.51 22.49 9.54 22.75C7.11 23.34 5.3 25.53 5.3 28.15C5.3 29.65 6.73 30.5 8.5 30.5Z" fill="white" stroke="#5A35F0" stroke-width="2.2" stroke-linejoin="round"/>
+                <circle cx="17.5" cy="22.8" r="1.7" fill="#5A35F0"/>
+                <path d="M16.8 23.8L16.2 27.2H18.8L18.2 23.8H16.8Z" fill="#5A35F0"/>
+            </svg>
+            <span>Home</span>
+        </button>
+
+        <!-- Search Tab -->
+        <button type="button" id="tab-btn-search" class="nav-tab-btn" onclick="window.switchTab('search')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                <path d="M16.2 16.2L20 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            <span>Search</span>
+        </button>
+
+        <!-- Issued Tab -->
+        <button type="button" id="tab-btn-issued" class="nav-tab-btn" onclick="window.switchTab('issued')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="9.5" r="6" stroke="currentColor" stroke-width="1.9"/>
+                <circle cx="12" cy="9.5" r="3" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M9 14.8L7.5 21L12 18.8L16.5 21L15 14.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Issued</span>
+        </button>
+
+        <!-- Menu Tab -->
+        <button type="button" id="tab-btn-menu" class="nav-tab-btn" onclick="window.switchTab('menu')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                <path d="M5 20C5 16.8 8 15 12 15C16 15 19 16.8 19 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Menu</span>
+        </button>
+
+        <!-- Orange UMANG Button -->
+        <button
+            type="button"
+            class="umang-pill-btn"
+            onclick="window.openSheet('UMANG Services', 'Unified Mobile Application for New-age Governance\n\nAccess EPFO, Passport Seva, DigiSeva, Ayushman Bharat, and 1,200+ Central and State Government services seamlessly.')"
+        >
+            UMANG
+        </button>
+    </nav>
+
+    <!-- ==========================================================================
+         SCREEN 5: AADHAAR CARD DETAIL VIEW (Exact match to Aadhaar Detail Screenshot)
+         ========================================================================== -->
+    <aside id="aadhaar-detail-screen" aria-label="Aadhaar Card Detail">
+        <!-- White Top Navigation Bar -->
+        <header class="bg-white pt-[calc(var(--safe-top)+8px)] pb-2.5 pl-3 pr-4 flex items-center justify-between border-b border-gray-200 shrink-0">
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    onclick="window.closeAadhaarDetail()"
+                    class="p-2 -ml-1 rounded-full active:bg-gray-100 cursor-pointer"
+                    aria-label="Back"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M5 12L11.5 5.5M5 12L11.5 18.5" stroke="#111827" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <span class="text-[17.5px] font-bold text-gray-800 tracking-tight">Aadhaar Card</span>
+            </div>
+
+            <!-- Top-Right Circular Avatar with Green Ring Border (#4CAF50) -->
+            <button
+                type="button"
+                onclick="window.openProfileScreen('aadhaar')"
+                class="w-[40px] h-[40px] rounded-full border-2 border-[#4CAF50] overflow-hidden shrink-0 bg-gray-200 cursor-pointer active:scale-95 transition-transform"
+                title="Open My Profile"
+            >
+                <img id="detail-avatar-img" alt="Avatar" class="w-full h-full object-cover block pointer-events-none">
+            </button>
+        </header>
+
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto no-scrollbar px-3.5 pt-3 pb-[calc(84px+var(--safe-bottom))]">
+            <!-- Main White Aadhaar Card Container -->
+            <div class="bg-white rounded-[11px] shadow-[0_2px_12px_rgba(0,0,0,0.08)] p-4 mb-3.5 relative">
+
+                <!-- 1. Official Header Row: State Emblem + Tricolor Brushstroke Banner + Aadhaar Logo -->
+                <div class="flex items-center justify-between gap-1.5 pt-0.5 pb-4">
+                    <!-- Left: State Emblem of India -->
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+                        alt="State Emblem of India"
+                        class="w-[38px] h-[56px] object-contain shrink-0 ml-1"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <svg style="display:none;" width="38" height="56" viewBox="0 0 60 84" fill="none" class="shrink-0 ml-1">
+                        <path d="M25 8C25 4 35 4 35 8L37 22H23L25 8Z" fill="#111827"/>
+                        <path d="M15 16C13 12 19 10 21 14L24 32H16L15 16Z" fill="#111827"/>
+                        <path d="M45 16C47 12 41 10 39 14L36 32H44L45 16Z" fill="#111827"/>
+                        <circle cx="30" cy="13" r="5.5" fill="#111827"/>
+                        <path d="M18 24H42L39 48H21L18 24Z" fill="#111827"/>
+                        <rect x="12" y="49" width="36" height="5" rx="2" fill="#111827"/>
+                        <circle cx="30" cy="59" r="4.5" stroke="#111827" stroke-width="2.2"/>
+                        <rect x="11" y="65" width="38" height="4" rx="1.5" fill="#111827"/>
+                        <text x="30" y="78" fill="#111827" font-size="7.5" font-weight="700" text-anchor="middle">सत्यमेव जयते</text>
+                    </svg>
+
+                    <!-- Center: Government of India Tricolor Brushstroke Graphic -->
+                    <svg width="174" height="48" viewBox="0 0 240 64" fill="none" class="shrink-0">
+                        <path d="M10 17C14 14.5 26 14 48 15.2C88 17.5 144 17.5 190 19.5C196 19.8 193 25.5 182 26.2C132 28.5 52 27.5 12 25.5C4 25 4.5 18.8 10 17Z" fill="url(#saffronBrush)"/>
+                        <path d="M192 20.5C198 20.5 204 21 206 22C202 22.8 195 22.8 191 22Z" fill="#fb923c" opacity="0.75"/>
+                        <circle cx="211" cy="21.5" r="1.3" fill="#f97316" opacity="0.65"/>
+
+                        <path d="M14 26.5C68 25.5 138 26.5 188 28.5C192 29 190 34.5 182 35C132 36.5 64 35.5 14 34.5C8 34 8 27.5 14 26.5Z" fill="#ffffff"/>
+
+                        <path d="M11 35.5C45 34.2 126 35.5 198 37.8C205 38.2 203 44.5 191 45.8C136 48.2 48 48.5 12 45.8C4.5 45.2 4 36.8 11 35.5Z" fill="url(#greenBrush)"/>
+                        <path d="M201 38.5C208 38.2 215 38.8 219 40.2C214 41.8 206 41.8 200 41Z" fill="#4ade80" opacity="0.85"/>
+                        <ellipse cx="224" cy="39.2" rx="3.2" ry="1.6" fill="#22c55e" opacity="0.8"/>
+                        <circle cx="231" cy="38.8" r="1.4" fill="#16a34a" opacity="0.75"/>
+                        <ellipse cx="215" cy="43.2" rx="2.5" ry="1.2" fill="#4ade80" opacity="0.75"/>
+
+                        <text x="104" y="25.5" fill="#111827" class="hindi-font" font-size="13.5" font-weight="700" text-anchor="middle">भारत सरकार</text>
+                        <text x="104" y="43.5" fill="#1f2937" font-size="10.5" font-weight="700" text-anchor="middle" letter-spacing="0.15">GOVERNMENT OF INDIA</text>
+
+                        <defs>
+                            <linearGradient id="saffronBrush" x1="6" y1="21" x2="196" y2="21" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#f97316" stop-opacity="0.88"/>
+                                <stop offset="60%" stop-color="#fb923c" stop-opacity="0.72"/>
+                                <stop offset="100%" stop-color="#fdba74" stop-opacity="0.28"/>
+                            </linearGradient>
+                            <linearGradient id="greenBrush" x1="6" y1="41" x2="205" y2="41" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#4ade80" stop-opacity="0.82"/>
+                                <stop offset="65%" stop-color="#22c55e" stop-opacity="0.88"/>
+                                <stop offset="100%" stop-color="#16a34a" stop-opacity="0.45"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <!-- Right: Official Aadhaar Logo -->
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/en/c/cf/Aadhaar_Logo.svg"
+                        alt="Aadhaar Logo"
+                        class="w-[72px] h-[50px] object-contain shrink-0"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <svg style="display:none;" width="72" height="50" viewBox="0 0 120 86" fill="none" class="shrink-0">
+                        <polygon points="60,4 56,22 64,22" fill="#f59e0b"/>
+                        <polygon points="41,8 45,25 52,22" fill="#f59e0b"/>
+                        <polygon points="79,8 68,22 75,25" fill="#f59e0b"/>
+                        <path d="M24 56 A36 36 0 0 1 96 56" stroke="#f59e0b" stroke-width="4.5" fill="none"/>
+                        <path d="M32 56 A28 28 0 0 1 88 56" stroke="#dc2626" stroke-width="3.5" fill="none"/>
+                        <path d="M40 56 A20 20 0 0 1 80 56" stroke="#dc2626" stroke-width="3" fill="none"/>
+                        <text x="60" y="72" fill="#dc2626" font-size="16" font-weight="800" text-anchor="middle" letter-spacing="0.8">AADHAAR</text>
+                    </svg>
+                </div>
+
+                <!-- 2. Profile Section: Rectangular Portrait Photo + Personal Details -->
+                <div class="flex items-start gap-4 pb-5">
+                    <button
+                        type="button"
+                        onclick="window.triggerPortraitUpload()"
+                        class="w-[92px] h-[114px] bg-gray-200 overflow-hidden shrink-0 cursor-pointer"
+                        title="Tap to upload portrait photo"
+                    >
+                        <img id="detail-portrait-img" alt="Portrait" class="w-full h-full object-cover block">
+                    </button>
+
+                    <div class="flex-1 pt-0.5">
+                        <div class="text-[17.5px] font-medium text-gray-900 leading-snug mb-2" id="detail-name">Akshit Khandelwal</div>
+                        <div class="text-[14px] text-gray-800 mb-2" id="detail-dob">2008-04-23</div>
+                        <div class="text-[14px] text-gray-800 mb-3" id="detail-gender">MALE</div>
+                        <div class="text-[20px] font-semibold text-gray-900 tracking-wide" id="detail-aadhaar-id">[Aadhaar Redacted]</div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200 -mx-0.5">
+
+                <!-- 3. Address Section -->
+                <div class="py-3.5">
+                    <div class="text-[13.5px] font-semibold text-gray-900 mb-2">Address</div>
+                    <div class="text-[13.2px] text-gray-800 leading-[1.38]" id="detail-address">
+                        S/O Saurabh Khandelwal, B-242, DERAWAL NAGAR, MODEL TOWN, NEAR PENTAMED HOSPITAL, North West Delhi, Delhi, 110009
+                    </div>
+                </div>
+
+                <hr class="border-gray-200 -mx-0.5">
+
+                <!-- 4. Powered by DigiLocker Badge & High-Density QR Code Row -->
+                <div class="flex items-start justify-between pt-3.5 pb-3 px-0.5">
+                    <!-- Left: Exact Purple (#6138F5) "Powered by DigiLocker" Badge -->
+                    <svg width="172" height="74" viewBox="0 0 244 104" fill="none" class="mt-0.5 shrink-0">
+                        <circle cx="52" cy="52" r="50" fill="#ede9fe"/>
+                        <rect x="76" y="22" width="164" height="60" rx="12" fill="#6138F5"/>
+                        <path d="M74 14C82 20 88 22 96 22H74V14Z" fill="#6138F5"/>
+                        <path d="M74 90C82 84 88 82 96 82H74V90Z" fill="#6138F5"/>
+                        <circle cx="52" cy="52" r="43" fill="white" stroke="#6138F5" stroke-width="6.5"/>
+                        <path d="M37 26C34.7909 26 33 27.7909 33 30V72C33 74.2091 34.7909 76 37 76H69C71.2091 76 73 74.2091 73 72V41L58 26H37Z" fill="#6138F5"/>
+                        <path d="M58 26V38C58 39.6569 59.3431 41 61 41H73L58 26Z" fill="#b7a4ff"/>
+                        <path d="M58 26L73 41H61C59.3431 41 58 39.6569 58 38V26Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                        <path d="M32.5 66.5H56.5C60.6421 66.5 64 63.1421 64 59C64 55.28 61.29 52.19 57.73 51.6C56.71 46.01 51.82 41.75 45.92 41.75C39.34 41.75 34 47.09 34 53.67C34 54.08 34.02 54.48 34.06 54.88C30.42 55.76 27.7 59.05 27.7 62.98C27.7 65.22 29.85 66.5 32.5 66.5Z" fill="white" stroke="#6138F5" stroke-width="3" stroke-linejoin="round"/>
+                        <circle cx="46" cy="55" r="2.4" fill="#6138F5"/>
+                        <path d="M44.9 56.5L44.1 61.5H47.9L47.1 56.5H44.9Z" fill="#6138F5"/>
+                        <text x="100" y="42" fill="white" font-size="13.5" font-style="italic" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, sans-serif">Powered by</text>
+                        <text x="100" y="68" fill="white" font-size="25" font-weight="700" font-family="-apple-system, BlinkMacSystemFont, sans-serif" letter-spacing="-0.4">DigiLocker</text>
+                    </svg>
+
+                    <!-- Right: High-Density QR Code + Tap to Zoom -->
+                    <button
+                        type="button"
+                        onclick="window.openQrModal()"
+                        class="flex flex-col items-center mr-1.5 cursor-pointer active:scale-95 transition-transform"
+                    >
+                        <canvas id="detail-qr-canvas" width="204" height="204" class="w-[102px] h-[102px] bg-white block"></canvas>
+                        <span class="text-[12.5px] font-semibold text-gray-800 mt-2">Tap to Zoom</span>
+                    </button>
+                </div>
+
+                <!-- 5. Bottom Hindi Slogan with Thin Red Top Border -->
+                <div class="relative pt-2.5 pb-0.5 text-center mt-1">
+                    <div class="w-[82%] h-[1px] bg-[#E57373] mx-auto mb-2.5"></div>
+                    <div class=" absolute right-3 top-2 -bottom-1 w-[1px] bg-[#E57373]"></div>
+                    <div class="hindi-font text-[22.5px] font-semibold text-gray-900 tracking-tight">
+                        मेरा <span class="text-[#D32F2F]">आधार</span>, मेरी पहचान
+                    </div>
+                </div>
+            </div>
+
+            <!-- "Did you know?" Lavender Box -->
+            <div class="bg-[#ECEDF6] rounded-[10px] p-4 mb-5">
+                <div class="text-[13px] text-gray-500 mb-2">Did you know?</div>
+                <div class="text-[14.5px] text-gray-600 leading-[1.36]">
+                    Indian Railways and Airports accept Digital Aadhaar through DigiLocker as valid identity proof.
+                </div>
+            </div>
+
+            <!-- Share Link Row -->
+            <button
+                type="button"
+                onclick="window.shareApp()"
+                class="w-full flex items-center justify-center gap-3 py-2 mb-4 cursor-pointer active:opacity-75"
+            >
+                <span class="text-[13.5px] text-blue-500">Tell your friends and family about DigiLocker</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <circle cx="18" cy="5" r="3" fill="#374151"/>
+                    <circle cx="6" cy="12" r="3" fill="#374151"/>
+                    <circle cx="18" cy="19" r="3" fill="#374151"/>
+                    <line x1="8.6" y1="10.5" x2="15.4" y2="6.5" stroke="#374151" stroke-width="2.2"/>
+                    <line x1="8.6" y1="13.5" x2="15.4" y2="17.5" stroke="#374151" stroke-width="2.2"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Bottom Action Bar specific to Aadhaar Detail Screen (3 Icons) -->
+        <footer class="bg-white border-t border-gray-200 pt-3 pb-[max(var(--safe-bottom),14px)] flex items-center justify-around shrink-0 z-20">
+            <!-- Left: Black DigiLocker Document-Cloud Icon -->
+            <button type="button" onclick="window.showToast('Verified Aadhaar e-Document ready')" class="px-6 py-1 active:scale-95">
+                <svg width="28" height="27" viewBox="0 0 42 40" fill="none">
+                    <path d="M12 3C10.3431 3 9 4.34315 9 6V34C9 35.6569 10.3431 37 12 37H34C35.6569 37 37 35.6569 37 34V13.5L26.5 3H12Z" fill="#111827"/>
+                    <path d="M26.5 3V11.5C26.5 12.6046 27.3954 13.5 28.5 13.5H37L26.5 3Z" fill="white" stroke="#111827" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M8.5 30.5H24.5C27.2614 30.5 29.5 28.2614 29.5 25.5C29.5 23.02 27.69 20.96 25.32 20.57C24.64 16.84 21.38 14 17.45 14C13.06 14 9.5 17.56 9.5 21.95C9.5 22.22 9.51 22.49 9.54 22.75C7.11 23.34 5.3 25.53 5.3 28.15C5.3 29.65 6.73 30.5 8.5 30.5Z" fill="white" stroke="#111827" stroke-width="2.2" stroke-linejoin="round"/>
+                    <circle cx="17.5" cy="22.8" r="1.7" fill="#111827"/>
+                    <path d="M16.8 23.8L16.2 27.2H18.8L18.2 23.8H16.8Z" fill="#111827"/>
+                </svg>
+            </button>
+
+            <!-- Center: Share Icon -->
+            <button type="button" onclick="window.shareApp()" class="px-6 py-1 active:scale-95">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="17.5" cy="5.5" r="2.6" fill="#374151"/>
+                    <circle cx="6.5" cy="12" r="2.6" fill="#374151"/>
+                    <circle cx="17.5" cy="18.5" r="2.6" fill="#374151"/>
+                    <line x1="8.8" y1="10.6" x2="15.2" y2="6.9" stroke="#374151" stroke-width="2"/>
+                    <line x1="8.8" y1="13.4" x2="15.2" y2="17.1" stroke="#374151" stroke-width="2"/>
+                </svg>
+            </button>
+
+            <!-- Right: Document Details Two-Bars Icon -->
+            <button
+                type="button"
+                onclick="window.openSheet('Digital Verification Details', 'Document Type: Aadhaar Card\nIssuer: Unique Identification Authority of India (UIDAI)\nDigitally Signed By: DS UNIQUE IDENTIFICATION AUTHORITY OF INDIA\nVerification: Validated via DigiLocker PKI')"
+                class="px-6 py-1 active:scale-95"
+            >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <rect x="4" y="4.5" width="16" height="6" rx="1" stroke="#111827" stroke-width="2"/>
+                    <rect x="4" y="13.5" width="16" height="6" rx="1" stroke="#111827" stroke-width="2"/>
+                </svg>
+            </button>
+        </footer>
+    </aside>
+
+    <!-- ==========================================================================
+         SCREEN 6: MY PROFILE VIEW (Exact match to My Profile Screenshot)
+         ========================================================================== -->
+    <aside id="profile-screen" aria-label="My Profile">
+        <!-- Scrollable Full-Height Container -->
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-[calc(36px+var(--safe-bottom))]">
+
+            <!-- Top Royal Purple Header with Asymmetric Curved Bottom Edge -->
+            <div class="relative bg-gradient-to-b from-[#3B1CBF] to-[#4723D4] pt-[calc(var(--safe-top)+10px)] pb-[118px]">
+                <!-- Top Navigation Bar inside Purple Header -->
+                <div class="flex items-center justify-between px-3.5 py-2 relative z-20">
+                    <!-- Left: Back Arrow -->
+                    <button
+                        type="button"
+                        onclick="window.closeProfileScreen()"
+                        class="w-10 h-10 -ml-1 rounded-full flex items-center justify-center text-white active:bg-white/15 cursor-pointer"
+                        aria-label="Back"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 12H5M5 12L11.5 5.5M5 12L11.5 18.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <!-- Center: My Profile Title -->
+                    <h1 class="text-white text-[18px] font-medium tracking-tight absolute left-1/2 -translate-x-1/2 pointer-events-none">
+                        My Profile
+                    </h1>
+
+                    <!-- Right: Refresh & Share Icons -->
+                    <div class="flex items-center gap-1">
+                        <button
+                            type="button"
+                            onclick="window.refreshProfileScreen(this)"
+                            class="w-10 h-10 rounded-full flex items-center justify-center text-white active:bg-white/15 cursor-pointer"
+                            aria-label="Refresh Profile"
+                        >
+                            <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5V9H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M4 13A8.1 8.1 0 0 0 19.5 15.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            onclick="window.shareApp()"
+                            class="w-10 h-10 -mr-1 rounded-full flex items-center justify-center text-white active:bg-white/15 cursor-pointer"
+                            aria-label="Share Profile"
+                        >
+                            <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+                                <circle cx="18" cy="5" r="2.6" fill="white"/>
+                                <circle cx="6" cy="12" r="2.6" fill="white"/>
+                                <circle cx="18" cy="19" r="2.6" fill="white"/>
+                                <line x1="8.3" y1="10.6" x2="15.7" y2="6.4" stroke="white" stroke-width="2"/>
+                                <line x1="8.3" y1="13.4" x2="15.7" y2="17.6" stroke="white" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Asymmetric White/Gray Wave Curve at Bottom of Purple Header -->
+                <svg
+                    class="absolute bottom-0 left-0 w-full h-[96px] pointer-events-none block"
+                    viewBox="0 0 430 96"
+                    preserveAspectRatio="none"
+                >
+                    <path
+                        d="M0,74 C135,96 285,68 430,10 L430,96 L0,96 Z"
+                        fill="#F7F8FA"
+                    />
+                </svg>
+            </div>
+
+            <!-- Centered Overlapping Large Circular Avatar -->
+            <div class="relative z-20 -mt-[114px] flex flex-col items-center px-4">
+                <button
+                    type="button"
+                    onclick="window.openAvatarOptionsSheet()"
+                    class="w-[144px] h-[144px] rounded-full border-[4.5px] border-white shadow-[0_4px_14px_rgba(0,0,0,0.08)] overflow-hidden bg-gray-200 cursor-pointer active:scale-[0.98] transition-transform"
+                    title="Tap to change profile photo"
+                >
+                    <img id="profile-screen-avatar-img" alt="Akshit Khandelwal" class="w-full h-full object-cover block pointer-events-none">
+                </button>
+
+                <!-- User Name -->
+                <h2 id="profile-screen-name" class="text-[22px] font-bold text-[#111827] tracking-tight mt-3.5 text-center leading-snug">
+                    Akshit Khandelwal
+                </h2>
+
+                <!-- Green Verified Badge -->
+                <div class="mt-2 bg-[#49A95E] text-white text-[12px] font-medium px-3 py-[2.5px] rounded-full inline-flex items-center gap-1.5 shadow-2xs">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Verified</span>
+                </div>
+
+                <!-- Generate vCard Pill Button -->
+                <button
+                    type="button"
+                    onclick="window.openVCardModal()"
+                    class="mt-3.5 bg-[#DCF0F7] active:bg-[#cbe6f0] text-[#1C1C1E] text-[15px] font-medium px-5 py-2 rounded-full inline-flex items-center gap-2.5 cursor-pointer active:scale-95 transition-transform"
+                >
+                    <span>Generate vCard</span>
+                    <!-- 2x2 QR Matrix Icon -->
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" class="text-[#52525B]">
+                        <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                        <rect x="14" y="14" width="3" height="3" fill="currentColor"/>
+                        <rect x="18" y="14" width="3" height="3" fill="currentColor"/>
+                        <rect x="14" y="18" width="3" height="3" fill="currentColor"/>
+                        <rect x="18" y="18" width="3" height="3" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Profile Details White Card (DOB, Gender, Mobile, Email) -->
+            <div class="bg-white rounded-[18px] mx-4 mt-6 px-5 py-1 shadow-[0_1px_5px_rgba(0,0,0,0.03)] border border-gray-100/90">
+                <!-- Row 1: DOB -->
+                <div class="py-4 border-b border-gray-100 flex items-center">
+                    <div class="w-[106px] text-[15.5px] font-bold text-[#1C1C1E] shrink-0">DOB</div>
+                    <div id="profile-screen-dob" class="text-[16px] text-[#2C2C2E] font-normal">23-04-2008</div>
+                </div>
+
+                <!-- Row 2: Gender -->
+                <div class="py-4 border-b border-gray-100 flex items-center">
+                    <div class="w-[106px] text-[15.5px] font-bold text-[#1C1C1E] shrink-0">Gender</div>
+                    <div id="profile-screen-gender" class="text-[16px] text-[#2C2C2E] font-normal">Male</div>
+                </div>
+
+                <!-- Row 3: Mobile -->
+                <div class="py-4 border-b border-gray-100 flex items-center justify-between">
+                    <div class="w-[106px] text-[15.5px] font-bold text-[#1C1C1E] shrink-0">Mobile</div>
+                    <div id="profile-screen-mobile" class="text-[16px] text-[#2C2C2E] font-normal flex-1">7982274479</div>
+                    <button
+                        type="button"
+                        onclick="window.openProfileEditModal('mobile')"
+                        class="p-1.5 -mr-1.5 text-[#6C6C70] rounded-lg active:bg-gray-100 cursor-pointer"
+                        aria-label="Edit Mobile Number"
+                    >
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                            <path d="M11 4H4C3.44772 4 3 4.44772 3 5V20C3 20.5523 3.44772 21 4 21H19C19.5523 21 20 20.5523 20 20V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.5 2.50001C19.3284 1.67158 20.6716 1.67158 21.5 2.50001C22.3284 3.32844 22.3284 4.67158 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Row 4: Email -->
+                <div class="py-4 flex items-center">
+                    <div class="w-[106px] text-[15.5px] font-bold text-[#1C1C1E] shrink-0">Email</div>
+                    <div id="profile-screen-email-container" class="flex-1 flex items-center justify-between">
+                        <button
+                            type="button"
+                            onclick="window.openProfileEditModal('email')"
+                            class="bg-[#4B25E5] active:bg-[#3A1BB8] text-white text-[13px] font-medium pl-4 pr-3 py-1 rounded-full inline-flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform"
+                        >
+                            <span>Add Email</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="opacity-85">
+                                <path d="M9 6L15 12L9 18" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links Section -->
+            <div class="mx-4 mt-6">
+                <h3 class="text-[16px] font-bold text-[#1C1C1E] mb-3.5">Quick Links</h3>
+                <div class="grid grid-cols-3 gap-2.5">
+                    <!-- Pill 1: My Account -->
+                    <button
+                        type="button"
+                        onclick="window.openSheet('My Account', 'Account Status: Verified via UIDAI e-KYC\nAccount Holder: ' + document.getElementById('profile-screen-name').textContent + '\nMobile: ' + document.getElementById('profile-screen-mobile').textContent + '\nLinked Aadhaar: [Aadhaar Redacted]')"
+                        class="bg-white border border-gray-300 rounded-full py-2.5 px-2 flex items-center justify-center gap-1.5 active:bg-gray-50 active:scale-95 transition-transform cursor-pointer"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#4B25E5] shrink-0">
+                            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M5 20C5 16.6863 8.13401 14 12 14C15.866 14 19 16.6863 19 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="text-[13px] font-medium text-[#6C6C70] truncate">My Account</span>
+                    </button>
+
+                    <!-- Pill 2: Nominee -->
+                    <button
+                        type="button"
+                        onclick="window.openSheet('Nominee', 'Account Nominee Management\n\nNo active nominee added yet. You can nominate a family member to access your digital documents in case of emergency.')"
+                        class="bg-white border border-gray-300 rounded-full py-2.5 px-2 flex items-center justify-center gap-1.5 active:bg-gray-50 active:scale-95 transition-transform cursor-pointer"
+                    >
+                        <svg width="17" height="16" viewBox="0 0 24 24" fill="none" class="text-[#4B25E5] shrink-0">
+                            <circle cx="9.5" cy="8.5" r="3.5" stroke="currentColor" stroke-width="2"/>
+                            <path d="M3.5 19.5C3.5 16.5 6.1 14.5 9.5 14.5C12.9 14.5 15.5 16.5 15.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M19 8V14M16 11H22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="text-[13px] font-medium text-[#6C6C70] truncate">Nominee</span>
+                    </button>
+
+                    <!-- Pill 3: My Activity -->
+                    <button
+                        type="button"
+                        onclick="window.openSheet('My Activity', 'Recent Account Activity:\n• My Profile viewed just now\n• Aadhaar Card verified via UIDAI\n• Active session on iPhone iOS Safari')"
+                        class="bg-white border border-gray-300 rounded-full py-2.5 px-2 flex items-center justify-center gap-1.5 active:bg-gray-50 active:scale-95 transition-transform cursor-pointer"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#4B25E5] shrink-0">
+                            <rect x="3" y="4" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 11L9.5 8.5L12.5 12.5L15 9.5L17 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="8" y1="20" x2="16" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="text-[13px] font-medium text-[#6C6C70] truncate">My Activity</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- ==========================================================================
+         NATIVE iOS BOTTOM SHEET MODAL (For Utilities, Menu Items & Document Actions)
+         ========================================================================== -->
+    <div id="ios-sheet-overlay" class="sheet-overlay" onclick="window.closeSheet()">
+        <div class="sheet-panel" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h3 id="sheet-title" class="text-[18px] font-bold text-gray-900 mb-2"></h3>
+            <div id="sheet-body" class="text-[14px] text-gray-600 leading-relaxed whitespace-pre-line bg-gray-50 p-3.5 rounded-xl border border-gray-200/80 mb-4"></div>
+            <div id="sheet-actions" class="space-y-2 mb-2 hidden"></div>
+            <button
+                type="button"
+                onclick="window.closeSheet()"
+                class="w-full bg-[#3A24D6] text-white font-bold text-[15px] py-3 rounded-xl active:scale-[0.99]"
+            >
+                Done
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         QR CODE FULL-SCREEN ZOOM MODAL
+         ========================================================================== -->
+    <div id="qr-modal-overlay" class="center-modal-overlay" onclick="window.closeQrModal()">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-[340px] text-center shadow-2xl" onclick="event.stopPropagation()">
+            <h3 id="qr-modal-title" class="text-[17px] font-bold text-gray-900 mb-1">Aadhaar Verified QR Code</h3>
+            <p id="qr-modal-subtitle" class="text-[12.5px] text-gray-500 mb-4">Scan using DigiLocker or Official QR Scanner</p>
+            <div class="p-3 bg-white border border-gray-200 rounded-xl inline-block mb-4">
+                <canvas id="zoom-qr-canvas" width="408" height="408" class="w-[236px] h-[236px] block"></canvas>
+            </div>
+            <button
+                type="button"
+                onclick="window.closeQrModal()"
+                class="w-full bg-[#3A24D6] text-white font-bold text-[15px] py-3 rounded-xl"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         PROFILE QUICK-EDIT MODAL (Mobile / Email / DOB / Name)
+         ========================================================================== -->
+    <div id="profile-edit-modal-overlay" class="center-modal-overlay" onclick="window.closeProfileEditModal()">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-[350px] shadow-2xl" onclick="event.stopPropagation()">
+            <h3 class="text-[17px] font-bold text-gray-900 mb-1">Update Profile Details</h3>
+            <p class="text-[12px] text-gray-500 mb-3.5">Changes update My Profile & Aadhaar Card locally</p>
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="block text-[12px] font-semibold text-gray-700 mb-1">Mobile Number</label>
+                    <input type="tel" id="modal-edit-mobile" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14.5px] text-gray-900">
+                </div>
+                <div>
+                    <label class="block text-[12px] font-semibold text-gray-700 mb-1">Email Address (Leave empty for "Add Email" pill)</label>
+                    <input type="email" id="modal-edit-email" placeholder="e.g. name@example.com" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14.5px] text-gray-900">
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[12px] font-semibold text-gray-700 mb-1">DOB (YYYY-MM-DD)</label>
+                        <input type="text" id="modal-edit-dob" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-semibold text-gray-700 mb-1">Gender</label>
+                        <input type="text" id="modal-edit-gender" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-[14px] text-gray-900">
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2.5 mt-5">
+                <button
+                    type="button"
+                    onclick="window.closeProfileEditModal()"
+                    class="flex-1 bg-gray-100 text-gray-700 font-semibold text-[14px] py-2.5 rounded-xl"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    onclick="window.saveProfileModalChanges()"
+                    class="flex-1 bg-[#4B25E5] text-white font-bold text-[14px] py-2.5 rounded-xl"
+                >
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-banner"></div>
+
+</div>
+
+<script>
+    /* ==========================================================================
+       GLOBAL STORAGE KEYS & DEFAULT STATE
+       ========================================================================== */
+    const STORAGE_KEYS = {
+        PORTRAIT: 'digilocker_ios_portrait_v3',
+        AVATAR: 'digilocker_ios_avatar_v3',
+        CARD_DATA: 'digilocker_ios_card_data_v3'
+    };
+
+    const DEFAULT_CARD_DATA = {
+        name: 'Akshit Khandelwal',
+        dob: '2008-04-23',
+        gender: 'MALE',
+        mobile: '7982274479',
+        email: '',
+        idNum: '[Aadhaar Redacted]',
+        address: 'S/O Saurabh Khandelwal, B-242, DERAWAL NAGAR, MODEL TOWN, NEAR PENTAMED HOSPITAL, North West Delhi, Delhi, 110009'
+    };
+
+    let previousScreenBeforeProfile = 'home';
+
+    /* ==========================================================================
+       1. GLOBAL NAVIGATION FUNCTIONS (Attached to window for 100% reliability)
+       ========================================================================== */
+    window.switchTab = function(tabName) {
+        // Close slide-over screens if open
+        window.closeProfileScreen();
+        window.closeAadhaarDetail();
+
+        const validTabs = ['home', 'search', 'issued', 'menu'];
+        validTabs.forEach(function(t) {
+            const viewEl = document.getElementById('tab-' + t);
+            const btnEl = document.getElementById('tab-btn-' + t);
+            const isMatch = (t === tabName);
+
+            if (viewEl) {
+                viewEl.classList.toggle('active', isMatch);
+            }
+            if (btnEl) {
+                btnEl.classList.toggle('active', isMatch);
+                btnEl.style.color = isMatch ? '#5A35F0' : '#111827';
+            }
+        });
+
+        const homeDocPath = document.getElementById('nav-home-doc');
+        if (homeDocPath) {
+            homeDocPath.setAttribute('fill', tabName === 'home' ? '#5A35F0' : '#6b7280');
+        }
+    };
+
+    window.openAadhaarDetail = function() {
+        const screen = document.getElementById('aadhaar-detail-screen');
+        const metaTheme = document.getElementById('theme-color-meta');
+        if (screen) {
+            screen.classList.add('open');
+        }
+        if (metaTheme) {
+            metaTheme.setAttribute('content', '#ffffff');
+        }
+    };
+
+    window.closeAadhaarDetail = function() {
+        const screen = document.getElementById('aadhaar-detail-screen');
+        const metaTheme = document.getElementById('theme-color-meta');
+        if (screen) {
+            screen.classList.remove('open');
+        }
+        if (metaTheme) {
+            metaTheme.setAttribute('content', '#3A24D6');
+        }
+    };
+
+    window.openProfileScreen = function(sourceScreen) {
+        if (sourceScreen) {
+            previousScreenBeforeProfile = sourceScreen;
+        }
+        const profileEl = document.getElementById('profile-screen');
+        const metaTheme = document.getElementById('theme-color-meta');
+        if (profileEl) {
+            profileEl.classList.add('open');
+        }
+        if (metaTheme) {
+            metaTheme.setAttribute('content', '#3B1CBF');
+        }
+    };
+
+    window.closeProfileScreen = function() {
+        const profileEl = document.getElementById('profile-screen');
+        const aadhaarEl = document.getElementById('aadhaar-detail-screen');
+        const metaTheme = document.getElementById('theme-color-meta');
+        if (profileEl) {
+            profileEl.classList.remove('open');
+        }
+        if (metaTheme) {
+            const isAadhaarOpen = aadhaarEl && aadhaarEl.classList.contains('open');
+            metaTheme.setAttribute('content', isAadhaarOpen ? '#ffffff' : '#3A24D6');
+        }
+    };
+
+    window.refreshProfileScreen = function(btnEl) {
+        if (btnEl) {
+            const svg = btnEl.querySelector('svg');
+            if (svg) {
+                svg.classList.remove('spin-anim');
+                void svg.offsetWidth;
+                svg.classList.add('spin-anim');
+            }
+        }
+        window.showToast('Profile synced with UIDAI e-KYC');
+    };
+
+    // Native iOS left-edge swipe back gesture on slide-over screens
+    (function initSwipeBack() {
+        function attachEdgeSwipe(el, closeFn) {
+            if (!el) return;
+            let startX = 0;
+            let startY = 0;
+            el.addEventListener('touchstart', function(e) {
+                if (e.touches && e.touches.length > 0) {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+
+            el.addEventListener('touchend', function(e) {
+                if (e.changedTouches && e.changedTouches.length > 0) {
+                    const dx = e.changedTouches[0].clientX - startX;
+                    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+                    if (startX < 45 && dx > 65 && dy < 60) {
+                        closeFn();
+                    }
+                }
+            }, { passive: true });
+        }
+
+        attachEdgeSwipe(document.getElementById('aadhaar-detail-screen'), window.closeAadhaarDetail);
+        attachEdgeSwipe(document.getElementById('profile-screen'), window.closeProfileScreen);
+    })();
+
+    /* ==========================================================================
+       2. SEARCH FILTERING LOGIC
+       ========================================================================== */
+    window.filterSearchList = function(query) {
+        const q = (query || '').toLowerCase().trim();
+        const items = document.querySelectorAll('.search-item');
+        items.forEach(function(el) {
+            const keywords = (el.getAttribute('data-search') || '') + ' ' + el.innerText.toLowerCase();
+            el.style.display = (!q || keywords.indexOf(q) !== -1) ? '' : 'none';
+        });
+    };
+
+    /* ==========================================================================
+       3. PHOTO UPLOAD & SCREENSHOT AUTO-EXTRACTOR (HTML5 Canvas Cropper)
+       ========================================================================== */
+    window.triggerScreenshotAutoExtract = function() {
+        document.getElementById('screenshot-file-input').click();
+    };
+
+    window.triggerProfileScreenshotAutoExtract = function() {
+        document.getElementById('profile-screenshot-file-input').click();
+    };
+
+    window.triggerPortraitUpload = function() {
+        document.getElementById('portrait-file-input').click();
+    };
+
+    window.triggerAvatarUpload = function() {
+        document.getElementById('avatar-file-input').click();
+    };
+
+    window.openAvatarOptionsSheet = function() {
+        const actionsHtml = [
+            '<button type="button" onclick="window.closeSheet(); window.triggerProfileScreenshotAutoExtract();" class="w-full py-3 px-4 rounded-xl bg-indigo-50 font-semibold text-[14px] text-[#3A24D6] text-left">👤 Auto-Extract Avatar from My Profile Screenshot</button>',
+            '<button type="button" onclick="window.closeSheet(); window.triggerScreenshotAutoExtract();" class="w-full py-3 px-4 rounded-xl bg-indigo-50 font-semibold text-[14px] text-[#3A24D6] text-left">📸 Auto-Extract Both Photos from Aadhaar Screenshot</button>',
+            '<button type="button" onclick="window.closeSheet(); window.triggerAvatarUpload();" class="w-full py-3 px-4 rounded-xl bg-gray-100 font-semibold text-[14px] text-gray-900 text-left">🖼️ Upload Custom Avatar Photo</button>'
+        ].join('');
+        window.openSheet('Profile Photo Options', 'Update your profile avatar across Home, Aadhaar Card, and My Profile:', actionsHtml);
+    };
+
+    function cropPercentFromImage(img, xPct, yPct, wPct, hPct, outW, outH) {
+        const canvas = document.createElement('canvas');
+        canvas.width = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+        const sx = img.width * (xPct / 100);
+        const sy = img.height * (yPct / 100);
+        const sw = img.width * (wPct / 100);
+        const sh = img.height * (hPct / 100);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+        return canvas.toDataURL('image/jpeg', 0.92);
+    }
+
+    function applyPortraitEverywhere(dataUrl) {
+        const el = document.getElementById('detail-portrait-img');
+        if (el) el.src = dataUrl;
+    }
+
+    function applyAvatarEverywhere(dataUrl) {
+        ['home-avatar-img', 'menu-avatar-img', 'detail-avatar-img', 'profile-screen-avatar-img'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.src = dataUrl;
+        });
+    }
+
+    // Auto-extract from My Profile screenshot (large centered circular avatar)
+    document.getElementById('profile-screenshot-file-input').addEventListener('change', function(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                // Exact coordinates for the large centered avatar inside the My Profile screenshot:
+                // Center X = 50%, Center Y = 22.85%, Diameter = 31% width
+                const avatarUrl = cropPercentFromImage(img, 34.5, 15.6, 31.0, 14.5, 280, 280);
+                applyAvatarEverywhere(avatarUrl);
+                try {
+                    localStorage.setItem(STORAGE_KEYS.AVATAR, avatarUrl);
+                } catch (err) {}
+                window.showToast('Avatar auto-cropped from My Profile screenshot!');
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('screenshot-file-input').addEventListener('change', function(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                // Check if user uploaded the My Profile screenshot here by sampling top-left header color
+                const probeCanvas = document.createElement('canvas');
+                probeCanvas.width = 10;
+                probeCanvas.height = 10;
+                const pCtx = probeCanvas.getContext('2d');
+                pCtx.drawImage(img, img.width * 0.2, img.height * 0.14, 1, 1, 0, 0, 1, 1);
+                const px = pCtx.getImageData(0, 0, 1, 1).data;
+
+                // If top-left at y=14% is royal purple (R < 100, B > 150), it's the My Profile screenshot
+                if (px[0] < 105 && px[2] > 145) {
+                    const avatarUrl = cropPercentFromImage(img, 34.5, 15.6, 31.0, 14.5, 280, 280);
+                    applyAvatarEverywhere(avatarUrl);
+                    try { localStorage.setItem(STORAGE_KEYS.AVATAR, avatarUrl); } catch (err) {}
+                    window.showToast('Avatar auto-cropped from My Profile screenshot!');
+                    return;
+                }
+
+                // Otherwise crop both Portrait & Avatar from the Aadhaar Detail screenshot
+                const portraitUrl = cropPercentFromImage(img, 5.5, 19.8, 18.2, 10.6, 276, 342);
+                const avatarUrl = cropPercentFromImage(img, 84.0, 3.9, 9.0, 4.2, 200, 200);
+
+                applyPortraitEverywhere(portraitUrl);
+                applyAvatarEverywhere(avatarUrl);
+
+                try {
+                    localStorage.setItem(STORAGE_KEYS.PORTRAIT, portraitUrl);
+                    localStorage.setItem(STORAGE_KEYS.AVATAR, avatarUrl);
+                } catch (err) {}
+
+                window.showToast('Portrait & Avatar auto-cropped from screenshot!');
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('portrait-file-input').addEventListener('change', function(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const scale = Math.min(360 / img.width, 450 / img.height, 1);
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                applyPortraitEverywhere(dataUrl);
+                try { localStorage.setItem(STORAGE_KEYS.PORTRAIT, dataUrl); } catch (err) {}
+                window.showToast('Portrait photo updated!');
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('avatar-file-input').addEventListener('change', function(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const scale = Math.min(240 / img.width, 240 / img.height, 1);
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                applyAvatarEverywhere(dataUrl);
+                try { localStorage.setItem(STORAGE_KEYS.AVATAR, dataUrl); } catch (err) {}
+                window.showToast('Top-right avatar updated!');
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    /* ==========================================================================
+       4. CARD CUSTOMIZER SAVE & RESET (localStorage Persistence)
+       ========================================================================== */
+    function formatDobForProfile(dobStr) {
+        if (!dobStr) return '23-04-2008';
+        // Convert YYYY-MM-DD (2008-04-23) to DD-MM-YYYY (23-04-2008) for My Profile view
+        const m = dobStr.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (m) {
+            return m[3] + '-' + m[2] + '-' + m[1];
+        }
+        return dobStr;
+    }
+
+    function formatGenderForProfile(genderStr) {
+        if (!genderStr) return 'Male';
+        const g = genderStr.trim().toLowerCase();
+        return g.charAt(0).toUpperCase() + g.slice(1);
+    }
+
+    function renderCardDataToUI(data) {
+        const safeName = data.name || DEFAULT_CARD_DATA.name;
+        const safeDob = data.dob || DEFAULT_CARD_DATA.dob;
+        const safeGender = data.gender || DEFAULT_CARD_DATA.gender;
+        const safeMobile = data.mobile || DEFAULT_CARD_DATA.mobile;
+        const safeEmail = typeof data.email === 'string' ? data.email.trim() : '';
+        const safeId = data.idNum || DEFAULT_CARD_DATA.idNum;
+        const safeAddress = data.address || DEFAULT_CARD_DATA.address;
+
+        // Home, Menu & Aadhaar Detail screens
+        document.getElementById('home-welcome-heading').textContent = 'Welcome, ' + safeName;
+        document.getElementById('menu-profile-name').textContent = safeName;
+        document.getElementById('detail-name').textContent = safeName;
+        document.getElementById('detail-dob').textContent = safeDob;
+        document.getElementById('detail-gender').textContent = safeGender;
+
+        document.getElementById('home-card-aadhaar-id').textContent = safeId;
+        document.getElementById('issued-tab-aadhaar-id').textContent = safeId;
+        document.getElementById('detail-aadhaar-id').textContent = safeId;
+        document.getElementById('detail-address').textContent = safeAddress;
+
+        // My Profile Screen
+        document.getElementById('profile-screen-name').textContent = safeName;
+        document.getElementById('profile-screen-dob').textContent = formatDobForProfile(safeDob);
+        document.getElementById('profile-screen-gender').textContent = formatGenderForProfile(safeGender);
+        document.getElementById('profile-screen-mobile').textContent = safeMobile;
+
+        const emailContainer = document.getElementById('profile-screen-email-container');
+        if (emailContainer) {
+            if (safeEmail) {
+                emailContainer.innerHTML =
+                    '<span class="text-[15.5px] text-[#2C2C2E] truncate pr-2">' + safeEmail.replace(/</g, '&lt;') + '</span>' +
+                    '<button type="button" onclick="window.openProfileEditModal(\'email\')" class="p-1.5 -mr-1.5 text-[#6C6C70] rounded-lg active:bg-gray-100 cursor-pointer" aria-label="Edit Email">' +
+                        '<svg width="19" height="19" viewBox="0 0 24 24" fill="none">' +
+                            '<path d="M11 4H4C3.44772 4 3 4.44772 3 5V20C3 20.5523 3.44772 21 4 21H19C19.5523 21 20 20.5523 20 20V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+                            '<path d="M18.5 2.50001C19.3284 1.67158 20.6716 1.67158 21.5 2.50001C22.3284 3.32844 22.3284 4.67158 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+                        '</svg>' +
+                    '</button>';
+            } else {
+                emailContainer.innerHTML =
+                    '<button type="button" onclick="window.openProfileEditModal(\'email\')" class="bg-[#4B25E5] active:bg-[#3A1BB8] text-white text-[13px] font-medium pl-4 pr-3 py-1 rounded-full inline-flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform">' +
+                        '<span>Add Email</span>' +
+                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="opacity-85">' +
+                            '<path d="M9 6L15 12L9 18" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+                        '</svg>' +
+                    '</button>';
+            }
+        }
+
+        // Menu Form Inputs
+        document.getElementById('form-name').value = safeName;
+        document.getElementById('form-dob').value = safeDob;
+        document.getElementById('form-gender').value = safeGender;
+        document.getElementById('form-mobile').value = safeMobile;
+        document.getElementById('form-email').value = safeEmail;
+        document.getElementById('form-id-num').value = safeId;
+        document.getElementById('form-address').value = safeAddress;
+    }
+
+    window.saveCustomizerChanges = function() {
+        const updated = {
+            name: document.getElementById('form-name').value.trim() || DEFAULT_CARD_DATA.name,
+            dob: document.getElementById('form-dob').value.trim() || DEFAULT_CARD_DATA.dob,
+            gender: document.getElementById('form-gender').value.trim() || DEFAULT_CARD_DATA.gender,
+            mobile: document.getElementById('form-mobile').value.trim() || DEFAULT_CARD_DATA.mobile,
+            email: document.getElementById('form-email').value.trim(),
+            idNum: document.getElementById('form-id-num').value.trim() || DEFAULT_CARD_DATA.idNum,
+            address: document.getElementById('form-address').value.trim() || DEFAULT_CARD_DATA.address
+        };
+        try {
+            localStorage.setItem(STORAGE_KEYS.CARD_DATA, JSON.stringify(updated));
+        } catch (err) {}
+        renderCardDataToUI(updated);
+        window.showToast('Changes saved to your device!');
+    };
+
+    window.openProfileEditModal = function(focusField) {
+        document.getElementById('modal-edit-mobile').value = document.getElementById('form-mobile').value;
+        document.getElementById('modal-edit-email').value = document.getElementById('form-email').value;
+        document.getElementById('modal-edit-dob').value = document.getElementById('form-dob').value;
+        document.getElementById('modal-edit-gender').value = document.getElementById('form-gender').value;
+        document.getElementById('profile-edit-modal-overlay').classList.add('open');
+
+        setTimeout(function() {
+            if (focusField === 'email') {
+                document.getElementById('modal-edit-email').focus();
+            } else if (focusField === 'mobile') {
+                document.getElementById('modal-edit-mobile').focus();
+            }
+        }, 80);
+    };
+
+    window.closeProfileEditModal = function() {
+        document.getElementById('profile-edit-modal-overlay').classList.remove('open');
+    };
+
+    window.saveProfileModalChanges = function() {
+        document.getElementById('form-mobile').value = document.getElementById('modal-edit-mobile').value.trim() || DEFAULT_CARD_DATA.mobile;
+        document.getElementById('form-email').value = document.getElementById('modal-edit-email').value.trim();
+        document.getElementById('form-dob').value = document.getElementById('modal-edit-dob').value.trim() || DEFAULT_CARD_DATA.dob;
+        document.getElementById('form-gender').value = document.getElementById('modal-edit-gender').value.trim() || DEFAULT_CARD_DATA.gender;
+        window.saveCustomizerChanges();
+        window.closeProfileEditModal();
+    };
+
+    window.resetCustomizerDefaults = function() {
+        try {
+            localStorage.removeItem(STORAGE_KEYS.PORTRAIT);
+            localStorage.removeItem(STORAGE_KEYS.AVATAR);
+            localStorage.removeItem(STORAGE_KEYS.CARD_DATA);
+        } catch (err) {}
+        renderCardDataToUI(DEFAULT_CARD_DATA);
+        applyPortraitEverywhere(generateDefaultPortrait());
+        applyAvatarEverywhere(generateDefaultAvatar());
+        window.showToast('Reset to default settings');
+    };
+
+    /* ==========================================================================
+       5. DEFAULT PORTRAIT & AVATAR GENERATORS
+       ========================================================================== */
+    function generateDefaultPortrait() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 276;
+        canvas.height = 342;
+        const ctx = canvas.getContext('2d');
+
+        const bg = ctx.createLinearGradient(0, 0, 276, 342);
+        bg.addColorStop(0, '#eef2ef');
+        bg.addColorStop(1, '#dce1dd');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, 276, 342);
+
+        // Pale pinkish-lavender crew-neck t-shirt
+        ctx.fillStyle = '#e2d0d6';
+        ctx.beginPath();
+        ctx.moveTo(12, 342);
+        ctx.quadraticCurveTo(34, 268, 95, 256);
+        ctx.lineTo(181, 256);
+        ctx.quadraticCurveTo(242, 268, 264, 342);
+        ctx.closePath();
+        ctx.fill();
+
+        // Neck
+        ctx.fillStyle = '#c89878';
+        ctx.beginPath();
+        ctx.moveTo(106, 205);
+        ctx.lineTo(170, 205);
+        ctx.lineTo(176, 258);
+        ctx.quadraticCurveTo(138, 276, 100, 258);
+        ctx.closePath();
+        ctx.fill();
+
+        // Ears
+        ctx.fillStyle = '#c59475';
+        ctx.beginPath();
+        ctx.ellipse(76, 152, 11, 23, -0.08, 0, Math.PI * 2);
+        ctx.ellipse(200, 152, 11, 23, 0.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Face
+        ctx.fillStyle = '#d4a686';
+        ctx.beginPath();
+        ctx.moveTo(78, 115);
+        ctx.quadraticCurveTo(75, 178, 102, 208);
+        ctx.quadraticCurveTo(138, 232, 174, 208);
+        ctx.quadraticCurveTo(201, 178, 198, 115);
+        ctx.quadraticCurveTo(195, 65, 138, 65);
+        ctx.quadraticCurveTo(81, 65, 78, 115);
+        ctx.closePath();
+        ctx.fill();
+
+        // Dark wavy hair
+        ctx.fillStyle = '#231f20';
+        ctx.beginPath();
+        ctx.moveTo(74, 134);
+        ctx.quadraticCurveTo(64, 92, 85, 62);
+        ctx.quadraticCurveTo(110, 38, 142, 40);
+        ctx.quadraticCurveTo(178, 40, 196, 66);
+        ctx.quadraticCurveTo(212, 94, 201, 134);
+        ctx.quadraticCurveTo(196, 102, 182, 92);
+        ctx.quadraticCurveTo(160, 82, 138, 86);
+        ctx.quadraticCurveTo(112, 82, 92, 95);
+        ctx.quadraticCurveTo(80, 106, 74, 134);
+        ctx.closePath();
+        ctx.fill();
+
+        // Eyebrows & Eyes
+        ctx.strokeStyle = '#231f20';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(96, 125);
+        ctx.quadraticCurveTo(112, 119, 126, 124);
+        ctx.moveTo(150, 124);
+        ctx.quadraticCurveTo(164, 119, 180, 125);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(112, 138, 11, 5.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(164, 138, 11, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#2b1d14';
+        ctx.beginPath();
+        ctx.arc(112, 138, 5, 0, Math.PI * 2);
+        ctx.arc(164, 138, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lips
+        ctx.fillStyle = '#a86c68';
+        ctx.beginPath();
+        ctx.moveTo(118, 188);
+        ctx.quadraticCurveTo(138, 183, 158, 188);
+        ctx.quadraticCurveTo(138, 198, 118, 188);
+        ctx.fill();
+
+        return canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    function generateDefaultAvatar() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 240;
+        canvas.height = 240;
+        const ctx = canvas.getContext('2d');
+
+        // Warm beige-olive indoor wall background matching My Profile screenshot
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, 240);
+        bgGrad.addColorStop(0, '#b5ae99');
+        bgGrad.addColorStop(1, '#9d9682');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 240, 240);
+
+        // Dark navy/black jacket shoulders
+        ctx.fillStyle = '#1b1d24';
+        ctx.beginPath();
+        ctx.moveTo(22, 240);
+        ctx.quadraticCurveTo(46, 188, 92, 182);
+        ctx.lineTo(148, 182);
+        ctx.quadraticCurveTo(194, 188, 218, 240);
+        ctx.closePath();
+        ctx.fill();
+
+        // White inner shirt collar lapels
+        ctx.fillStyle = '#e5e7eb';
+        ctx.beginPath();
+        ctx.moveTo(78, 182);
+        ctx.lineTo(106, 224);
+        ctx.lineTo(90, 232);
+        ctx.lineTo(66, 194);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(162, 182);
+        ctx.lineTo(134, 224);
+        ctx.lineTo(150, 232);
+        ctx.lineTo(174, 194);
+        ctx.closePath();
+        ctx.fill();
+
+        // Neck
+        ctx.fillStyle = '#9e7856';
+        ctx.beginPath();
+        ctx.moveTo(96, 156);
+        ctx.lineTo(144, 156);
+        ctx.lineTo(148, 198);
+        ctx.quadraticCurveTo(120, 212, 92, 198);
+        ctx.closePath();
+        ctx.fill();
+
+        // Ears
+        ctx.fillStyle = '#a37b58';
+        ctx.beginPath();
+        ctx.ellipse(57, 114, 11, 22, -0.15, 0, Math.PI * 2);
+        ctx.ellipse(183, 114, 11, 22, 0.15, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Young boy's rounded face
+        const faceGrad = ctx.createRadialGradient(120, 105, 12, 120, 110, 72);
+        faceGrad.addColorStop(0, '#be936d');
+        faceGrad.addColorStop(1, '#a37955');
+        ctx.fillStyle = faceGrad;
+        ctx.beginPath();
+        ctx.moveTo(62, 86);
+        ctx.quadraticCurveTo(58, 146, 88, 170);
+        ctx.quadraticCurveTo(120, 190, 152, 170);
+        ctx.quadraticCurveTo(182, 146, 178, 86);
+        ctx.quadraticCurveTo(174, 34, 120, 34);
+        ctx.quadraticCurveTo(66, 34, 62, 86);
+        ctx.closePath();
+        ctx.fill();
+
+        // Dark hair with side-swept bangs
+        ctx.fillStyle = '#1f1b18';
+        ctx.beginPath();
+        ctx.moveTo(59, 102);
+        ctx.quadraticCurveTo(52, 54, 78, 30);
+        ctx.quadraticCurveTo(120, 10, 162, 30);
+        ctx.quadraticCurveTo(188, 54, 181, 102);
+        ctx.quadraticCurveTo(175, 72, 156, 56);
+        ctx.quadraticCurveTo(132, 46, 102, 58);
+        ctx.quadraticCurveTo(75, 68, 59, 102);
+        ctx.closePath();
+        ctx.fill();
+
+        // Eyebrows
+        ctx.strokeStyle = '#231d18';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(77, 88);
+        ctx.quadraticCurveTo(93, 81, 107, 87);
+        ctx.moveTo(133, 87);
+        ctx.quadraticCurveTo(147, 81, 163, 88);
+        ctx.stroke();
+
+        // Expressive eyes
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.ellipse(93, 102, 12, 7.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(147, 102, 12, 7.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1e1610';
+        ctx.beginPath();
+        ctx.arc(93, 102, 6.2, 0, Math.PI * 2);
+        ctx.arc(147, 102, 6.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(91, 100, 1.8, 0, Math.PI * 2);
+        ctx.arc(145, 100, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Nose
+        ctx.strokeStyle = '#87603f';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(120, 124, 7, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+
+        // Gentle smile
+        ctx.strokeStyle = '#7c4d42';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.moveTo(101, 146);
+        ctx.quadraticCurveTo(120, 155, 139, 146);
+        ctx.stroke();
+
+        return canvas.toDataURL('image/jpeg', 0.92);
+    }
+
+    /* ==========================================================================
+       6. HIGH-DENSITY QR CODE RENDERER
+       ========================================================================== */
+    function renderAadhaarQR(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const modules = 37;
+        const size = canvas.width;
+        const cell = size / modules;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = '#000000';
+
+        function drawFinder(r0, c0) {
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 7; c++) {
+                    if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+                        ctx.fillRect(Math.floor((c0 + c) * cell), Math.floor((r0 + r) * cell), Math.ceil(cell), Math.ceil(cell));
+                    }
+                }
+            }
+        }
+
+        drawFinder(0, 0);
+        drawFinder(0, modules - 7);
+        drawFinder(modules - 7, 0);
+
+        const ar = modules - 9, ac = modules - 9;
+        for (let r = 0; r < 5; r++) {
+            for (let c = 0; c < 5; c++) {
+                if (r === 0 || r === 4 || c === 0 || c === 4 || (r === 2 && c === 2)) {
+                    ctx.fillRect(Math.floor((ac + c) * cell), Math.floor((ar + r) * cell), Math.ceil(cell), Math.ceil(cell));
+                }
+            }
+        }
+
+        let seed = 104729;
+        function nextRand() {
+            seed = (seed * 1664525 + 1013904223) % 4294967296;
+            return seed / 4294967296;
+        }
+
+        for (let r = 0; r < modules; r++) {
+            for (let c = 0; c < modules; c++) {
+                if (r < 8 && c < 8) continue;
+                if (r < 8 && c >= modules - 8) continue;
+                if (r >= modules - 8 && c < 8) continue;
+                if (r >= ar && r < ar + 5 && c >= ac && c < ac + 5) continue;
+                if (r === 6 || c === 6) {
+                    if ((r + c) % 2 === 0) ctx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+                    continue;
+                }
+                if (nextRand() > 0.47) {
+                    ctx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+                }
+            }
+        }
+    }
+
+    /* ==========================================================================
+       7. MODALS, ACTION SHEETS & SHARE
+       ========================================================================== */
+    window.openSheet = function(title, bodyText, actionButtonsHtml) {
+        document.getElementById('sheet-title').textContent = title;
+        document.getElementById('sheet-body').textContent = bodyText;
+        const actionsContainer = document.getElementById('sheet-actions');
+        if (actionButtonsHtml) {
+            actionsContainer.innerHTML = actionButtonsHtml;
+            actionsContainer.classList.remove('hidden');
+        } else {
+            actionsContainer.innerHTML = '';
+            actionsContainer.classList.add('hidden');
+        }
+        document.getElementById('ios-sheet-overlay').classList.add('open');
+    };
+
+    window.closeSheet = function() {
+        document.getElementById('ios-sheet-overlay').classList.remove('open');
+    };
+
+    window.openIssuedDocActionSheet = function() {
+        const actionsHtml = [
+            '<button type="button" onclick="window.closeSheet(); window.openAadhaarDetail();" class="w-full py-3 px-4 rounded-xl bg-gray-100 font-semibold text-[14px] text-gray-900 text-left">View Document</button>',
+            '<button type="button" onclick="window.closeSheet(); window.shareApp();" class="w-full py-3 px-4 rounded-xl bg-gray-100 font-semibold text-[14px] text-gray-900 text-left">Share Document</button>',
+            '<button type="button" onclick="window.closeSheet(); window.showToast(\'Verified Aadhaar XML/PDF downloaded\');" class="w-full py-3 px-4 rounded-xl bg-gray-100 font-semibold text-[14px] text-gray-900 text-left">Download XML / PDF</button>',
+            '<button type="button" onclick="window.closeSheet(); window.showToast(\'Document refreshed from UIDAI\');" class="w-full py-3 px-4 rounded-xl bg-gray-100 font-semibold text-[14px] text-indigo-700 text-left">Refresh Document</button>'
+        ].join('');
+        window.openSheet('Aadhaar Card Actions', 'Unique Identification Authority of India (UIDAI)', actionsHtml);
+    };
+
+    window.openQrModal = function() {
+        document.getElementById('qr-modal-title').textContent = 'Aadhaar Verified QR Code';
+        document.getElementById('qr-modal-subtitle').textContent = 'Scan using DigiLocker or Official QR Scanner';
+        document.getElementById('qr-modal-overlay').classList.add('open');
+    };
+
+    window.openVCardModal = function() {
+        const name = document.getElementById('profile-screen-name').textContent;
+        document.getElementById('qr-modal-title').textContent = name + ' • Digital vCard';
+        document.getElementById('qr-modal-subtitle').textContent = 'Verified DigiLocker Profile vCard QR';
+        document.getElementById('qr-modal-overlay').classList.add('open');
+    };
+
+    window.closeQrModal = function() {
+        document.getElementById('qr-modal-overlay').classList.remove('open');
+    };
+
+    window.shareApp = async function() {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'DigiLocker',
+                    text: 'DigiLocker - Digital Empowerment of Citizens',
+                    url: window.location.href
+                });
+            } catch (err) {}
+        } else {
+            window.showToast('Share link copied to clipboard');
+        }
+    };
+
+    let toastTimeout = null;
+    window.showToast = function(msg) {
+        const banner = document.getElementById('toast-banner');
+        if (!banner) return;
+        banner.textContent = msg;
+        banner.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(function() {
+            banner.classList.remove('show');
+        }, 2400);
+    };
+
+    /* ==========================================================================
+       8. INITIALIZATION ON LOAD
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', function() {
+        // Load saved photos or defaults
+        let savedPortrait = null;
+        let savedAvatar = null;
+        let savedCardData = null;
+
+        try {
+            savedPortrait = localStorage.getItem(STORAGE_KEYS.PORTRAIT);
+            savedAvatar = localStorage.getItem(STORAGE_KEYS.AVATAR);
+            const rawData = localStorage.getItem(STORAGE_KEYS.CARD_DATA);
+            if (rawData) savedCardData = JSON.parse(rawData);
+        } catch (err) {}
+
+        applyPortraitEverywhere(savedPortrait || generateDefaultPortrait());
+        applyAvatarEverywhere(savedAvatar || generateDefaultAvatar());
+        renderCardDataToUI(savedCardData || DEFAULT_CARD_DATA);
+
+        // Render high-density QR codes
+        renderAadhaarQR('detail-qr-canvas');
+        renderAadhaarQR('zoom-qr-canvas');
+    });
+</script>
 
 </body>
 </html>
