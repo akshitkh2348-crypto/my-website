@@ -198,7 +198,7 @@
                             APEX DRIFT: WANGAN OVERDRIVE
                         </h2>
                         <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-                            100% custom procedural supercars, high-grip arcade-sim steering &amp; handbrake slip-angle physics, illuminated highway streetlights, high-speed oncoming traffic across all 4 lanes, and strict <strong class="text-rose-400">ONE-HIT ELIMINATION</strong> rules.
+                            100% custom procedural supercars, permanent slip-angle drift physics on all steering, illuminated 3-lane highway with lane-shifting oncoming traffic, collectible N2O canisters on the asphalt, and strict <strong class="text-rose-400">ONE-HIT ELIMINATION</strong> rules.
                         </p>
 
                         <!-- Interactive 3-Car Spec Selector -->
@@ -222,9 +222,9 @@
 
                         <!-- Controls Box -->
                         <div class="p-3 rounded-xl bg-slate-950/85 border border-slate-800 font-mono-tech text-xs text-slate-300 space-y-1 mb-5">
-                            <div class="flex justify-between"><span class="text-amber-400">THROTTLE / BRAKE / STEER:</span> <span>W / S / A / D or Arrow Keys</span></div>
-                            <div class="flex justify-between"><span class="text-amber-400">HANDBRAKE DRIFT &amp; N2O BOOST:</span> <span>[SPACEBAR] Drift • [SHIFT] N2O</span></div>
-                            <div class="flex justify-between"><span class="text-rose-400">SUDDEN DEATH RULE:</span> <span>100% Oncoming Traffic • 1 Crash = OUT!</span></div>
+                            <div class="flex justify-between"><span class="text-amber-400">DRIFT STEER / THROTTLE:</span> <span>W / S / A / D or Arrow Keys</span></div>
+                            <div class="flex justify-between"><span class="text-cyan-400">TWIN-TURBO N2O BOOST:</span> <span>Hold [SHIFT] (Collect Road N2O Tanks!)</span></div>
+                            <div class="flex justify-between"><span class="text-rose-400">3-LANE SUDDEN DEATH:</span> <span>Shifting Oncoming Traffic • 1 Hit = OUT!</span></div>
                         </div>
                     </div>
 
@@ -320,14 +320,14 @@
             <div class="nexus-glass rounded-2xl p-4 w-full sm:w-80">
                 <div class="flex justify-between font-mono-tech text-xs text-cyan-300 mb-1">
                     <span>TWIN-TURBO N2O [SHIFT]</span>
-                    <span id="drift-n2o-txt">100%</span>
+                    <span id="drift-n2o-txt">50%</span>
                 </div>
                 <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-cyan-500/40 mb-2">
-                    <div id="drift-n2o-bar" class="h-full bg-gradient-to-r from-cyan-400 to-fuchsia-500 transition-all" style="width: 100%"></div>
+                    <div id="drift-n2o-bar" class="h-full bg-gradient-to-r from-cyan-400 to-fuchsia-500 transition-all" style="width: 50%"></div>
                 </div>
                 <div class="flex justify-between font-mono-tech text-[11px] text-slate-400">
-                    <span>[SPACE] HANDBRAKE DRIFT</span>
-                    <span id="drift-slip-status" class="text-amber-300">TRACTION: OPTIMAL</span>
+                    <span>COLLECT CYAN N2O TANKS</span>
+                    <span id="drift-slip-status" class="text-amber-300">DRIFT SPEC: ACTIVE</span>
                 </div>
             </div>
 
@@ -598,6 +598,22 @@
                 osc.start(now);
                 osc.stop(now + 0.25);
             }
+            playNitroPickup() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(1280, now + 0.22);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.22);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            }
         }
         const sfx = new SoundSynthesizer();
 
@@ -622,7 +638,7 @@
             normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
             normalMap.repeat.set(8, 30);
 
-            // 2. Detailed Highway Asphalt Diffuse + Roughness Texture (Tire tracks, aggregate & lane lines)
+            // 2. Detailed 3-Lane Highway Asphalt Diffuse + Roughness Texture (Tire tracks, aggregate & 2 lane dividers)
             const rCanvas = document.createElement('canvas');
             rCanvas.width = rCanvas.height = 1024;
             const rCtx = rCanvas.getContext('2d');
@@ -638,17 +654,17 @@
                 rCtx.fillRect(x, y, 2, 3);
             }
 
-            // Darker worn tire-polished grooves down the 4 lane centers
-            const laneCentersPx = [168, 398, 626, 856];
+            // Darker worn tire-polished grooves down the 3 lane centers
+            const laneCentersPx = [204, 512, 820];
             laneCentersPx.forEach((lx) => {
-                const grad = rCtx.createLinearGradient(lx - 70, 0, lx + 70, 0);
+                const grad = rCtx.createLinearGradient(lx - 90, 0, lx + 90, 0);
                 grad.addColorStop(0, 'rgba(5, 8, 15, 0)');
                 grad.addColorStop(0.3, 'rgba(5, 8, 15, 0.45)');
                 grad.addColorStop(0.5, 'rgba(25, 33, 48, 0.15)');
                 grad.addColorStop(0.7, 'rgba(5, 8, 15, 0.45)');
                 grad.addColorStop(1, 'rgba(5, 8, 15, 0)');
                 rCtx.fillStyle = grad;
-                rCtx.fillRect(lx - 70, 0, 140, 1024);
+                rCtx.fillRect(lx - 90, 0, 180, 1024);
             });
 
             // Outer emergency shoulder solid lines (White + Red/Amber hazard rumble strips)
@@ -661,16 +677,11 @@
                 rCtx.fillRect(992, y, 22, 64);
             }
 
-            // Center High-Contrast Hazard Double Line
-            rCtx.fillStyle = '#f59e0b';
-            rCtx.fillRect(498, 0, 10, 1024);
-            rCtx.fillRect(516, 0, 10, 1024);
-
-            // Dashed Lane Dividers
-            rCtx.fillStyle = '#cbd5e1';
+            // 2 High-Contrast Dashed Lane Dividers separating the 3 Lanes
             for (let y = 0; y < 1024; y += 128) {
-                rCtx.fillRect(278, y + 16, 12, 72);
-                rCtx.fillRect(734, y + 16, 12, 72);
+                rCtx.fillStyle = '#f59e0b';
+                rCtx.fillRect(352, y + 16, 14, 76);
+                rCtx.fillRect(658, y + 16, 14, 76);
             }
 
             const roadMap = new THREE.CanvasTexture(rCanvas);
@@ -763,644 +774,29 @@
         const Textures = generatePBRTextures();
 
         /* =====================================================================
-           3. ASSET PIPELINE (NO EXTERNAL CAR MODELS — 100% PROCEDURAL VEHICLES)
-           ===================================================================== */
-        const LoadedGLTF = {
-            robot: null,
-            soldier: null
-        };
-
-        async function preloadGLTFModels() {
-            const draco = new DRACOLoader();
-            draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-            const loader = new GLTFLoader();
-            loader.setDRACOLoader(draco);
-
-            const items = [
-                { key: 'robot', label: 'Imperial Security Droid Rig (GLB)', url: 'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb' },
-                { key: 'soldier', label: 'Humanoid Tactical Unit (GLB)', url: 'https://threejs.org/examples/models/gltf/Soldier.glb' }
-            ];
-
-            const bar = document.getElementById('loader-bar');
-            const status = document.getElementById('loader-status');
-
-            for (let i = 0; i < items.length; i++) {
-                status.textContent = `Compiling Procedural Car Textures & Loading ${items[i].label}...`;
-                try {
-                    const gltf = await new Promise((resolve, reject) => {
-                        const t = setTimeout(() => reject(new Error('timeout')), 6500);
-                        loader.load(items[i].url, (g) => { clearTimeout(t); resolve(g); }, undefined, reject);
-                    });
-                    LoadedGLTF[items[i].key] = gltf;
-                } catch (e) {
-                    console.warn(`Using procedural fallback for ${items[i].key}`);
-                }
-                bar.style.width = `${((i + 1) / items.length) * 100}%`;
-            }
-
-            document.getElementById('asset-status-pill').textContent = `PROCEDURAL WANGAN + PBR`;
-            setTimeout(() => {
-                const el = document.getElementById('asset-loader');
-                el.style.opacity = '0';
-                setTimeout(() => el.classList.add('hidden'), 500);
-            }, 220);
-        }
-
-        /* ---------------------------------------------------------------------
-           3A. 100% PROCEDURAL CUSTOM MULTI-MESH PLAYER SUPERCAR BUILDER
-               (0: RX-78 Wangan Tuner | 1: Valkyrie GT-R | 2: Nightshade V12)
-           --------------------------------------------------------------------- */
-        function createDetailedWheel() {
-            const wheelGroup = new THREE.Group();
-            const tireMat = new THREE.MeshStandardMaterial({
-                color: 0x0f172a,
-                roughness: 0.85,
-                metalness: 0.15,
-                normalMap: Textures.normalMap
-            });
-            const rimMat = new THREE.MeshStandardMaterial({
-                color: 0xe2e8f0,
-                metalness: 0.92,
-                roughness: 0.18
-            });
-            const caliperMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
-
-            const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.28, 24), tireMat);
-            tire.rotation.z = Math.PI / 2;
-            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.29, 16), rimMat);
-            rim.rotation.z = Math.PI / 2;
-
-            // 5 Alloy Spokes
-            for (let s = 0; s < 5; s++) {
-                const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.045, 0.44), rimMat);
-                spoke.rotation.x = (s / 5) * Math.PI;
-                wheelGroup.add(spoke);
-            }
-            const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.31, 12), caliperMat);
-            hub.rotation.z = Math.PI / 2;
-
-            wheelGroup.add(tire, rim, hub);
-            return wheelGroup;
-        }
-
-        function buildPlayerVehicle(specIndex = 0) {
-            const root = new THREE.Group();
-            const chassis = new THREE.Group();
-            root.add(chassis);
-            const wheels = [];
-
-            const specThemes = [
-                { body: 0xe11d48, accent: 0xf59e0b, glow: 0xff1133, clearcoat: 1.0 }, // 0: RX-78 Crimson Wangan
-                { body: 0x06b6d4, accent: 0x38bdf8, glow: 0x00f0ff, clearcoat: 1.0 }, // 1: Valkyrie GT-R Cyan
-                { body: 0x111827, accent: 0xf43f5e, glow: 0xa855f7, clearcoat: 0.95 } // 2: Nightshade V12 Stealth
-            ];
-            const theme = specThemes[specIndex] || specThemes[0];
-
-            const paintMat = new THREE.MeshPhysicalMaterial({
-                color: theme.body,
-                metalness: specIndex === 2 ? 0.85 : 0.65,
-                roughness: specIndex === 2 ? 0.2 : 0.12,
-                clearcoat: theme.clearcoat,
-                clearcoatRoughness: 0.06
-            });
-            const carbonMat = new THREE.MeshStandardMaterial({
-                color: 0x1e293b,
-                map: Textures.carbonMap,
-                normalMap: Textures.normalMap,
-                roughness: 0.35,
-                metalness: 0.8
-            });
-            const glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0x050814,
-                metalness: 0.95,
-                roughness: 0.05,
-                clearcoat: 1.0
-            });
-
-            // Sculpted Lower Aerodynamic Floorpan & Carbon Splitter
-            const floorPan = new THREE.Mesh(new THREE.BoxGeometry(2.04, 0.14, 4.65), carbonMat);
-            floorPan.position.set(0, 0.20, 0);
-            chassis.add(floorPan);
-
-            // Main Sculpted Body Tub
-            const mainBody = new THREE.Mesh(new THREE.BoxGeometry(1.94, 0.46, 4.4), paintMat);
-            mainBody.position.set(0, 0.48, 0);
-            mainBody.castShadow = true;
-            chassis.add(mainBody);
-
-            // Sloped Aerodynamic Nose Hood
-            const noseCone = new THREE.Mesh(new THREE.BoxGeometry(1.86, 0.34, 1.35), paintMat);
-            noseCone.position.set(0, 0.43, -1.65);
-            noseCone.rotation.x = 0.14;
-            chassis.add(noseCone);
-
-            // Muscular Widebody Wheel Fenders (4 Arches)
-            const fenderGeo = new THREE.BoxGeometry(0.24, 0.38, 1.05);
-            [[-0.95, -1.35], [0.95, -1.35], [-0.95, 1.35], [0.95, 1.35]].forEach(([fx, fz]) => {
-                const fender = new THREE.Mesh(fenderGeo, paintMat);
-                fender.position.set(fx, 0.52, fz);
-                chassis.add(fender);
-            });
-
-            // Teardrop Tinted Glass Canopy & A-Pillars
-            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.54, 0.44, 2.05), glassMat);
-            cabin.position.set(0, 0.86, -0.05);
-            const roofScoop = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.85), carbonMat);
-            roofScoop.position.set(0, 1.10, 0.1);
-            chassis.add(cabin, roofScoop);
-
-            // Side Mirrors
-            const mirrorGeo = new THREE.BoxGeometry(0.26, 0.1, 0.16);
-            const mirrorL = new THREE.Mesh(mirrorGeo, paintMat);
-            mirrorL.position.set(-1.05, 0.78, -0.65);
-            const mirrorR = mirrorL.clone();
-            mirrorR.position.x = 1.05;
-            chassis.add(mirrorL, mirrorR);
-
-            // Spec-Specific Aero & Styling Packages
-            if (specIndex === 0) {
-                // RX-78 Wangan Tuner: Classic Dual-Element GT Wing + Hood Vent
-                const wingBlade = new THREE.Mesh(new THREE.BoxGeometry(1.98, 0.06, 0.34), carbonMat);
-                wingBlade.position.set(0, 1.08, 1.98);
-                const strutL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.32, 0.22), carbonMat);
-                strutL.position.set(-0.58, 0.90, 1.96);
-                const strutR = strutL.clone();
-                strutR.position.x = 0.58;
-                chassis.add(wingBlade, strutL, strutR);
-            } else if (specIndex === 1) {
-                // Valkyrie GT-R: Wide Time-Attack Swan-Neck Wing, Canards & Dorsal Shark Fin
-                const wingBlade = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.07, 0.42), carbonMat);
-                wingBlade.position.set(0, 1.18, 2.05);
-                const endplateL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.28, 0.48), paintMat);
-                endplateL.position.set(-1.11, 1.14, 2.05);
-                const endplateR = endplateL.clone();
-                endplateR.position.x = 1.11;
-                const sharkFin = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.28, 1.15), carbonMat);
-                sharkFin.position.set(0, 1.04, 1.25);
-                chassis.add(wingBlade, endplateL, endplateR, sharkFin);
-            } else {
-                // Nightshade V12: Le Mans Prototype Louvers, Neon Underglow Strip & Cyber Lightbar
-                const louver = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.14, 1.2), carbonMat);
-                louver.position.set(0, 0.82, 1.35);
-                const neonTrim = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.06, 0.05, 4.5),
-                    new THREE.MeshBasicMaterial({ color: 0xa855f7 })
-                );
-                neonTrim.position.set(0, 0.16, 0);
-                chassis.add(louver, neonTrim);
-            }
-
-            // 4 Spinning Alloy Wheels (Front 2 can steer laterally)
-            const wheelPositions = [
-                [-0.96, 0.35, -1.35, true],
-                [0.96, 0.35, -1.35, true],
-                [-0.96, 0.35, 1.35, false],
-                [0.96, 0.35, 1.35, false]
-            ];
-            wheelPositions.forEach(([wx, wy, wz, isFront]) => {
-                const w = createDetailedWheel();
-                w.position.set(wx, wy, wz);
-                w.userData.isFront = isFront;
-                chassis.add(w);
-                wheels.push(w);
-            });
-
-            // LED Headlights & Full-Width Emissive Rear Brake Light Bar
-            const headMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
-            const headL = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.1), headMat);
-            headL.position.set(-0.65, 0.50, -2.26);
-            const headR = headL.clone();
-            headR.position.x = 0.65;
-
-            const tailMat = new THREE.MeshBasicMaterial({ color: 0xff1133 });
-            const tailBar = new THREE.Mesh(new THREE.BoxGeometry(1.78, 0.12, 0.08), tailMat);
-            tailBar.position.set(0, 0.64, 2.22);
-            chassis.add(headL, headR, tailBar);
-
-            // Twin N2O Exhaust Flame Cones
-            const n2oMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0 });
-            const coneGeo = new THREE.ConeGeometry(0.16, 1.25, 10);
-            coneGeo.rotateX(Math.PI / 2);
-            const flameL = new THREE.Mesh(coneGeo, n2oMat);
-            flameL.position.set(-0.48, 0.28, 2.75);
-            const flameR = flameL.clone();
-            flameR.position.x = 0.48;
-            chassis.add(flameL, flameR);
-
-            // Real-time Headlight Spotlights illuminating the wet asphalt ahead
-            const spotL = new THREE.SpotLight(0xffffff, 14, 85, Math.PI / 5, 0.45);
-            spotL.position.set(-0.65, 0.65, -2.1);
-            spotL.target.position.set(-0.65, 0.0, -36);
-            const spotR = spotL.clone();
-            spotR.position.x = 0.65;
-            spotR.target.position.set(0.65, 0.0, -36);
-            chassis.add(spotL, spotL.target, spotR, spotR.target);
-
-            return { root, chassis, wheels, n2oMat, tailMat };
-        }
-
-        /* ---------------------------------------------------------------------
-           3B. 100% PROCEDURAL ONCOMING TRAFFIC VEHICLE BUILDER (Facing Player!)
-               0: Heavy Freight Semi-Truck | 1: Police Interceptor Cruiser
-               2: Luxury SUV | 3: Wangan Sports Coupe | 4: Commercial Box Van
-           --------------------------------------------------------------------- */
-        function buildTrafficVehicle(typeIndex) {
-            const group = new THREE.Group();
-            const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x090f1d, metalness: 0.9, roughness: 0.1 });
-
-            let halfLength = 2.25;
-            let halfWidth = 1.02;
-
-            if (typeIndex === 0) {
-                // 1. HEAVY FREIGHT SEMI-TRUCK + CONTAINER TRAILER
-                halfLength = 5.5;
-                halfWidth = 1.22;
-                const cabMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.65, roughness: 0.3 });
-                const trailerMat = new THREE.MeshStandardMaterial({
-                    color: 0xcbd5e1,
-                    metalness: 0.45,
-                    roughness: 0.4,
-                    normalMap: Textures.normalMap
-                });
-
-                const cab = new THREE.Mesh(new THREE.BoxGeometry(2.38, 2.65, 2.8), cabMat);
-                cab.position.set(0, 1.45, -3.5);
-                const grille = new THREE.Mesh(
-                    new THREE.BoxGeometry(1.4, 1.1, 0.12),
-                    new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 })
-                );
-                grille.position.set(0, 1.05, -4.92);
-                const windshield = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.82, 0.1), glassMat);
-                windshield.position.set(0, 2.05, -4.91);
-                const trailer = new THREE.Mesh(new THREE.BoxGeometry(2.46, 3.35, 8.0), trailerMat);
-                trailer.position.set(0, 1.9, 2.05);
-
-                const clearance = new THREE.Mesh(
-                    new THREE.BoxGeometry(1.85, 0.14, 0.15),
-                    new THREE.MeshBasicMaterial({ color: 0xf59e0b })
-                );
-                clearance.position.set(0, 3.58, -1.9);
-                group.add(cab, grille, windshield, trailer, clearance);
-            } else if (typeIndex === 1) {
-                // 2. POLICE INTERCEPTOR CRUISER (Flashing Red/Blue Roof Lightbar)
-                const body = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.02, 0.65, 4.55),
-                    new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.85, roughness: 0.2 })
-                );
-                body.position.y = 0.52;
-                const doors = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.05, 0.58, 1.85),
-                    new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 })
-                );
-                doors.position.y = 0.52;
-                const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.52, 2.1), glassMat);
-                cabin.position.set(0, 1.05, -0.1);
-
-                const sirenRed = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.78, 0.15, 0.3),
-                    new THREE.MeshBasicMaterial({ color: 0xff1133 })
-                );
-                sirenRed.position.set(-0.42, 1.38, -0.1);
-                const sirenBlue = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.78, 0.15, 0.3),
-                    new THREE.MeshBasicMaterial({ color: 0x0088ff })
-                );
-                sirenBlue.position.set(0.42, 1.38, -0.1);
-                group.userData.sirenRed = sirenRed;
-                group.userData.sirenBlue = sirenBlue;
-                group.add(body, doors, cabin, sirenRed, sirenBlue);
-            } else if (typeIndex === 2) {
-                // 3. LUXURY SUV / G-WAGON SILHOUETTE
-                const suvMat = new THREE.MeshPhysicalMaterial({ color: 0x10b981, metalness: 0.7, roughness: 0.22, clearcoat: 0.85 });
-                const base = new THREE.Mesh(new THREE.BoxGeometry(2.12, 0.82, 4.65), suvMat);
-                base.position.y = 0.6;
-                const top = new THREE.Mesh(new THREE.BoxGeometry(1.88, 0.68, 3.1), suvMat);
-                top.position.set(0, 1.3, 0.25);
-                const windshield = new THREE.Mesh(new THREE.BoxGeometry(1.76, 0.56, 0.1), glassMat);
-                windshield.position.set(0, 1.3, -1.31);
-                group.add(base, top, windshield);
-            } else if (typeIndex === 3) {
-                // 4. PROCEDURAL MID-ENGINE SPORTS COUPE
-                const coupeMat = new THREE.MeshPhysicalMaterial({ color: 0xf59e0b, metalness: 0.75, roughness: 0.18, clearcoat: 1.0 });
-                const lower = new THREE.Mesh(new THREE.BoxGeometry(1.98, 0.48, 4.4), coupeMat);
-                lower.position.y = 0.44;
-                const canopy = new THREE.Mesh(new THREE.BoxGeometry(1.58, 0.42, 1.95), glassMat);
-                canopy.position.set(0, 0.84, -0.1);
-                group.add(lower, canopy);
-            } else {
-                // 5. COMMERCIAL DELIVERY BOX VAN
-                halfLength = 2.85;
-                const cab = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.12, 1.62, 1.85),
-                    new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.35 })
-                );
-                cab.position.set(0, 1.0, -1.75);
-                const cargo = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.26, 2.4, 3.85),
-                    new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.45, normalMap: Textures.normalMap })
-                );
-                cargo.position.set(0, 1.4, 1.0);
-                group.add(cab, cargo);
-            }
-
-            // Add 4 Procedural Wheels to every traffic vehicle
-            const wGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.26, 16);
-            wGeo.rotateZ(Math.PI / 2);
-            const wMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
-            [[-0.98, -1.35], [0.98, -1.35], [-0.98, 1.35], [0.98, 1.35]].forEach(([wx, wz]) => {
-                const wheel = new THREE.Mesh(wGeo, wMat);
-                wheel.position.set(wx, 0.36, wz);
-                group.add(wheel);
-            });
-
-            // High-Beam Oncoming Headlights & Turn-Signal Indicators facing the player
-            const frontZ = -halfLength;
-            const headMat = new THREE.MeshBasicMaterial({ color: 0xffffdd });
-            const headL = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.20, 0.12), headMat);
-            headL.position.set(-0.72, 0.66, frontZ);
-            const headR = headL.clone();
-            headR.position.x = 0.72;
-
-            // Dual Volumetric Headlight Cones facing the player
-            const beamMat = new THREE.MeshBasicMaterial({
-                color: 0xfef08a,
-                transparent: true,
-                opacity: 0.18,
-                depthWrite: false
-            });
-            const beamGeo = new THREE.ConeGeometry(0.65, 4.2, 12, 1, true);
-            beamGeo.rotateX(-Math.PI / 2);
-            const beamL = new THREE.Mesh(beamGeo, beamMat);
-            beamL.position.set(-0.72, 0.55, frontZ - 2.1);
-            const beamR = beamL.clone();
-            beamR.position.x = 0.72;
-
-            // Left/Right Amber Turn Signal Indicators on the front bumper
-            const blinkLMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0 });
-            const blinkRMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0 });
-            const blinkL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.14), blinkLMat);
-            blinkL.position.set(-0.96, 0.66, frontZ - 0.02);
-            const blinkR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.14), blinkRMat);
-            blinkR.position.set(0.96, 0.66, frontZ - 0.02);
-
-            group.add(headL, headR, beamL, beamR, blinkL, blinkR);
-
-            // Rotate 180 degrees so all traffic faces +Z (driving directly toward the player!)
-            group.rotation.y = Math.PI;
-
-            group.userData.halfLength = halfLength;
-            group.userData.halfWidth = halfWidth;
-            group.userData.typeIndex = typeIndex;
-            group.userData.blinkLMat = blinkLMat;
-            group.userData.blinkRMat = blinkRMat;
-            return group;
-        }
-
-        /* ---------------------------------------------------------------------
-           3C. STAR WARS E-11 / DL-44 DETAILED 28-MESH BLASTER VIEWMODEL
-           --------------------------------------------------------------------- */
-        function buildStarWarsBlasterViewmodel() {
-            const blaster = new THREE.Group();
-
-            const gunmetal = new THREE.MeshStandardMaterial({
-                color: 0x181c24,
-                metalness: 0.92,
-                roughness: 0.22,
-                normalMap: Textures.normalMap
-            });
-            const brushedSteel = new THREE.MeshStandardMaterial({
-                color: 0x475569,
-                metalness: 0.88,
-                roughness: 0.28
-            });
-            const gripMat = new THREE.MeshStandardMaterial({
-                color: 0x090d16,
-                roughness: 0.75,
-                metalness: 0.2
-            });
-            const chamberGlowMat = new THREE.MeshBasicMaterial({ color: 0xff1133 });
-
-            // 1. Main Cylindrical Receiver Tube
-            const receiver = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 0.42, 20), gunmetal);
-            receiver.rotation.x = Math.PI / 2;
-            blaster.add(receiver);
-
-            // 2. Perforated Barrel Shroud + 6 T-Track Cooling Fins
-            const shroud = new THREE.Mesh(new THREE.CylinderGeometry(0.039, 0.039, 0.34, 20), gunmetal);
-            shroud.rotation.x = Math.PI / 2;
-            shroud.position.z = -0.26;
-            blaster.add(shroud);
-
-            for (let i = 0; i < 6; i++) {
-                const angle = (i / 6) * Math.PI * 2;
-                const tTrack = new THREE.Mesh(new THREE.BoxGeometry(0.009, 0.012, 0.31), gripMat);
-                tTrack.position.set(Math.cos(angle) * 0.039, Math.sin(angle) * 0.039, -0.26);
-                tTrack.rotation.z = angle;
-                blaster.add(tTrack);
-            }
-
-            // 3. Cooling Radiator Rings along Inner Barrel
-            for (let r = 0; r < 5; r++) {
-                const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.012, 16), brushedSteel);
-                ring.rotation.x = Math.PI / 2;
-                ring.position.z = -0.14 - r * 0.055;
-                blaster.add(ring);
-            }
-
-            // 4. Heavy Flash Suppressor Muzzle Crown
-            const muzzle = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.035, 0.07, 16), brushedSteel);
-            muzzle.rotation.x = Math.PI / 2;
-            muzzle.position.z = -0.45;
-            blaster.add(muzzle);
-
-            // 5. Glowing Tibanna Plasma Core Chamber Slot (Changes color with firing mode!)
-            const plasmaCore = new THREE.Mesh(new THREE.BoxGeometry(0.078, 0.018, 0.16), chamberGlowMat);
-            plasmaCore.position.set(0, 0.012, -0.02);
-            blaster.add(plasmaCore);
-
-            // 6. Left-Side Horizontal Tibanna Gas Magazine Housing & Power Cell
-            const magHousing = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.038, 0.065), gunmetal);
-            magHousing.position.set(-0.065, 0.0, -0.06);
-            const tibannaCell = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.014, 0.014, 0.09, 12),
-                new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-            );
-            tibannaCell.rotation.z = Math.PI / 2;
-            tibannaCell.position.set(-0.09, 0.022, -0.06);
-            blaster.add(magHousing, tibannaCell);
-
-            // 7. Top Optical Macro-Scope Rail, Scope Tube, Bell Housings & Glowing Green Lens
-            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.022, 0.24), brushedSteel);
-            rail.position.set(0, 0.046, 0.01);
-            const scopeTube = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.22, 16), gunmetal);
-            scopeTube.rotation.x = Math.PI / 2;
-            scopeTube.position.set(0, 0.072, 0.01);
-            const scopeFrontBell = new THREE.Mesh(new THREE.CylinderGeometry(0.029, 0.022, 0.045, 16), gunmetal);
-            scopeFrontBell.rotation.x = Math.PI / 2;
-            scopeFrontBell.position.set(0, 0.072, -0.11);
-            const scopeRearBell = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.028, 0.04, 16), gunmetal);
-            scopeRearBell.rotation.x = Math.PI / 2;
-            scopeRearBell.position.set(0, 0.072, 0.12);
-            const scopeLens = new THREE.Mesh(
-                new THREE.CircleGeometry(0.023, 16),
-                new THREE.MeshBasicMaterial({ color: 0x10b981 })
-            );
-            scopeLens.position.set(0, 0.072, 0.141);
-            blaster.add(rail, scopeTube, scopeFrontBell, scopeRearBell, scopeLens);
-
-            // 8. Under-Barrel Folding Stock Struts & Contoured Pistol Grip
-            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.036, 0.13, 0.055), gripMat);
-            grip.position.set(0, -0.08, 0.11);
-            grip.rotation.x = 0.28;
-            const foldStock = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.022, 0.28), brushedSteel);
-            foldStock.position.set(0, -0.042, -0.18);
-            blaster.add(grip, foldStock);
-
-            return { blaster, plasmaCore, chamberGlowMat };
-        }
-
-        /* ---------------------------------------------------------------------
-           3D. ARTICULATED BX-SERIES / IMPERIAL HUMANOID SECURITY DROID BUILDER
-               (Head + Photoreceptors = 3x Critical Headshot Zone)
-           --------------------------------------------------------------------- */
-        function buildHumanoidCombatDroid(wave = 1) {
-            const root = new THREE.Group();
-
-            // Articulated Humanoid BX-Series / KX-Series Imperial Security Droid
-            const armorMat = new THREE.MeshStandardMaterial({
-                color: 0x1e293b,
-                metalness: 0.85,
-                roughness: 0.28
-            });
-            const jointMat = new THREE.MeshStandardMaterial({
-                color: 0x090d16,
-                metalness: 0.9,
-                roughness: 0.35
-            });
-            const eyeGlow = new THREE.MeshBasicMaterial({ color: 0xff1133 });
-
-            // Torso Chest Plate & Spine Actuator
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.05, 0.48), armorMat);
-            torso.position.y = 1.65;
-            torso.castShadow = true;
-
-            const chestCore = new THREE.Mesh(
-                new THREE.CircleGeometry(0.14, 16),
-                new THREE.MeshBasicMaterial({ color: 0xf59e0b })
-            );
-            chestCore.position.set(0, 1.75, 0.25);
-
-            // Shoulder Pauldrons
-            const pauldronGeo = new THREE.BoxGeometry(0.32, 0.28, 0.46);
-            const pauldronL = new THREE.Mesh(pauldronGeo, armorMat);
-            pauldronL.position.set(-0.58, 2.05, 0);
-            const pauldronR = pauldronL.clone();
-            pauldronR.position.x = 0.58;
-
-            // Articulated Head & Glowing Photoreceptors (3x Critical Hitbox)
-            const headGroup = new THREE.Group();
-            headGroup.position.set(0, 2.42, 0);
-            const cranium = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.48, 0.46), armorMat);
-            const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), eyeGlow);
-            eyeL.position.set(-0.1, 0.04, 0.23);
-            const eyeR = eyeL.clone();
-            eyeR.position.x = 0.1;
-            const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35), jointMat);
-            antenna.position.set(0.22, 0.3, -0.05);
-            headGroup.add(cranium, eyeL, eyeR, antenna);
-
-            // Articulated Arms + Enemy E-11 Blaster Rifle
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.85, 0.22), jointMat);
-            armL.position.set(-0.58, 1.55, 0.15);
-            armL.rotation.x = -0.5;
-
-            const armR = new THREE.Group();
-            armR.position.set(0.58, 1.95, 0);
-            const rLimb = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.85, 0.22), jointMat);
-            rLimb.position.set(0, -0.35, 0.25);
-            rLimb.rotation.x = -Math.PI / 2.4;
-            const droidBlaster = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 0.75), jointMat);
-            droidBlaster.position.set(0, -0.45, 0.68);
-            const barrelTip = new THREE.Mesh(new THREE.SphereGeometry(0.05), eyeGlow);
-            barrelTip.position.set(0, -0.45, 1.06);
-            armR.add(rLimb, droidBlaster, barrelTip);
-
-            // Animated Striding Legs
-            const legGeo = new THREE.BoxGeometry(0.26, 1.1, 0.28);
-            const legL = new THREE.Mesh(legGeo, armorMat);
-            legL.position.set(-0.24, 0.55, 0);
-            const legR = new THREE.Mesh(legGeo, armorMat);
-            legR.position.set(0.24, 0.55, 0);
-
-            root.add(torso, chestCore, pauldronL, pauldronR, headGroup, armL, armR, legL, legR);
-
-            // Optionally attach cloned GLTF RobotExpressive crest if loaded
-            if (LoadedGLTF.robot && Math.random() < 0.5) {
-                const gltfBot = SkeletonUtils.clone(LoadedGLTF.robot.scene);
-                gltfBot.scale.set(0.52, 0.52, 0.52);
-                root.add(gltfBot);
-            }
-
-            // Explicit Raycast Hitboxes for Body (1x) and Head (3x Critical)
-            const bodyHitbox = new THREE.Mesh(
-                new THREE.BoxGeometry(1.15, 2.1, 0.85),
-                new THREE.MeshBasicMaterial({ visible: false })
-            );
-            bodyHitbox.position.y = 1.05;
-
-            const headHitbox = new THREE.Mesh(
-                new THREE.BoxGeometry(0.68, 0.68, 0.68),
-                new THREE.MeshBasicMaterial({ visible: false })
-            );
-            headHitbox.position.y = 2.42;
-
-            root.add(bodyHitbox, headHitbox);
-
-            const droidData = {
-                root,
-                headHitbox,
-                bodyHitbox,
-                cranium,
-                legL,
-                legR,
-                hp: 95 + wave * 20,
-                maxHp: 95 + wave * 20,
-                strafeDir: Math.random() < 0.5 ? 1 : -1,
-                strafeTimer: 1.5 + Math.random() * 2,
-                fireTimer: 0.9 + Math.random() * 1.4,
-                phase: Math.random() * Math.PI * 2
-            };
-
-            bodyHitbox.userData = { droid: droidData, isHead: false };
-            headHitbox.userData = { droid: droidData, isHead: true };
-            return droidData;
-        }
-
-        /* =====================================================================
-           4. RENDERER, POST-PROCESSING BLOOM & GLOBAL STATE
+           3. CORE THREE.JS RENDERER, POST-PROCESSING & INPUT PIPELINE
            ===================================================================== */
         const container = document.getElementById('webgl-container');
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.15;
+        renderer.toneMappingExposure = 1.18;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        const envMap = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        const envMap = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         let scene = new THREE.Scene();
-        scene.environment = envMap;
-        let camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.08, 900);
+        let camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 650);
 
         const composer = new EffectComposer(renderer);
         const renderPass = new RenderPass(scene, camera);
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.72,
+            0.65,
             0.35,
             0.82
         );
@@ -1414,8 +810,8 @@
             composer.setSize(window.innerWidth, window.innerHeight);
         });
 
+        let currentMode = 'hub';
         let selectedCarSpec = 0;
-        let currentMode = 'hub'; // 'hub' | 'drift' | 'fps'
         let activeSim = null;
 
         const BestScores = {
@@ -1432,10 +828,10 @@
 
         function flashScreen(colorCss) {
             const fx = document.getElementById('screen-fx');
-            fx.style.background = `radial-gradient(circle at center, transparent 35%, ${colorCss} 100%)`;
+            fx.style.background = colorCss;
             fx.style.opacity = '1';
             clearTimeout(fx._timer);
-            fx._timer = setTimeout(() => (fx.style.opacity = '0'), 180);
+            fx._timer = setTimeout(() => { fx.style.opacity = '0'; }, 160);
         }
 
         const Keys = {};
@@ -1444,10 +840,10 @@
         window.addEventListener('keydown', (e) => {
             Keys[e.code] = true;
             if (e.code === 'Escape' && currentMode !== 'hub') {
-                if (document.pointerLockElement) document.exitPointerLock();
                 switchToHub();
+                return;
             }
-            if (currentMode === 'fps' && activeSim && activeSim.onKeyDown) {
+            if (activeSim && activeSim.onKeyDown) {
                 activeSim.onKeyDown(e.code);
             }
         });
@@ -1468,71 +864,332 @@
         });
         window.addEventListener('contextmenu', (e) => e.preventDefault());
 
+        async function preloadGLTFModels() {
+            const bar = document.getElementById('loader-bar');
+            const status = document.getElementById('loader-status');
+            const loaderEl = document.getElementById('asset-loader');
+
+            status.textContent = 'Compiling Procedural PBR Materials, Carbon Shaders & Blaster Geometry...';
+            bar.style.width = '65%';
+            await new Promise((r) => setTimeout(r, 180));
+            bar.style.width = '100%';
+            status.textContent = 'Dual Core Engine Ready.';
+            setTimeout(() => {
+                loaderEl.style.opacity = '0';
+                setTimeout(() => loaderEl.classList.add('hidden'), 450);
+            }, 180);
+        }
+
         /* =====================================================================
-           5. INTERACTIVE 3D GARAGE & ARMORY TURNTABLE HUB SCENE
+           4. PROCEDURAL MULTI-MESH VEHICLE BUILDERS (PLAYER & 5 TRAFFIC TYPES)
            ===================================================================== */
+        function buildPlayerVehicle(specIdx = 0) {
+            const root = new THREE.Group();
+            const chassis = new THREE.Group();
+            root.add(chassis);
+
+            const palettes = [
+                { body: 0xf59e0b, accent: 0x38bdf8 }, // RX-78 Wangan Amber
+                { body: 0x06b6d4, accent: 0xf43f5e }, // Valkyrie GT-R Cyan
+                { body: 0xe11d48, accent: 0xa855f7 }  // Nightshade V12 Crimson
+            ];
+            const pal = palettes[specIdx] || palettes[0];
+
+            const paintMat = new THREE.MeshPhysicalMaterial({
+                color: pal.body,
+                metalness: 0.78,
+                roughness: 0.16,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.06
+            });
+            const carbonMat = new THREE.MeshStandardMaterial({
+                map: Textures.carbonMap,
+                roughness: 0.35,
+                metalness: 0.55
+            });
+            const glassMat = new THREE.MeshPhysicalMaterial({
+                color: 0x050811,
+                metalness: 0.9,
+                roughness: 0.05,
+                transparent: true,
+                opacity: 0.88
+            });
+            const tailMat = new THREE.MeshBasicMaterial({ color: 0x990011 });
+            const headMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
+            const n2oMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0 });
+
+            // Main sculpted supercar body + aerodynamic splitter + cabin + GT wing
+            const lowerBody = new THREE.Mesh(new THREE.BoxGeometry(1.96, 0.52, 4.35), paintMat);
+            lowerBody.position.y = 0.46;
+            lowerBody.castShadow = true;
+
+            const splitter = new THREE.Mesh(new THREE.BoxGeometry(2.04, 0.08, 4.48), carbonMat);
+            splitter.position.y = 0.22;
+
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.58, 0.46, 2.05), glassMat);
+            cabin.position.set(0, 0.90, -0.15);
+
+            // Rear GT Wing
+            const strutL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.38, 0.28), carbonMat);
+            strutL.position.set(-0.68, 0.88, 1.92);
+            const strutR = strutL.clone();
+            strutR.position.x = 0.68;
+            const wingBlade = new THREE.Mesh(new THREE.BoxGeometry(1.98, 0.07, 0.42), carbonMat);
+            wingBlade.position.set(0, 1.08, 1.98);
+
+            // LED Taillight bar & Dual N2O Exhaust Flames
+            const tailBar = new THREE.Mesh(new THREE.BoxGeometry(1.78, 0.14, 0.08), tailMat);
+            tailBar.position.set(0, 0.58, 2.18);
+
+            const headL = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.08), headMat);
+            headL.position.set(-0.68, 0.52, -2.18);
+            const headR = headL.clone();
+            headR.position.x = 0.68;
+
+            const flameGeo = new THREE.ConeGeometry(0.16, 1.15, 10);
+            flameGeo.rotateX(Math.PI / 2);
+            const flameL = new THREE.Mesh(flameGeo, n2oMat);
+            flameL.position.set(-0.48, 0.30, 2.65);
+            const flameR = flameL.clone();
+            flameR.position.x = 0.48;
+
+            chassis.add(lowerBody, splitter, cabin, strutL, strutR, wingBlade, tailBar, headL, headR, flameL, flameR);
+
+            // 4 Spinning Alloy Wheels
+            const wheels = [];
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.75 });
+            const rimMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 });
+            const wheelPositions = [
+                [-0.96, 0.36, -1.35, true],
+                [0.96, 0.36, -1.35, true],
+                [-0.96, 0.36, 1.35, false],
+                [0.96, 0.36, 1.35, false]
+            ];
+            wheelPositions.forEach(([wx, wy, wz, isFront]) => {
+                const wGroup = new THREE.Group();
+                const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.28, 18), tireMat);
+                tire.rotation.z = Math.PI / 2;
+                const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.30, 12), rimMat);
+                rim.rotation.z = Math.PI / 2;
+                wGroup.add(tire, rim);
+                wGroup.position.set(wx, wy, wz);
+                wGroup.userData.isFront = isFront;
+                chassis.add(wGroup);
+                wheels.push(wGroup);
+            });
+
+            return { root, chassis, wheels, tailMat, n2oMat };
+        }
+
+        function buildTrafficVehicle(typeIndex = 0) {
+            const group = new THREE.Group();
+            // Oncoming vehicle faces +Z (toward the player)
+            group.rotation.y = Math.PI;
+
+            const colors = [0x94a3b8, 0x1e293b, 0x3b82f6, 0x10b981, 0xe2e8f0];
+            const paintMat = new THREE.MeshStandardMaterial({
+                color: colors[typeIndex % colors.length],
+                metalness: 0.7,
+                roughness: 0.25
+            });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.1, metalness: 0.9 });
+
+            let halfWidth = 0.98;
+            let halfLength = 2.25;
+
+            if (typeIndex === 0) {
+                // Heavy Semi-Truck
+                halfWidth = 1.15;
+                halfLength = 3.6;
+                const cab = new THREE.Mesh(new THREE.BoxGeometry(2.3, 2.5, 2.4), paintMat);
+                cab.position.set(0, 1.4, -2.0);
+                const trailer = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.35, 2.85, 4.6),
+                    new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.4 })
+                );
+                trailer.position.set(0, 1.65, 1.6);
+                group.add(cab, trailer);
+            } else {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.92, 0.65, 4.3), paintMat);
+                body.position.y = 0.52;
+                const top = new THREE.Mesh(new THREE.BoxGeometry(1.62, 0.52, 2.2), glassMat);
+                top.position.set(0, 1.05, 0.1);
+                group.add(body, top);
+
+                if (typeIndex === 1) {
+                    // Police Interceptor Roof Siren Bar
+                    const sirenRed = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.65, 0.14, 0.22),
+                        new THREE.MeshBasicMaterial({ color: 0xff1133 })
+                    );
+                    sirenRed.position.set(-0.34, 1.38, 0.1);
+                    const sirenBlue = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.65, 0.14, 0.22),
+                        new THREE.MeshBasicMaterial({ color: 0x0088ff })
+                    );
+                    sirenBlue.position.set(0.34, 1.38, 0.1);
+                    group.add(sirenRed, sirenBlue);
+                    group.userData.sirenRed = sirenRed;
+                    group.userData.sirenBlue = sirenBlue;
+                }
+            }
+
+            // Bright Oncoming Headlights & Turn-Signal Blinkers
+            const headMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const hL = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.16, 0.1), headMat);
+            hL.position.set(-0.68, 0.55, -halfLength);
+            const hR = hL.clone();
+            hR.position.x = 0.68;
+
+            const blinkLMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0 });
+            const blinkRMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0 });
+            const bL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.12), blinkLMat);
+            bL.position.set(-halfWidth + 0.15, 0.55, -halfLength - 0.02);
+            const bR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.12), blinkRMat);
+            bR.position.set(halfWidth - 0.15, 0.55, -halfLength - 0.02);
+
+            group.add(hL, hR, bL, bR);
+            group.userData.typeIndex = typeIndex;
+            group.userData.halfWidth = halfWidth;
+            group.userData.halfLength = halfLength;
+            group.userData.blinkLMat = blinkLMat;
+            group.userData.blinkRMat = blinkRMat;
+            return group;
+        }
+
+        /* =====================================================================
+           5. STAR WARS BLASTER VIEWMODEL, HUMANOID DROID & HUB TURNTABLE
+           ===================================================================== */
+        function buildStarWarsBlasterViewmodel() {
+            const blaster = new THREE.Group();
+            const gunSteel = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.22 });
+            const matteBlack = new THREE.MeshStandardMaterial({ color: 0x090d16, metalness: 0.6, roughness: 0.45 });
+            const chamberGlowMat = new THREE.MeshBasicMaterial({ color: 0xff1133 });
+
+            const receiver = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.58, 16), gunSteel);
+            receiver.rotation.x = Math.PI / 2;
+            const shroud = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.056, 0.36, 16), matteBlack);
+            shroud.rotation.x = Math.PI / 2;
+            shroud.position.z = -0.18;
+
+            // T-Track cooling fins around barrel
+            for (let i = 0; i < 6; i++) {
+                const fin = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.014, 0.34), matteBlack);
+                const ang = (i / 6) * Math.PI * 2;
+                fin.position.set(Math.cos(ang) * 0.058, Math.sin(ang) * 0.058, -0.18);
+                blaster.add(fin);
+            }
+
+            // Glowing Tibanna gas plasma core strip
+            const plasmaCore = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.024, 0.28), chamberGlowMat);
+            plasmaCore.position.set(0.042, 0.02, 0.02);
+
+            // Top Macro-Optic Scope
+            const scopeTube = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.022, 0.26, 14), matteBlack);
+            scopeTube.rotation.x = Math.PI / 2;
+            scopeTube.position.set(0, 0.088, 0.02);
+
+            // Side-mounted Tibanna power cell magazine
+            const mag = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.036, 0.08), gunSteel);
+            mag.position.set(-0.075, 0.01, -0.04);
+
+            blaster.add(receiver, shroud, plasmaCore, scopeTube, mag);
+            return { blaster, chamberGlowMat };
+        }
+
+        function buildHumanoidCombatDroid(waveNum = 1) {
+            const root = new THREE.Group();
+            const armorMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.28 });
+            const jointMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.2 });
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff2244 });
+
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.82, 1.05, 0.48), armorMat);
+            torso.position.y = 1.55;
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.46, 0.44), armorMat);
+            head.position.y = 2.42;
+            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.06), eyeMat);
+            visor.position.set(0, 2.44, 0.22);
+
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.85, 0.22), jointMat);
+            armL.position.set(-0.56, 1.55, 0.15);
+            armL.rotation.x = -0.45;
+            const armR = armL.clone();
+            armR.position.x = 0.56;
+
+            const legL = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.95, 0.26), jointMat);
+            legL.position.set(-0.24, 0.52, 0);
+            const legR = legL.clone();
+            legR.position.x = 0.24;
+
+            root.add(torso, head, visor, armL, armR, legL, legR);
+
+            return {
+                root,
+                legL,
+                legR,
+                hp: 90 + waveNum * 20,
+                phase: Math.random() * Math.PI * 2,
+                strafeDir: Math.random() < 0.5 ? -1 : 1,
+                strafeTimer: 1.2 + Math.random() * 1.5,
+                fireTimer: 0.8 + Math.random() * 1.2
+            };
+        }
+
         function createHubTurntableScene() {
             scene = new THREE.Scene();
             scene.environment = envMap;
             scene.background = new THREE.Color(0x030712);
             scene.fog = new THREE.FogExp2(0x030712, 0.025);
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
-            camera.position.set(0, 2.4, 7.2);
+            camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 300);
+            camera.position.set(0, 2.35, 6.8);
             renderPass.scene = scene;
             renderPass.camera = camera;
 
             const floor = new THREE.Mesh(
-                new THREE.PlaneGeometry(90, 90),
+                new THREE.PlaneGeometry(80, 80),
                 new THREE.MeshStandardMaterial({
                     map: Textures.deckMap,
                     normalMap: Textures.normalMap,
-                    roughness: 0.22,
-                    metalness: 0.85
+                    roughness: 0.25,
+                    metalness: 0.8
                 })
             );
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            const stageGroup = new THREE.Group();
-            scene.add(stageGroup);
+            const podium = new THREE.Group();
+            scene.add(podium);
 
-            // Neon Turntable Ring
             const ring = new THREE.Mesh(
-                new THREE.TorusGeometry(3.2, 0.04, 16, 100),
+                new THREE.TorusGeometry(2.75, 0.04, 16, 64),
                 new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
             );
             ring.rotation.x = Math.PI / 2;
             ring.position.y = 0.05;
-            stageGroup.add(ring);
+            podium.add(ring);
 
-            // Showcase Player Procedural Car on Left & BX-Humanoid Droid on Right
-            const carPreview = buildPlayerVehicle(selectedCarSpec);
-            carPreview.root.position.set(-1.35, 0.05, 0.4);
-            carPreview.root.rotation.y = 0.45;
-            stageGroup.add(carPreview.root);
+            const showcaseCar = buildPlayerVehicle(selectedCarSpec);
+            podium.add(showcaseCar.root);
 
-            const droidPreview = buildHumanoidCombatDroid(1);
-            droidPreview.root.position.set(1.75, 0.05, 0.2);
-            droidPreview.root.rotation.y = -0.45;
-            stageGroup.add(droidPreview.root);
+            const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            keyLight.position.set(8, 14, 10);
+            scene.add(keyLight);
 
             return {
                 update(dt, elapsed) {
-                    stageGroup.rotation.y = elapsed * 0.28 + Mouse.x * 0.35;
-                    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 2.4 - Mouse.y * 0.4, dt * 4);
-                    camera.lookAt(0, 0.95, 0);
+                    podium.rotation.y = elapsed * 0.45 + Mouse.x * 0.35;
+                    camera.lookAt(0, 0.8, 0);
                 }
             };
         }
 
         /* =====================================================================
-           6. GAME 1: APEX DRIFT: WANGAN OVERDRIVE (REBUILT FROM SCRATCH)
+           6. GAME 1: APEX DRIFT: WANGAN OVERDRIVE (3-LANE DRIFT + ROAD NITRO)
               - 100% Custom Procedural Vehicles (Zero external car GLTFs)
-              - Rich Multi-Texture Environment (Wet Asphalt, Concrete Barriers,
-                Overhead Streetlights with Road Light Pools, Cyberpunk Skyline)
-              - Refined Arcade-Sim Steering, Grip, Weight Transfer & Handbrake Drift
-              - 100% Oncoming Traffic Across All 4 Lanes + ONE-HIT ELIMINATION
+              - 3-Lane Highway with Movable Lane-Changing Oncoming Traffic
+              - Permanent Handbrake-Style Slip-Angle Drift Physics on Steering
+              - Collectible N2O Nitro Canisters on the Road (Only way to gain N2O)
            ===================================================================== */
         function createWanganOverdriveGame(carSpecIdx) {
             scene = new THREE.Scene();
@@ -1550,9 +1207,9 @@
             dirLight.position.set(25, 60, 30);
             scene.add(ambLight, dirLight);
 
-            // 1. Textured 4-Lane Wangan Highway Asphalt
+            // 1. Textured 3-Lane Wangan Highway Asphalt (16.5m width for 3 spacious lanes)
             const road = new THREE.Mesh(
-                new THREE.PlaneGeometry(22, 600),
+                new THREE.PlaneGeometry(16.5, 600),
                 new THREE.MeshStandardMaterial({
                     map: Textures.roadMap,
                     normalMap: Textures.normalMap,
@@ -1566,7 +1223,7 @@
             road.receiveShadow = true;
             scene.add(road);
 
-            // 2. Textured Concrete Jersey Barriers (Left & Right Highway Walls)
+            // 2. Textured Concrete Jersey Barriers (Left & Right 3-Lane Highway Walls)
             const barrierMat = new THREE.MeshStandardMaterial({
                 map: Textures.barrierMap,
                 normalMap: Textures.normalMap,
@@ -1574,9 +1231,9 @@
                 metalness: 0.25
             });
             const barrierL = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.15, 600), barrierMat);
-            barrierL.position.set(-10.5, 0.57, -240);
+            barrierL.position.set(-8.1, 0.57, -240);
             const barrierR = barrierL.clone();
-            barrierR.position.x = 10.5;
+            barrierR.position.x = 8.1;
             scene.add(barrierL, barrierR);
 
             // 3. Double-Sided Highway Streetlights + Glowing Lamps + Road Light Pools + Skyline Buildings
@@ -1603,25 +1260,25 @@
                 const zPos = 20 - i * lightSpacing;
                 rowGroup.position.z = zPos;
 
-                [-10.8, 10.8].forEach((sideX) => {
+                [-8.4, 8.4].forEach((sideX) => {
                     const isLeft = sideX < 0;
                     // Vertical tapered lamppost
                     const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 8.8, 10), poleMat);
                     pole.position.set(sideX, 4.4, 0);
-                    // Overhanging mast arm reaching over the highway lanes
-                    const arm = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.14, 0.16), poleMat);
-                    arm.position.set(sideX + (isLeft ? 1.7 : -1.7), 8.6, 0);
+                    // Overhanging mast arm reaching over the 3 highway lanes
+                    const arm = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.14, 0.16), poleMat);
+                    arm.position.set(sideX + (isLeft ? 1.6 : -1.6), 8.6, 0);
                     // Glowing Sodium-Vapor LED Fixture
                     const housing = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.18, 0.42), poleMat);
-                    housing.position.set(sideX + (isLeft ? 3.2 : -3.2), 8.55, 0);
+                    housing.position.set(sideX + (isLeft ? 3.0 : -3.0), 8.55, 0);
                     const bulb = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.34), bulbMat);
                     bulb.rotation.x = Math.PI / 2;
-                    bulb.position.set(sideX + (isLeft ? 3.2 : -3.2), 8.44, 0);
+                    bulb.position.set(sideX + (isLeft ? 3.0 : -3.0), 8.44, 0);
 
                     // Warm circular light pool projected onto the wet asphalt below each lamp
-                    const pool = new THREE.Mesh(new THREE.CircleGeometry(5.2, 20), poolMat);
+                    const pool = new THREE.Mesh(new THREE.CircleGeometry(4.8, 20), poolMat);
                     pool.rotation.x = -Math.PI / 2;
-                    pool.position.set(sideX + (isLeft ? 3.5 : -3.5), 0.03, 0);
+                    pool.position.set(sideX + (isLeft ? 3.2 : -3.2), 0.03, 0);
 
                     rowGroup.add(pole, arm, housing, bulb, pool);
                 });
@@ -1636,33 +1293,35 @@
                 // Distant Illuminated Wangan Skyscrapers flanking the highway bridge
                 const hL = 22 + (i % 4) * 14;
                 const bldgL = new THREE.Mesh(new THREE.BoxGeometry(12, hL, 18), bldgMat);
-                bldgL.position.set(-24 - (i % 2) * 6, hL / 2 - 4, 0);
+                bldgL.position.set(-21 - (i % 2) * 6, hL / 2 - 4, 0);
                 const hR = 26 + ((i + 2) % 4) * 12;
                 const bldgR = new THREE.Mesh(new THREE.BoxGeometry(12, hR, 18), bldgMat);
-                bldgR.position.set(24 + (i % 2) * 6, hR / 2 - 4, 0);
+                bldgR.position.set(21 + (i % 2) * 6, hR / 2 - 4, 0);
                 rowGroup.add(bldgL, bldgR);
 
                 scene.add(rowGroup);
                 streetLights.push(rowGroup);
             }
 
-            // 4. Vehicle Spec Performance Profiles
+            // 4. Vehicle Spec Performance Profiles (Tuned for Permanent Handbrake-Style Drift Handling)
             const specs = [
-                { topSpeed: 345, accel: 1.02, steerRate: 30, grip: 10.5, n2oDrain: 22 },
-                { topSpeed: 365, accel: 1.12, steerRate: 35, grip: 13.5, n2oDrain: 24 },
-                { topSpeed: 380, accel: 1.20, steerRate: 28, grip: 9.5, n2oDrain: 17 }
+                { topSpeed: 345, accel: 1.02, steerRate: 30, driftDamping: 2.35, n2oDrain: 24 },
+                { topSpeed: 365, accel: 1.12, steerRate: 34, driftDamping: 2.65, n2oDrain: 25 },
+                { topSpeed: 380, accel: 1.20, steerRate: 28, driftDamping: 2.15, n2oDrain: 19 }
             ];
             const carStats = specs[carSpecIdx] || specs[0];
             const playerCar = buildPlayerVehicle(carSpecIdx);
-            playerCar.root.position.set(2.4, 0, 0);
+            // Start in Center Lane (x = 0) of the 3-Lane Highway
+            playerCar.root.position.set(0, 0, 0);
             scene.add(playerCar.root);
 
-            // 5. Responsive Sim-Cade Physics State
+            // 5. Permanent Handbrake-Drift Physics State
+            const laneCenters = [-4.8, 0.0, 4.8];
             let speedKmh = 155;
             let gear = 3;
             let rpm = 4800;
             const gearMaxSpeeds = [0, 88, 145, 202, 258, 314, carStats.topSpeed];
-            let posX = 2.4;
+            let posX = 0.0;
             let latVel = 0;
             let headingAngle = 0;
             let slipAngle = 0;
@@ -1670,7 +1329,7 @@
             let rollAngle = 0;
 
             let score = 0;
-            let n2o = 100;
+            let n2o = 50; // Start with 50% N2O; ONLY refilled by collecting road N2O canisters!
             let nearMissStreak = 0;
 
             // Tire Smoke Particle Pool
@@ -1686,47 +1345,107 @@
                 particles.push(p);
             }
 
-            // 6. 100% ONCOMING TRAFFIC ACROSS ALL 4 LANES (Driving Straight Toward Us!)
-            // Guaranteed open lane logic so waves are challenging but never an unavoidable 4-lane wall
-            const laneCenters = [-7.2, -2.4, 2.4, 7.2];
+            // 6. COLLECTIBLE ROAD N2O NITRO CANISTERS (Only way to replenish N2O!)
+            function buildNitroCanisterMesh() {
+                const group = new THREE.Group();
+                const bottleMat = new THREE.MeshStandardMaterial({
+                    color: 0x06b6d4,
+                    emissive: 0x0284c7,
+                    emissiveIntensity: 0.85,
+                    metalness: 0.8,
+                    roughness: 0.15
+                });
+                const capMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.9, roughness: 0.2 });
+                const glowMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+                const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 1.15, 16), bottleMat);
+                cylinder.position.y = 0.9;
+                const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 12), capMat);
+                dome.position.y = 1.45;
+                const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 0.28, 12), glowMat);
+                nozzle.position.y = 1.85;
+
+                // Glowing ground hologram ring around the N2O bottle
+                const holoRing = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.06, 12, 32), glowMat);
+                holoRing.rotation.x = Math.PI / 2;
+                holoRing.position.y = 0.12;
+
+                group.add(cylinder, dome, nozzle, holoRing);
+                group.userData.holoRing = holoRing;
+                return group;
+            }
+
+            // 7. 3-LANE ONCOMING TRAFFIC (With Active Lane-Switching!)
             const trafficList = [];
-            const numTraffic = 12;
+            const numTraffic = 9;
 
             function pickSafeLane(zTarget, excludeVehicle = null) {
-                // Find which lanes already have traffic near zTarget
                 const occupied = new Set();
                 for (const other of trafficList) {
                     if (other === excludeVehicle) continue;
-                    if (Math.abs(other.mesh.position.z - zTarget) < 28) {
+                    if (Math.abs(other.mesh.position.z - zTarget) < 32) {
                         occupied.add(other.laneIdx);
+                        if (other.switching) occupied.add(other.prevLaneIdx ?? other.laneIdx);
                     }
                 }
-                const available = [0, 1, 2, 3].filter((l) => !occupied.has(l));
-                // Always leave at least 1 lane clear at any Z slice so the player can thread the needle
-                if (occupied.size >= 3 && available.length === 1) {
-                    return -1; // Signal to push further back in Z
+                const available = [0, 1, 2].filter((l) => !occupied.has(l));
+                // Always leave at least 1 of the 3 lanes open so the player is never boxed in by an impossible wall
+                if (occupied.size >= 2 && available.length === 1) {
+                    return -1;
                 }
-                const pool = available.length > 0 ? available : [0, 1, 2, 3];
+                const pool = available.length > 0 ? available : [0, 1, 2];
                 return pool[Math.floor(Math.random() * pool.length)];
             }
 
             for (let i = 0; i < numTraffic; i++) {
                 const typeIdx = i % 5;
                 const mesh = buildTrafficVehicle(typeIdx);
-                const zStart = -65 - i * 34;
-                const laneIdx = i % 4;
+                const zStart = -68 - i * 38;
+                const laneIdx = i % 3;
                 mesh.position.set(laneCenters[laneIdx], 0, zStart);
                 scene.add(mesh);
 
                 trafficList.push({
                     mesh,
                     laneIdx,
+                    prevLaneIdx: laneIdx,
                     targetX: laneCenters[laneIdx],
-                    speedKmh: 115 + (i % 4) * 22,
-                    blinkerTimer: 2.5 + Math.random() * 4.5,
+                    speedKmh: 112 + (i % 4) * 20,
+                    blinkerTimer: 0.9 + (i % 3) * 0.7,
+                    signaling: false,
+                    signalTimer: 0,
+                    nextLaneIdx: laneIdx,
                     switching: false,
                     nearMissed: false
                 });
+            }
+
+            // Spawn 4 Collectible N2O Canisters in open lanes along the 3-lane highway
+            const nitroPickups = [];
+            function placeNitroInClearSpot(pickup, minZ = -90, maxZ = -320) {
+                for (let attempt = 0; attempt < 12; attempt++) {
+                    const candidateZ = minZ - Math.random() * Math.abs(maxZ - minZ);
+                    const candidateLane = Math.floor(Math.random() * 3);
+                    const candidateX = laneCenters[candidateLane];
+                    const tooCloseToCar = trafficList.some(
+                        (t) => Math.abs(t.mesh.position.z - candidateZ) < 18 && Math.abs(t.targetX - candidateX) < 2.2
+                    );
+                    if (!tooCloseToCar) {
+                        pickup.laneIdx = candidateLane;
+                        pickup.mesh.position.set(candidateX, 0, candidateZ);
+                        return;
+                    }
+                }
+                pickup.laneIdx = Math.floor(Math.random() * 3);
+                pickup.mesh.position.set(laneCenters[pickup.laneIdx], 0, minZ - 45);
+            }
+
+            for (let i = 0; i < 4; i++) {
+                const mesh = buildNitroCanisterMesh();
+                scene.add(mesh);
+                const pickup = { mesh, laneIdx: i % 3 };
+                placeNitroInClearSpot(pickup, -75 - i * 65, -120 - i * 65);
+                nitroPickups.push(pickup);
             }
 
             function showCallout(text) {
@@ -1734,28 +1453,26 @@
                 el.textContent = text;
                 el.style.opacity = '1';
                 clearTimeout(el._t);
-                el._t = setTimeout(() => (el.style.opacity = '0'), 900);
+                el._t = setTimeout(() => (el.style.opacity = '0'), 950);
             }
 
             return {
                 update(dt, elapsed) {
                     const throttle = Keys['KeyW'] || Keys['ArrowUp'];
-                    const brake = Keys['KeyS'] || Keys['ArrowDown'];
-                    const handbrake = Keys['Space'];
-                    const nitroActive = (Keys['ShiftLeft'] || Keys['ShiftRight']) && n2o > 2;
+                    const brake = Keys['KeyS'] || Keys['ArrowDown'] || Keys['Space'];
+                    const nitroActive = (Keys['ShiftLeft'] || Keys['ShiftRight']) && n2o > 0.5;
 
-                    // 1. Longitudinal Acceleration, Aerodynamic Drag & Braking
+                    // 1. Longitudinal Acceleration, Aerodynamic Drag & Braking (NO passive or drift N2O regen!)
                     const drag = 0.00042 * speedKmh * speedKmh;
-                    playerCar.tailMat.color.setHex(brake || handbrake ? 0xff0022 : 0x990011);
+                    playerCar.tailMat.color.setHex(brake ? 0xff0022 : 0x990011);
 
                     if (nitroActive) {
-                        speedKmh += 96 * carStats.accel * dt;
+                        speedKmh += 98 * carStats.accel * dt;
                         n2o = Math.max(0, n2o - carStats.n2oDrain * dt);
                         playerCar.n2oMat.opacity = 0.95;
                         pitchAngle = THREE.MathUtils.lerp(pitchAngle, -0.045, dt * 8);
                     } else {
                         playerCar.n2oMat.opacity = 0;
-                        n2o = Math.min(100, n2o + 8.5 * dt);
                         if (throttle) {
                             const gearTorque = 1.24 - gear * 0.11;
                             speedKmh += 64 * gearTorque * carStats.accel * dt;
@@ -1769,7 +1486,7 @@
                         }
                     }
 
-                    const maxAllowed = nitroActive ? carStats.topSpeed + 30 : carStats.topSpeed;
+                    const maxAllowed = nitroActive ? carStats.topSpeed + 32 : carStats.topSpeed;
                     speedKmh = THREE.MathUtils.clamp(speedKmh - drag * dt, 90, maxAllowed);
 
                     // 2. 6-Speed Sequential Gearbox & Live RPM Calculation
@@ -1786,59 +1503,56 @@
                     const ratio = THREE.MathUtils.clamp((speedKmh - minSpd) / (maxSpd - minSpd), 0.18, 0.99);
                     rpm = Math.floor(2500 + ratio * 6300);
 
-                    // 3. Crisp Sim-Cade Lateral Steering, Tire Grip & Handbrake Slip-Angle Physics
+                    // 3. Permanent Handbrake-Style Slip-Angle Drift Steering Physics
+                    // Every lateral steering input slides the rear tail out and glides with handbrake momentum!
                     const steerInput = (Keys['KeyD'] || Keys['ArrowRight'] ? 1 : 0) - (Keys['KeyA'] || Keys['ArrowLeft'] ? 1 : 0);
-                    const speedFactor = THREE.MathUtils.clamp(speedKmh / 240, 0.65, 1.25);
+                    const speedFactor = THREE.MathUtils.clamp(speedKmh / 240, 0.68, 1.25);
 
                     if (steerInput !== 0) {
                         const accelLat = steerInput * carStats.steerRate * speedFactor;
                         latVel += accelLat * dt * 3.4;
                     }
 
-                    // Lateral tire damping: high grip snaps cleanly into lanes; handbrake slides wide
-                    const lateralDamping = handbrake ? 2.4 : carStats.grip;
-                    latVel = THREE.MathUtils.lerp(latVel, 0, Math.min(1, lateralDamping * dt));
-                    latVel = THREE.MathUtils.clamp(latVel, -24, 24);
+                    // Always use the low handbrake lateral damping so the car slides & drifts smoothly at all times
+                    latVel = THREE.MathUtils.lerp(latVel, 0, Math.min(1, carStats.driftDamping * dt));
+                    latVel = THREE.MathUtils.clamp(latVel, -22, 22);
 
                     posX += latVel * dt;
 
-                    // Concrete Jersey Barrier Scrape / Bounce
-                    if (posX < -9.05 || posX > 9.05) {
-                        posX = THREE.MathUtils.clamp(posX, -9.05, 9.05);
-                        latVel *= -0.35;
-                        speedKmh = Math.max(95, speedKmh - 45 * dt);
+                    // 3-Lane Concrete Jersey Barrier Scrape / Bounce
+                    if (posX < -6.65 || posX > 6.65) {
+                        posX = THREE.MathUtils.clamp(posX, -6.65, 6.65);
+                        latVel *= -0.38;
+                        speedKmh = Math.max(95, speedKmh - 40 * dt);
                         if (Math.random() < 0.35) {
                             spawnSmoke(new THREE.Vector3(posX, 0.5, 0), 0xf59e0b, 0.22);
                         }
                     }
 
-                    // Calculate Heading Angle & Drift Slip Angle
+                    // Permanent Handbrake Heading & Tail-Out Slip Angle Calculation
                     headingAngle = THREE.MathUtils.lerp(headingAngle, -latVel * 0.015, dt * 12);
-                    const targetSlip = handbrake
-                        ? -steerInput * 0.44 - latVel * 0.014
-                        : -latVel * 0.008;
-                    slipAngle = THREE.MathUtils.lerp(slipAngle, targetSlip, dt * (handbrake ? 7 : 12));
-                    rollAngle = THREE.MathUtils.lerp(rollAngle, -latVel * 0.013, dt * 10);
+                    const targetSlip = -steerInput * 0.44 - latVel * 0.015;
+                    slipAngle = THREE.MathUtils.lerp(slipAngle, targetSlip, dt * 7.5);
+                    rollAngle = THREE.MathUtils.lerp(rollAngle, -latVel * 0.014, dt * 10);
 
                     playerCar.root.position.x = posX;
                     playerCar.chassis.rotation.y = headingAngle + slipAngle;
                     playerCar.chassis.rotation.z = rollAngle;
                     playerCar.chassis.rotation.x = pitchAngle;
 
-                    // Spin all 4 wheels & visually turn front wheels when steering
+                    // Spin all 4 wheels & visually counter-steer front wheels into the slide
                     playerCar.wheels.forEach((w) => {
                         w.rotation.x -= (speedKmh / 3.6) * dt * 0.65;
                         if (w.userData.isFront) {
-                            w.rotation.y = THREE.MathUtils.lerp(w.rotation.y, -steerInput * 0.38, dt * 15);
+                            w.rotation.y = THREE.MathUtils.lerp(w.rotation.y, -steerInput * 0.42, dt * 15);
                         }
                     });
 
-                    // Emit Tire Smoke & Screech when Drifting
-                    const isDrifting = Math.abs(slipAngle) > 0.15 && speedKmh > 125;
+                    // Emit Tire Smoke & Screech whenever sliding sideways (Does NOT add free N2O)
+                    const isDrifting = Math.abs(slipAngle) > 0.12 && speedKmh > 110;
                     if (isDrifting) {
-                        score += Math.floor(240 * dt);
-                        n2o = Math.min(100, n2o + 12 * dt); // Drifting recharges N2O faster!
-                        if (Math.random() < 0.55) {
+                        score += Math.floor(260 * dt);
+                        if (Math.random() < 0.58) {
                             spawnSmoke(new THREE.Vector3(posX - 0.85, 0.22, 1.85), 0xe2e8f0, 0.30);
                             spawnSmoke(new THREE.Vector3(posX + 0.85, 0.22, 1.85), 0xe2e8f0, 0.30);
                         }
@@ -1862,9 +1576,28 @@
                         }
                     }
 
-                    // 5. Update 100% Oncoming Traffic & ONE-HIT ELIMINATION Collision Check
+                    // 5. Update Collectible Road N2O Canisters (Only way to refill N2O!)
+                    for (const p of nitroPickups) {
+                        p.mesh.position.z += worldStep;
+                        p.mesh.rotation.y += 3.2 * dt;
+                        p.mesh.userData.holoRing.scale.setScalar(1 + Math.sin(elapsed * 8) * 0.12);
+
+                        const dz = Math.abs(p.mesh.position.z - playerCar.root.position.z);
+                        const dx = Math.abs(p.mesh.position.x - posX);
+                        if (dz < 2.5 && dx < 1.55) {
+                            n2o = Math.min(100, n2o + 35);
+                            score += 500;
+                            sfx.playNitroPickup();
+                            flashScreen('rgba(56, 189, 248, 0.40)');
+                            showCallout('N2O TANK COLLECTED! +35% NITRO');
+                            placeNitroInClearSpot(p, -260, -350);
+                        } else if (p.mesh.position.z > 22) {
+                            placeNitroInClearSpot(p, -260, -350);
+                        }
+                    }
+
+                    // 6. Update 3-Lane Oncoming Traffic with Active Lane-Switching & ONE-HIT ELIMINATION
                     for (const t of trafficList) {
-                        // Because all traffic is oncoming (+Z), closing speed is Player Speed + Traffic Speed!
                         const closingKmh = speedKmh + t.speedKmh;
                         t.mesh.position.z += (closingKmh / 3.6) * dt;
 
@@ -1875,33 +1608,61 @@
                             t.mesh.userData.sirenBlue.material.color.setHex(!flash ? 0x0088ff : 0x001133);
                         }
 
-                        // Oncoming Lane-Change AI with Flashing Amber Turn Signals
+                        // Frequent Oncoming Lane-Change AI across the 3 Lanes
                         t.blinkerTimer -= dt;
-                        if (t.blinkerTimer <= 0 && !t.switching && t.mesh.position.z < -95 && t.mesh.position.z > -260) {
-                            const nextLane = t.laneIdx + (Math.random() < 0.5 ? -1 : 1);
-                            if (nextLane >= 0 && nextLane <= 3) {
-                                // Ensure target lane isn't blocked
-                                const blocked = trafficList.some(
-                                    (o) => o !== t && o.laneIdx === nextLane && Math.abs(o.mesh.position.z - t.mesh.position.z) < 32
-                                );
-                                if (!blocked) {
-                                    t.switching = true;
-                                    t.laneIdx = nextLane;
-                                    t.targetX = laneCenters[nextLane];
-                                }
+                        if (t.blinkerTimer <= 0 && !t.signaling && !t.switching && t.mesh.position.z < -45 && t.mesh.position.z > -270) {
+                            const dirs = t.laneIdx === 1 ? [-1, 1] : (t.laneIdx === 0 ? [1] : [-1]);
+                            const chosenDir = dirs[Math.floor(Math.random() * dirs.length)];
+                            const nextLane = t.laneIdx + chosenDir;
+
+                            // Ensure target lane & safety gap are clear before initiating lane change
+                            const conflictCount = trafficList.filter(
+                                (o) => o !== t && Math.abs(o.mesh.position.z - t.mesh.position.z) < 34
+                            ).length;
+                            const laneBlocked = trafficList.some(
+                                (o) => o !== t && (o.laneIdx === nextLane || o.nextLaneIdx === nextLane) && Math.abs(o.mesh.position.z - t.mesh.position.z) < 34
+                            );
+
+                            if (!laneBlocked && conflictCount < 2) {
+                                t.signaling = true;
+                                t.signalTimer = 0.35; // Brief blinker warning before gliding across lanes
+                                t.nextLaneIdx = nextLane;
                             }
-                            t.blinkerTimer = 3.5 + Math.random() * 4.5;
+                            t.blinkerTimer = 1.4 + Math.random() * 2.2;
                         }
 
-                        if (t.switching) {
-                            const movingRight = t.targetX > t.mesh.position.x;
-                            const blinkOn = Math.sin(elapsed * 18) > 0;
+                        if (t.signaling) {
+                            t.signalTimer -= dt;
+                            const movingRight = laneCenters[t.nextLaneIdx] > t.mesh.position.x;
+                            const blinkOn = Math.sin(elapsed * 24) > 0;
                             t.mesh.userData.blinkLMat.opacity = !movingRight && blinkOn ? 1 : 0;
                             t.mesh.userData.blinkRMat.opacity = movingRight && blinkOn ? 1 : 0;
 
-                            t.mesh.position.x = THREE.MathUtils.lerp(t.mesh.position.x, t.targetX, dt * 3.2);
-                            if (Math.abs(t.mesh.position.x - t.targetX) < 0.1) {
+                            if (t.signalTimer <= 0) {
+                                t.signaling = false;
+                                t.switching = true;
+                                t.prevLaneIdx = t.laneIdx;
+                                t.laneIdx = t.nextLaneIdx;
+                                t.targetX = laneCenters[t.laneIdx];
+                            }
+                        }
+
+                        if (t.switching) {
+                            const dxLane = t.targetX - t.mesh.position.x;
+                            const movingRight = dxLane > 0;
+                            const blinkOn = Math.sin(elapsed * 24) > 0;
+                            t.mesh.userData.blinkLMat.opacity = !movingRight && blinkOn ? 1 : 0;
+                            t.mesh.userData.blinkRMat.opacity = movingRight && blinkOn ? 1 : 0;
+
+                            // Smoothly steer and yaw the oncoming vehicle into its new lane
+                            t.mesh.position.x = THREE.MathUtils.lerp(t.mesh.position.x, t.targetX, dt * 4.5);
+                            t.mesh.rotation.y = Math.PI + THREE.MathUtils.clamp(dxLane * 0.08, -0.22, 0.22);
+
+                            if (Math.abs(dxLane) < 0.08) {
+                                t.mesh.position.x = t.targetX;
+                                t.mesh.rotation.y = Math.PI;
                                 t.switching = false;
+                                t.prevLaneIdx = t.laneIdx;
                                 t.mesh.userData.blinkLMat.opacity = 0;
                                 t.mesh.userData.blinkRMat.opacity = 0;
                             }
@@ -1911,7 +1672,7 @@
                         const dz = Math.abs(t.mesh.position.z - playerCar.root.position.z);
                         const dx = Math.abs(t.mesh.position.x - posX);
                         const hitZ = t.mesh.userData.halfLength + 1.98;
-                        const hitX = t.mesh.userData.halfWidth + 0.82;
+                        const hitX = t.mesh.userData.halfWidth + 0.80;
 
                         if (dz < hitZ && dx < hitX) {
                             sfx.playCrash();
@@ -1928,28 +1689,34 @@
                             nearMissStreak = Math.min(5, nearMissStreak + 1);
                             const bonus = 400 + nearMissStreak * 150;
                             score += bonus;
-                            n2o = Math.min(100, n2o + 12);
                             showCallout(`ONCOMING NEAR MISS +${bonus}! (${nearMissStreak}x STREAK)`);
                         }
 
                         // Recycle Oncoming Vehicle once it passes behind the camera
                         if (t.mesh.position.z > 24) {
-                            let newZ = -340 - Math.random() * 65;
+                            let newZ = -320 - Math.random() * 65;
                             let safeLane = pickSafeLane(newZ, t);
                             if (safeLane === -1) {
                                 newZ -= 38;
-                                safeLane = Math.floor(Math.random() * 4);
+                                safeLane = Math.floor(Math.random() * 3);
                             }
                             t.laneIdx = safeLane;
+                            t.prevLaneIdx = safeLane;
+                            t.nextLaneIdx = safeLane;
                             t.targetX = laneCenters[safeLane];
                             t.mesh.position.set(t.targetX, 0, newZ);
+                            t.mesh.rotation.y = Math.PI;
+                            t.signaling = false;
                             t.switching = false;
                             t.nearMissed = false;
-                            t.speedKmh = 115 + Math.floor(Math.random() * 4) * 24 + Math.min(60, score * 0.0015);
+                            t.blinkerTimer = 0.8 + Math.random() * 1.8;
+                            t.mesh.userData.blinkLMat.opacity = 0;
+                            t.mesh.userData.blinkRMat.opacity = 0;
+                            t.speedKmh = 112 + Math.floor(Math.random() * 4) * 22 + Math.min(60, score * 0.0015);
                         }
                     }
 
-                    // 6. Update Tire Smoke Particles
+                    // 7. Update Tire Smoke Particles
                     for (let i = particles.length - 1; i >= 0; i--) {
                         const p = particles[i];
                         p.userData.life -= dt;
@@ -1963,7 +1730,7 @@
                         }
                     }
 
-                    // 7. Dynamic Chase Camera with Speed FOV & Lateral Lag
+                    // 8. Dynamic Chase Camera with Speed FOV & Lateral Lag
                     const targetFov = nitroActive ? 82 : 66 + (speedKmh - 130) * 0.045;
                     camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, dt * 6);
                     camera.updateProjectionMatrix();
@@ -1972,11 +1739,11 @@
                     camera.position.z = THREE.MathUtils.lerp(camera.position.z, nitroActive ? 5.5 : 6.5, dt * 6);
                     camera.lookAt(posX * 0.62, 0.88, -22);
 
-                    // 8. Update HUD Telemetry
+                    // 9. Update HUD Telemetry
                     document.getElementById('drift-score').textContent = String(score).padStart(6, '0');
                     document.getElementById('drift-multiplier').textContent = isDrifting
-                        ? `HANDBRAKE DRIFT // ${(mult).toFixed(2)}x MULTIPLIER`
-                        : `ONCOMING SUDDEN DEATH // ${(mult).toFixed(2)}x MULTIPLIER`;
+                        ? `TAIL-OUT DRIFT // ${(mult).toFixed(2)}x MULTIPLIER`
+                        : `3-LANE SUDDEN DEATH // ${(mult).toFixed(2)}x MULTIPLIER`;
                     document.getElementById('drift-speed').textContent = Math.round(speedKmh);
                     document.getElementById('drift-gear').textContent = gear;
                     document.getElementById('drift-rpm-txt').textContent = `${rpm.toLocaleString()} RPM`;
@@ -1984,8 +1751,8 @@
                     document.getElementById('drift-n2o-txt').textContent = `${Math.round(n2o)}%`;
                     document.getElementById('drift-n2o-bar').style.width = `${n2o}%`;
                     document.getElementById('drift-slip-status').textContent = isDrifting
-                        ? 'SLIP ANGLE: DRIFTING (+N2O)'
-                        : 'TRACTION: LOCKED';
+                        ? 'SLIP ANGLE: FULL DRIFT'
+                        : 'DRIFT SPEC: READY';
                     document.getElementById('drift-heat-stars').textContent = '★'.repeat(nearMissStreak) + '☆'.repeat(5 - nearMissStreak);
                 }
             };
